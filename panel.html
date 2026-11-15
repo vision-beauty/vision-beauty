@@ -23,24 +23,18 @@ header h1{font-size:1rem;font-weight:600;white-space:nowrap}
 .pill{font-size:.72rem;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.14);white-space:nowrap}
 .pill.ok{background:#1f8a4c}.pill.warn{background:#b8892f}.pill.bad{background:var(--bad)}
 .main{flex:1;min-height:0;display:flex}
-.col{flex:1;min-width:0;overflow:auto;padding:12px 12px 90px}
+.col{flex:1;min-width:0;overflow:auto;padding:12px 12px 40px}
 .prev{display:none;flex:1;min-width:0;border-left:1px solid var(--line);background:#fff;flex-direction:column}
 .prev iframe,.pvbox iframe{border:0;width:100%;flex:1;background:#fff}
 .pvbar{display:flex;gap:8px;padding:8px;border-bottom:1px solid var(--line);align-items:center;flex-wrap:wrap}
 .pvbar .t{font-size:.8rem;color:var(--mut);flex:1}
-.tabs{flex:0 0 auto;display:flex;background:#fff;border-top:1px solid var(--line);order:3}
-header{order:0}.main{order:2}
-.tabs{overflow-x:auto}
-.tabs button{flex:1;min-width:62px;border:0;background:none;padding:12px 4px;font-size:.74rem;color:var(--mut);border-top:3px solid transparent}
-.tabs button.on{color:var(--ink);font-weight:600;border-top-color:var(--gold)}
 .pane{display:none}.pane.on{display:block}
-.pvbox{display:none;flex-direction:column;height:calc(100dvh - 120px);border:1px solid var(--line);background:#fff;border-radius:12px;overflow:hidden}
+.pvbox{display:none;flex-direction:column;height:calc(100dvh - 90px);border:1px solid var(--line);background:#fff;border-radius:12px;overflow:hidden}
 .pane.on.pvp .pvbox{display:flex}
 @media(min-width:1000px){
-  .tabs button[data-t=vista]{display:none}
+  #menu button[data-t=vista]{display:none}
   .prev{display:flex}
   .col{max-width:620px;flex:0 0 620px;padding-bottom:30px}
-  .tabs{order:1;border-top:0;border-bottom:1px solid var(--line)}
 }
 .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
 .card h2{font-size:1rem;margin-bottom:8px}
@@ -108,20 +102,35 @@ ol.s{margin:8px 0 8px 20px;font-size:.9rem}ol.s li{margin-bottom:5px}
 .pk .pi.on .ck{background:var(--gold2);color:#fff;border-color:var(--gold2)}
 .pk .pi .pn{position:absolute;left:0;right:0;bottom:0;background:rgba(74,52,40,.72);color:#fff;font-size:.62rem;padding:2px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .msg{font-size:.85rem;margin-top:6px}.msg.ok{color:var(--ok)}.badc{color:var(--bad)}
+.mbtn{background:rgba(255,255,255,.14);border:0;color:#fff;width:40px;height:40px;border-radius:10px;font-size:1.6rem;line-height:1;flex:0 0 auto;font-weight:700}
+header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.menuBg{position:fixed;inset:0;background:rgba(74,52,40,.5);display:none;z-index:60}
+.menuBg.open{display:block}
+#menu{position:absolute;left:0;top:0;bottom:0;width:min(300px,86%);background:var(--cream);padding:12px 10px;overflow:auto;animation:slL .22s both}
+@keyframes slL{from{transform:translateX(-30px);opacity:0}to{transform:none;opacity:1}}
+#menu .mh{font-weight:700;padding:8px 12px 12px;color:var(--ink)}
+#menu button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;background:none;padding:13px 12px;border-radius:10px;font-size:1rem;color:var(--ink)}
+#menu button.on{background:var(--sand);font-weight:700}
+#menu hr{border:0;border-top:1px solid var(--line);margin:8px 6px}
 </style>
 </head>
 <body>
+<div class="menuBg" id="menuBg" onclick="if(event.target===this)menu(false)"><nav id="menu">
+  <div class="mh">Panel · Vision Beauty</div>
+  <button data-t="prod" class="on">📦 Productos</button>
+  <button data-t="vista">👁️ Vista previa</button>
+  <button data-t="dest">⭐ Destacados</button>
+  <button data-t="inv" id="tabInv">📊 Inventario</button>
+  <hr>
+  <button data-t="info">ℹ️ Franja de información</button>
+  <button data-t="redes">🔗 Redes y contacto</button>
+  <button data-t="cat">🗂️ Categorías</button>
+  <button data-t="tienda">🏪 Tienda y avisos</button>
+  <hr>
+  <button data-t="pub">🚀 Publicar</button>
+</nav></div>
 <div class="app">
-  <header><h1>Panel · Vision Beauty</h1><span class="pill warn" id="pill">Cargando…</span></header>
-
-  <div class="tabs" id="tabs">
-    <button data-t="prod" class="on">Productos</button>
-    <button data-t="vista">Vista previa</button>
-    <button data-t="dest">Destacados</button>
-    <button data-t="inv" id="tabInv">Inventario</button>
-    <button data-t="tienda">Tienda</button>
-    <button data-t="pub">Publicar</button>
-  </div>
+  <header><button class="mbtn" id="mbtn" onclick="menu(true)" aria-label="Abrir menú">⋮</button><h1 id="h1">Panel · Productos</h1><span class="pill warn" id="pill">Cargando…</span></header>
 
   <div class="main">
     <div class="col">
@@ -190,12 +199,8 @@ ol.s{margin:8px 0 8px 20px;font-size:.9rem}ol.s li{margin-bottom:5px}
 
       <!-- TIENDA -->
       <section class="pane" id="p_tienda">
-        <div class="card"><h2>Datos de la tienda</h2>
-          <label class="l">Nombre</label><input id="t_nombre">
-          <div class="row2">
-            <div><label class="l">WhatsApp (57…, solo números)</label><input id="t_wa" inputmode="numeric"></div>
-            <div><label class="l">Instagram (sin @)</label><input id="t_ig"></div>
-          </div>
+        <div class="card"><h2>Nombre de la tienda</h2>
+          <input id="t_nombre">
         </div>
         <div class="card"><h2>Splash de entrada</h2>
           <p class="small">Pantalla de bienvenida con animación que aparece una vez cuando alguien entra.</p>
@@ -210,6 +215,32 @@ ol.s{margin:8px 0 8px 20px;font-size:.9rem}ol.s li{margin-bottom:5px}
           <div class="sw"><input type="checkbox" id="a_on"><label for="a_on">Mostrar anuncio</label></div>
           <label class="l">Texto</label><input id="a_t" placeholder="Ej: Envío gratis en compras desde $60.000">
         </div>
+      </section>
+
+      <!-- REDES -->
+      <section class="pane" id="p_redes">
+        <div class="card"><h2>WhatsApp</h2>
+          <p class="small">A este número llegan los pedidos y se abre desde el botón "Pide por WhatsApp". Con el indicativo del país, por ejemplo 573118512247.</p>
+          <label class="l">Número (solo números)</label><input id="t_wa" inputmode="numeric">
+        </div>
+        <div class="card"><h2>Redes sociales</h2>
+          <p class="small">Pega el enlace de cada una. Si dejas una vacía, no sale en la tienda. Salen abajo, en el pie de la página.</p>
+          <label class="l">Instagram (usuario o enlace)</label><input id="t_ig" autocapitalize="off" placeholder="visionbeauty">
+          <label class="l">Facebook (enlace)</label><input id="t_fb" autocapitalize="off" placeholder="https://facebook.com/tu-pagina">
+          <label class="l">TikTok (enlace)</label><input id="t_tt" autocapitalize="off" placeholder="https://www.tiktok.com/@tu-usuario">
+        </div>
+      </section>
+
+      <!-- INFORMACIÓN -->
+      <section class="pane" id="p_info">
+        <div class="card"><h2>Franja de información</h2>
+          <p class="small">Son las 3 casillas que salen debajo de los destacados. Al tocarlas, la clienta ve el texto que escribas aquí. La de WhatsApp abre tu chat.</p>
+        </div>
+        <div id="inf_list"></div>
+      </section>
+
+      <!-- CATEGORÍAS -->
+      <section class="pane" id="p_cat">
         <div class="card"><h2>Categorías</h2>
           <p class="small">Cambia el nombre o el orden. Si renombras una, se actualizan sus productos.</p>
           <div id="cats"></div>
@@ -301,15 +332,21 @@ let abierto = new Set(), visibles = 30, filtroCat = 'Todas', buscar = '';
 
 /* ---------- estado visible ---------- */
 function pill(t,c){ const e=$('pill'); e.textContent=t; e.className='pill '+(c||''); }
+const defInfo = () => [
+  {t:'Entrega en 48 a 72 h',s:'Días hábiles',d:'Este tiempo aplica para envíos dentro de Bogotá. Para envíos fuera de Bogotá pueden presentarse ligeras demoras.',tipo:'info',on:true},
+  {t:'Pago fácil',s:'Transferencia o efectivo en punto físico',d:'Recibimos tu pago por transferencia o en efectivo en nuestro punto físico. Cuando confirmes tu pedido por WhatsApp te enviamos los datos para pagar.',tipo:'info',on:true},
+  {t:'Pide por WhatsApp',s:'Atención personalizada',m:'Hola Vision Beauty, quiero más información',tipo:'wa',on:true}];
+const defInfoAj = () => ({items:defInfo()});
+const goodInfo = i => (i&&Array.isArray(i.items)&&i.items.length) ? i : defInfoAj();
 const defDest = () => ({activo:false,titulo:'Destacados',seg:10,auto:true,items:[]});
-const defAj = () => ({splash:{activo:false,titulo:'Vision Beauty',sub:'Siempre linda',seg:2.4},anuncio:{activo:false,texto:''},destacados:defDest(),inventario:{umbral:3}});
+const defAj = () => ({splash:{activo:false,titulo:'Vision Beauty',sub:'Siempre linda',seg:2.4},anuncio:{activo:false,texto:''},destacados:defDest(),inventario:{umbral:3},info:defInfoAj()});
 
 /* ---------- leer lo publicado ---------- */
 function parseJS(txt){
   const g = re => { const m=re.exec(txt); if(!m) throw new Error('formato'); return JSON.parse(m[1]); };
   const tienda=g(/^const TIENDA = (.*);$/m), cats=g(/^const CATEGORIAS = (.*);$/m);
   let aj=defAj(); const ma=/^const AJUSTES = (.*);$/m.exec(txt);
-  if(ma){ const a=JSON.parse(ma[1]); aj={splash:Object.assign(aj.splash,a.splash||{}),anuncio:Object.assign(aj.anuncio,a.anuncio||{}),destacados:Object.assign(defDest(),a.destacados||{}),inventario:Object.assign({umbral:3},a.inventario||{})}; if(!Array.isArray(aj.destacados.items)) aj.destacados.items=[]; }
+  if(ma){ const a=JSON.parse(ma[1]); aj={splash:Object.assign(aj.splash,a.splash||{}),anuncio:Object.assign(aj.anuncio,a.anuncio||{}),destacados:Object.assign(defDest(),a.destacados||{}),inventario:Object.assign({umbral:3},a.inventario||{}),info:goodInfo(a.info)}; if(!Array.isArray(aj.destacados.items)) aj.destacados.items=[]; }
   const k='const PRODUCTOS = [\n', i=txt.indexOf(k), j=txt.lastIndexOf('\n];');
   if(i<0||j<0) throw new Error('formato');
   return {tienda,ajustes:aj,categorias:cats,productos:JSON.parse('['+txt.slice(i+k.length,j)+']')};
@@ -329,7 +366,7 @@ function guardarBorrador(){
 }
 function cargarBorrador(){
   try{ const t=localStorage.getItem('vb_draft'); if(!t) return false; const o=JSON.parse(t);
-    if(o&&o.productos&&o.tienda&&o.categorias){ S=o; S.ajustes=Object.assign(defAj(),S.ajustes||{}); S.ajustes.destacados=Object.assign(defDest(),S.ajustes.destacados||{}); if(!Array.isArray(S.ajustes.destacados.items)) S.ajustes.destacados.items=[]; S.ajustes.inventario=Object.assign({umbral:3},S.ajustes.inventario||{}); S.productos.forEach(p=>{ if(p.i&&p.i.startsWith('data:')) thumbs[p.i]=p.i; }); return true; } }catch(e){}
+    if(o&&o.productos&&o.tienda&&o.categorias){ S=o; S.ajustes=Object.assign(defAj(),S.ajustes||{}); S.ajustes.destacados=Object.assign(defDest(),S.ajustes.destacados||{}); if(!Array.isArray(S.ajustes.destacados.items)) S.ajustes.destacados.items=[]; S.ajustes.inventario=Object.assign({umbral:3},S.ajustes.inventario||{}); S.ajustes.info=goodInfo(S.ajustes.info); S.productos.forEach(p=>{ if(p.i&&p.i.startsWith('data:')) thumbs[p.i]=p.i; }); return true; } }catch(e){}
   return false;
 }
 function borrarBorrador(){ try{ localStorage.removeItem('vb_draft'); }catch(e){} }
@@ -538,18 +575,18 @@ function crear(){
 
 /* ---------- tienda ---------- */
 function cargarAjustes(){
-  $('t_nombre').value=S.tienda.nombre; $('t_wa').value=S.tienda.whatsapp; $('t_ig').value=S.tienda.instagram;
+  $('t_nombre').value=S.tienda.nombre; $('t_wa').value=S.tienda.whatsapp; $('t_ig').value=S.tienda.instagram||''; $('t_fb').value=S.tienda.facebook||''; $('t_tt').value=S.tienda.tiktok||'';
   const s=S.ajustes.splash, a=S.ajustes.anuncio;
   $('s_on').checked=!!s.activo; $('s_t').value=s.titulo||''; $('s_s').value=s.sub||''; $('s_seg').value=s.seg||2.4;
   $('a_on').checked=!!a.activo; $('a_t').value=a.texto||'';
 }
 function leerAjustes(){
-  S.tienda={nombre:$('t_nombre').value.trim(),whatsapp:$('t_wa').value.replace(/\D/g,''),instagram:$('t_ig').value.replace('@','').trim()};
+  S.tienda={nombre:$('t_nombre').value.trim(),whatsapp:$('t_wa').value.replace(/\D/g,''),instagram:$('t_ig').value.replace(/^@/,'').trim(),facebook:$('t_fb').value.trim(),tiktok:$('t_tt').value.trim()};
   const seg=parseFloat(String($('s_seg').value).replace(',','.'));
-  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()},destacados:S.ajustes.destacados||defDest(),inventario:S.ajustes.inventario||{umbral:3}};
+  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()},destacados:S.ajustes.destacados||defDest(),inventario:S.ajustes.inventario||{umbral:3},info:S.ajustes.info||defInfoAj()};
   cambio();
 }
-['t_nombre','t_wa','t_ig','s_on','s_t','s_s','s_seg','a_on','a_t'].forEach(id=>$(id).addEventListener(id==='s_on'||id==='a_on'?'change':'input',leerAjustes));
+['t_nombre','t_wa','t_ig','t_fb','t_tt','s_on','s_t','s_s','s_seg','a_on','a_t'].forEach(id=>$(id).addEventListener(id==='s_on'||id==='a_on'?'change':'input',leerAjustes));
 
 /* ---------- destacados ---------- */
 let dQ='', dFc='Todas', dVis=40;
@@ -622,7 +659,7 @@ function ivEstado(p){ if(!conStock(p)) return 'sin'; if(p.s<=0) return 'cero'; i
 function ivTxt(p){ const e=ivEstado(p); return e==='sin'?'Sin control de inventario':e==='cero'?'Agotado':e==='poco'?'¡Quedan '+p.s+'!':p.s+' disponibles'; }
 function badgeInv(){
   if(!S) return; const n=S.productos.filter(p=>{const e=ivEstado(p);return e==='cero'||e==='poco';}).length;
-  $('tabInv').textContent='Inventario'+(n?' ('+n+')':'');
+  $('tabInv').textContent='📊 Inventario'+(n?' ('+n+')':'');
 }
 function renderInv(){
   if(!S) return;
@@ -667,9 +704,23 @@ function resumenWA(){
   L.push('Agotados ('+cero.length+'):'); cero.slice(0,40).forEach(p=>L.push('• '+p.n)); if(!cero.length) L.push('Ninguno');
   L.push('','Se están acabando ('+poco.length+'):'); poco.slice(0,40).forEach(p=>L.push('• '+p.n+': quedan '+p.s)); if(!poco.length) L.push('Ninguno');
   L.push('','Total de unidades con control: '+tot);
-  const num=String(S.tienda.whatsapp||'').replace(/\D/g,'');
+  let num=String(S.tienda.whatsapp||'').replace(/\D/g,''); if(/^3\d{9}$/.test(num)) num='57'+num;
   window.open('https://wa.me/'+num+'?text='+encodeURIComponent(L.join('\n')),'_blank','noopener');
 }
+
+/* ---------- franja de información ---------- */
+function renderInfo(){
+  const A=S.ajustes.info.items;
+  $('inf_list').innerHTML=A.map((x,i)=>`<div class="card"><h2>${i+1}. ${esc(x.t||'Sin título')}</h2>
+    <div class="sw"><input type="checkbox" id="inf_on${i}" ${x.on!==false?'checked':''} onchange="infSet(${i},'on',this.checked)"><label for="inf_on${i}">Mostrar en la tienda</label></div>
+    <label class="l">Título</label><input value="${esc(x.t||'')}" oninput="infSet(${i},'t',this.value)">
+    <label class="l">Subtítulo</label><input value="${esc(x.s||'')}" oninput="infSet(${i},'s',this.value)">
+    ${x.tipo==='wa'
+      ? `<label class="l">Mensaje que se escribe al abrir WhatsApp</label><input value="${esc(x.m||'')}" oninput="infSet(${i},'m',this.value)"><p class="small" style="margin-top:6px">Al tocarla, abre el WhatsApp que pusiste en "Redes y contacto".</p>`
+      : `<label class="l">Texto que se abre al tocar</label><textarea style="height:100px" oninput="infSet(${i},'d',this.value)">${esc(x.d||'')}</textarea>`}
+  </div>`).join('');
+}
+function infSet(i,k,v){ const x=S.ajustes.info.items[i]; if(!x) return; x[k]=v; cambio(); }
 
 /* ---------- generar archivo ---------- */
 function compacto(p){ const o={}; for(const k of Object.keys(p)){ const v=p[k]; if(v===null||v===undefined||v===false||v==='') { if(k==='p') o.p=null; continue; } o[k]=v; } return o; }
@@ -719,26 +770,30 @@ function verSplash(){ forzar=true; if(window.innerWidth<1000) irTab('vista'); se
 function cerrar(id){ $(id).classList.remove('open'); }
 function pregunta(t,m,fn){ $('askT').textContent=t; $('askM').textContent=m; $('askOk').onclick=()=>{ cerrar('mAsk'); fn(); }; $('mAsk').classList.add('open'); }
 function resetTodo(){ pregunta('¿Descartar todos los cambios?','Vuelves a lo que está publicado en la tienda ahora mismo.',()=>{ S=clone(BASE); asegurarCats(); borrarBorrador(); todoRender(); cambio(); }); }
+const NOMBRES={prod:'Productos',vista:'Vista previa',dest:'Destacados',inv:'Inventario',info:'Franja de información',redes:'Redes y contacto',cat:'Categorías',tienda:'Tienda y avisos',pub:'Publicar'};
+function menu(v){ $('menuBg').classList.toggle('open',!!v); }
 function irTab(t){
-  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  document.querySelectorAll('#menu button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
   document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id==='p_'+t));
+  $('h1').textContent='Panel · '+(NOMBRES[t]||''); menu(false);
+  const c=document.querySelector('.col'); if(c) c.scrollTo(0,0);
   if(t==='vista'){ forzar=false; setTimeout(pintarPrev,50); }
   if(t==='pub') resumen();
   if(t==='dest'){ renderDestList(); renderDestPick(); }
   if(t==='inv'){ renderInv(); }
 }
-document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>irTab(b.dataset.t)));
+document.querySelectorAll('#menu button[data-t]').forEach(b=>b.addEventListener('click',()=>irTab(b.dataset.t)));
 ['g_o','g_r','g_b','g_t'].forEach(id=>$(id).addEventListener('input',()=>{leerCfg();sitioLink();}));
 $('q').addEventListener('input',e=>{ buscar=e.target.value; visibles=30; lista(); });
 $('fc').addEventListener('change',e=>{ filtroCat=e.target.value; visibles=30; lista(); });
 
-function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); renderDest(); renderInv(); resumen(); pintarPrev(); }
+function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); renderDest(); renderInv(); renderInfo(); resumen(); pintarPrev(); }
 (async function(){
   pill('Cargando…','warn');
   try{ await cargarPublicado(); }catch(e){ pill('No se pudo leer la tienda','bad'); $('list').innerHTML='<p class="small">No pude leer productos.js. Abre este panel desde tu página publicada (no como archivo suelto).</p>'; return; }
   S=clone(BASE); asegurarCats();
   const hubo=cargarBorrador(); asegurarCats();
-  pintarCfg(); todoRender(); estadoPill();
+  pintarCfg(); todoRender(); estadoPill(); irTab('prod');
   if(hubo) pill('Cambios sin publicar (borrador)','warn');
 })();
 </script>

@@ -32,7 +32,9 @@ h1,h2,h3,.serif{font-family:'Cormorant Garamond',Georgia,serif;font-weight:500}
 .spark{position:absolute;color:var(--gold);animation:tw 4s ease-in-out infinite}
 @keyframes tw{0%,100%{transform:scale(.6);opacity:.2}50%{transform:scale(1.1);opacity:.75}}
 .perks{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--line);border-block:1px solid var(--line)}
-.perks div{background:var(--cream);padding:20px 12px;text-align:center;font-size:.78rem;letter-spacing:.06em}
+.perk{display:block;width:100%;background:var(--cream);padding:20px 12px;text-align:center;font-size:.78rem;letter-spacing:.06em;border:0;font-family:inherit;font-weight:300;color:inherit;text-decoration:none;cursor:pointer;transition:.2s}
+.perk:hover{background:var(--sand)}
+.perk i{display:block;font-style:normal;font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold2);margin-top:6px}
 .perks b{display:block;font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;letter-spacing:0;color:var(--gold2)}
 .sec{max-width:1100px;margin:auto;padding:60px 14px 20px}
 .sec>h2{text-align:center;font-size:2.4rem;font-weight:400}
@@ -156,6 +158,23 @@ footer a{color:var(--gold2)}
 .qs button{width:40px;height:40px;border:0;background:none;font-size:1.3rem;line-height:1;cursor:pointer;color:var(--ink)}
 .qs button:active{background:var(--sand)}
 .qs .qv{min-width:42px;text-align:center;font-size:1.05rem;font-weight:400}
+.ovl{position:fixed;inset:0;background:rgba(40,28,20,.6);display:none;align-items:center;justify-content:center;z-index:90;padding:16px}
+.ovl.open{display:flex}
+.ibox{background:var(--cream);width:min(420px,100%);padding:34px 24px 28px;text-align:center;position:relative;animation:up .3s both}
+.ibox h3{font-size:1.8rem;line-height:1.1;margin-bottom:6px}
+.ibox .isub{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold2);margin-bottom:14px}
+.ibox p{color:var(--mut);white-space:pre-line}
+.sheetm{align-items:flex-end;padding:0;z-index:95}
+.qbox{background:var(--cream);width:min(520px,100%);padding:22px 20px 24px;position:relative;animation:slu .25s both}
+@keyframes slu{from{transform:translateY(50px);opacity:0}to{transform:none;opacity:1}}
+.qhead{display:flex;gap:14px;align-items:center;margin-bottom:6px;padding-right:34px}
+.qhead img{width:70px;height:88px;object-fit:cover;background:var(--sand)}
+.qhead .qn{font-family:'Cormorant Garamond',serif;font-size:1.35rem;line-height:1.1}
+.qsub{display:flex;justify-content:space-between;font-family:'Cormorant Garamond',serif;font-size:1.35rem;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.qbox .qrow{justify-content:flex-start}
+.social{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:6px 0 14px}
+.social a{border:1px solid var(--line);padding:9px 18px;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);text-decoration:none;transition:.2s}
+.social a:hover{border-color:var(--gold2);color:var(--gold2)}
 </style>
 </head>
 <body>
@@ -186,11 +205,7 @@ footer a{color:var(--gold2)}
   <div class="ddots" id="dDots"></div>
 </section>
 
-<div class="perks">
-  <div><b>Entrega en 48 a 72 h</b>Días hábiles</div>
-  <div><b>Pago fácil</b>Transferencia o efectivo en punto físico</div>
-  <div><b>Pide por WhatsApp</b>Atención personalizada</div>
-</div>
+<div class="perks" id="perks"></div>
 
 <section class="sec" id="catalogo">
   <h2>Nuestra colección</h2>
@@ -213,6 +228,7 @@ footer a{color:var(--gold2)}
 
 <footer>
   <div class="logo">Vision Beauty</div>
+  <div class="social" id="social"></div>
   <div id="foot"></div>
 </footer>
 
@@ -228,6 +244,19 @@ footer a{color:var(--gold2)}
       <div id="mAcc"></div>
       <div class="nav"><button onclick="navM(-1)">← Anterior</button><button onclick="navM(1)">Siguiente →</button></div>
     </div>
+  </div>
+</div>
+
+<div id="infoM" class="ovl" onclick="if(event.target===this)cerrarInfo()">
+  <div class="ibox" role="dialog" aria-modal="true"><button class="mclose" onclick="cerrarInfo()" aria-label="Cerrar">×</button>
+    <h3 id="iT"></h3><div class="isub" id="iS"></div><p id="iD"></p></div>
+</div>
+
+<div id="qsh" class="ovl sheetm" onclick="if(event.target===this)cerrarQty()">
+  <div class="qbox" role="dialog" aria-modal="true"><button class="mclose" onclick="cerrarQty()" aria-label="Cerrar">×</button>
+    <div class="qhead"><img id="qImg" alt=""><div><div class="qn" id="qNom"></div><div id="qPre"></div><div id="qStk"></div></div></div>
+    <div id="qBody"></div>
+    <div class="qsub"><span>Subtotal</span><b id="qSub"></b></div>
   </div>
 </div>
 
@@ -279,8 +308,13 @@ if(AJ.anuncio && AJ.anuncio.activo && AJ.anuncio.texto){ $("ann").textContent = 
   setTimeout(()=>{ el.classList.add("out"); document.body.style.overflow=""; setTimeout(()=>{el.style.display="none"},950); }, (s.seg||2.4)*1000);
   try{ sessionStorage.setItem("vb_splash","1"); }catch(e){}
 })();
-$("ig").href = "https://instagram.com/" + encodeURIComponent(TIENDA.instagram);
-$("foot").textContent = '@' + TIENDA.instagram + ' · © ' + new Date().getFullYear();
+const WA = (()=>{ let n=String(TIENDA.whatsapp||"").replace(/\D/g,""); if(/^3\d{9}$/.test(n)) n="57"+n; return n; })();
+const esUrl = v => /^https?:\/\//i.test(String(v||"").trim());
+const socUrl = (v,base) => { v=String(v||"").trim(); if(!v) return ""; if(esUrl(v)) return v; if(/^[a-z][a-z0-9+.-]*:/i.test(v)) return ""; return base+encodeURIComponent(v.replace(/^@/,"")); };
+const URL_IG = socUrl(TIENDA.instagram,"https://instagram.com/"), URL_FB = socUrl(TIENDA.facebook,"https://facebook.com/"), URL_TT = socUrl(TIENDA.tiktok,"https://www.tiktok.com/@");
+if(URL_IG) $("ig").href = URL_IG; else $("ig").style.visibility = "hidden";
+$("social").innerHTML = [["Instagram",URL_IG],["Facebook",URL_FB],["TikTok",URL_TT]].filter(x=>x[1]).map(x=>'<a href="'+esc(x[1])+'" target="_blank" rel="noopener noreferrer">'+x[0]+'</a>').join("");
+$("foot").textContent = (TIENDA.instagram && !esUrl(TIENDA.instagram) ? '@'+String(TIENDA.instagram).replace(/^@/,'')+' · ' : '') + '© ' + new Date().getFullYear();
 
 function filtros(){
   const cats = ["Todo"];
@@ -303,22 +337,23 @@ function precioHtml(p){
   if(!p.p) return '<div class="ask">Consultar precio</div>';
   return enOferta(p) ? '<div class="price"><span class="old">'+fmt(p.p)+'</span>'+fmt(p.o)+'</div>' : '<div class="price">'+fmt(p.p)+'</div>';
 }
-function wa(p){ return 'https://wa.me/'+String(TIENDA.whatsapp).replace(/\D/g,'')+'?text='+encodeURIComponent('Hola, me interesa: '+p.n+' ('+p.c+')'); }
+function wa(p){ return 'https://wa.me/'+WA+'?text='+encodeURIComponent('Hola, me interesa: '+p.n+' ('+p.c+')'); }
 function accion(p,estilo,conQty){
   const st = estilo ? ' style="background:var(--ink);color:var(--cream)"' : '';
   if(AGOT(p)) return '<button class="add" disabled>Agotado</button>';
   if(!p.p) return '<a class="add" target="_blank" rel="noopener noreferrer" href="'+esc(wa(p))+'">Preguntar por WhatsApp</a>';
   if(conQty) return '<div class="qrow"><span class="ql">Cantidad</span><div class="qs"><button type="button" aria-label="Menos" onclick="qch(this,-1)">−</button><span class="qv" data-max="'+maxQ(p)+'">1</span><button type="button" aria-label="Más" onclick="qch(this,1)">+</button></div></div>'
     +'<button class="add"'+st+' onclick="addQ('+p.id+',this)">Agregar a la bolsa</button>';
-  return '<button class="add"'+st+' onclick="add('+p.id+',this)">Agregar a la bolsa</button>';
+  return '<button class="add"'+st+' onclick="abrirQty('+p.id+')">Agregar a la bolsa</button>';
 }
-function qch(b,d){ const v=b.parentNode.querySelector(".qv"); const mx=parseInt(v.getAttribute("data-max"),10)||99; const nv=(parseInt(v.textContent,10)||1)+d; v.textContent=Math.min(mx,Math.max(1,nv)); }
+function qch(b,d){ const v=b.parentNode.querySelector(".qv"); const mx=parseInt(v.getAttribute("data-max"),10)||99; const nv=(parseInt(v.textContent,10)||1)+d; v.textContent=Math.min(mx,Math.max(1,nv)); if(b.closest("#qsh")) qsub(); }
 function addQ(id,btn){
   const box=btn.parentNode, v=box.querySelector(".qv"), p=PRODUCTOS.find(x=>x.id===id);
   let n=parseInt(v&&v.textContent,10)||1; const libre=maxQ(p)-(carrito[id]||0); let msg;
   if(libre<=0) msg="Ya tienes todo el stock en tu bolsa";
   else { if(n>libre){ n=libre; msg="Solo quedan "+libre; } else msg="Agregado ("+n+") ✓"; carrito[id]=(carrito[id]||0)+n; render(); }
   btn.classList.add("ok"); btn.textContent=msg; if(v) v.textContent="1";
+  if(btn.closest("#qsh")){ setTimeout(cerrarQty,900); qsub(); }
   setTimeout(()=>{btn.classList.remove("ok");btn.textContent="Agregar a la bolsa"},1500);
 }
 function lista(){
@@ -356,6 +391,15 @@ document.addEventListener("keydown",e=>{
 let tx=null;
 $("modal").addEventListener("touchstart",e=>{tx=e.touches[0].clientX},{passive:true});
 $("modal").addEventListener("touchend",e=>{ if(tx===null) return; const dx=e.changedTouches[0].clientX-tx; if(Math.abs(dx)>70) navM(dx<0?1:-1); tx=null; });
+let qId=null;
+function abrirQty(id){
+  const p=PRODUCTOS.find(x=>x.id===id); if(!p) return; qId=id;
+  $("qImg").src=p.i; $("qNom").textContent=p.n; $("qPre").innerHTML=precioHtml(p).replace(/<\/?div[^>]*>/g,"");
+  $("qStk").innerHTML=stockHtml(p,true); $("qBody").innerHTML=accion(p,true,true); qsub();
+  $("qsh").classList.add("open"); document.body.style.overflow="hidden";
+}
+function cerrarQty(){ const e=$("qsh"); if(!e.classList.contains("open")) return; e.classList.remove("open"); if(!$("modal").classList.contains("open")) document.body.style.overflow=""; qId=null; }
+function qsub(){ const p=PRODUCTOS.find(x=>x.id===qId), v=$("qBody").querySelector(".qv"); if(!p||!v) return; $("qSub").textContent=fmt(pf(p)*(parseInt(v.textContent,10)||1)); }
 function add(id,btn){
   const pr=PRODUCTOS.find(x=>x.id===id);
   if(pr && (carrito[id]||0)>=maxQ(pr)){ if(btn){btn.textContent="Solo quedan "+maxQ(pr);setTimeout(()=>{btn.textContent="Agregar a la bolsa"},1500);} return; }
@@ -375,7 +419,7 @@ function render(){
   const lineas = ids.map(id=>{const p=PRODUCTOS.find(x=>x.id==id);return `• ${carrito[id]} x ${p.n} (${fmt(pf(p)*carrito[id])})`;});
   const msg = `Hola Vision Beauty, quiero hacer un pedido:\n${lineas.join("\n")}\n\nTotal: ${fmt(total)}\nNombre: ${nom}\nEntrega: ${dir}`;
   const a=$("wa");
-  a.href = "https://wa.me/" + String(TIENDA.whatsapp).replace(/\D/g,"") + "?text=" + encodeURIComponent(msg);
+  a.href = "https://wa.me/" + WA + "?text=" + encodeURIComponent(msg);
   a.classList.toggle("off", !(ids.length && nom && dir));
 }
 function openCart(){$("panel").classList.add("open");render();}
@@ -383,6 +427,23 @@ function closeCart(){$("panel").classList.remove("open");}
 $("nombre").addEventListener("input",render);
 $("dir").addEventListener("input",render);
 filtros();lista();render();
+
+/* franja de información */
+const INFO_DEF=[
+ {t:"Entrega en 48 a 72 h",s:"Días hábiles",d:"Este tiempo aplica para envíos dentro de Bogotá. Para envíos fuera de Bogotá pueden presentarse ligeras demoras.",tipo:"info",on:true},
+ {t:"Pago fácil",s:"Transferencia o efectivo en punto físico",d:"Recibimos tu pago por transferencia o en efectivo en nuestro punto físico. Cuando confirmes tu pedido por WhatsApp te enviamos los datos para pagar.",tipo:"info",on:true},
+ {t:"Pide por WhatsApp",s:"Atención personalizada",m:"Hola Vision Beauty, quiero más información",tipo:"wa",on:true}];
+const INFO=(AJ.info && Array.isArray(AJ.info.items) && AJ.info.items.length) ? AJ.info.items : INFO_DEF;
+(function(){
+  const num=WA;
+  $("perks").innerHTML=INFO.map((x,i)=>{ if(x.on===false) return "";
+    if(x.tipo==="wa") return '<a class="perk" target="_blank" rel="noopener noreferrer" href="https://wa.me/'+num+'?text='+encodeURIComponent(x.m||"Hola Vision Beauty, quiero más información")+'"><b>'+esc(x.t)+'</b>'+esc(x.s||"")+'<i>Escríbenos ›</i></a>';
+    return '<button class="perk" type="button" onclick="abrirInfo('+i+')"><b>'+esc(x.t)+'</b>'+esc(x.s||"")+(x.d?'<i>Ver más ›</i>':'')+'</button>'; }).join("");
+  if(!$("perks").innerHTML.trim()) $("perks").style.display="none";
+})();
+function abrirInfo(i){ const x=INFO[i]; if(!x) return; $("iT").textContent=x.t||""; $("iS").textContent=x.s||""; $("iD").textContent=x.d||""; $("infoM").classList.add("open"); }
+function cerrarInfo(){ $("infoM").classList.remove("open"); }
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ cerrarInfo(); cerrarQty(); } });
 
 /* carrusel de destacados */
 (function(){
