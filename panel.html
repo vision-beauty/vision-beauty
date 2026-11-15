@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; frame-src about: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="vb-v" content="25">
+<meta name="vb-v" content="26">
 <title>Panel privado · Vision Beauty</title>
 <style>
 :root{--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--ok:#1f8a4c;--bad:#b3402e}
@@ -122,6 +122,9 @@ header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .sepg{font-weight:700;font-size:.8rem;color:var(--muted,#7a6a5c);margin:10px 2px 6px;text-transform:uppercase;letter-spacing:.04em}.sepg.bad{color:#b3392b}
 .mini{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;background:#fff}.mini.hid{opacity:.6}
 .wabg{background:#efe7dd;border-radius:12px;padding:12px}
+.ce input[type=range]{-webkit-appearance:none;appearance:none;display:block;width:100%;height:28px;padding:0;margin:4px 0 12px;border-radius:14px;border:1px solid rgba(0,0,0,.25);outline:0}
+.ce input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:32px;height:32px;border-radius:50%;background:#fff;border:3px solid #4a3428;box-shadow:0 1px 4px rgba(0,0,0,.45)}
+.ce input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:#fff;border:3px solid #4a3428}
 body.owner #admBox{display:none!important}
 body.owner #rf_cfg{display:none!important}
 
@@ -353,7 +356,7 @@ body.owner #rf_cfg{display:none!important}
         </div>
         <div class="card"><h2>Cambiar todo con un solo color</h2>
           <p class="small">Elige el color que más te gusta y armamos toda la paleta a partir de él.</p>
-          <div style="display:flex;gap:10px;align-items:center"><input type="color" id="co_base" value="#b08d57" style="width:64px;height:44px;padding:2px"><button class="btn gold" style="flex:1" onclick="coBase()">Aplicar a toda la tienda</button></div>
+          <div style="display:flex;gap:10px;align-items:center"><button id="co_sw_base" onclick="coEdit('base')" aria-label="Elegir el color principal" style="width:56px;height:44px;border-radius:8px;border:1px solid rgba(0,0,0,.25);flex:none;cursor:pointer"></button><button class="btn gold" style="flex:1" onclick="coBase()">Aplicar a toda la tienda</button></div><div id="co_ed_base"></div>
         </div>
         <div class="card"><h2>Vista rápida</h2><div id="co_mini"></div><div id="co_warn" class="small" style="margin-top:8px"></div></div>
         <div class="card"><h2>Color de cada apartado</h2>
@@ -1041,6 +1044,44 @@ $('lg_file').addEventListener('change',e=>{
 const RES=()=>S.ajustes.resenas;
 
 /* ---------- colores ---------- */
+let coBaseV='#b08d57', CE=null;
+const ceBtn=(t,a)=>`<button type="button" class="btn sm line" onclick="${a}" style="flex:1;min-width:0">${t}</button>`;
+function coEdit(k){
+  const host=$('co_ed_'+k); if(!host) return;
+  const abrir=!(CE&&CE.k===k);
+  document.querySelectorAll('[id^=co_ed_]').forEach(e=>e.innerHTML=''); CE=null; if(!abrir) return;
+  const cur=(k==='base')?coBaseV:coV(k), hs=hex2hsl(cur); CE={k:k,h:hs[0],s:hs[1],l:hs[2],orig:cur};
+  host.innerHTML=`<div class="ce" style="margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff">
+    <div style="display:flex;gap:10px;margin-bottom:10px">
+      <div style="flex:1;text-align:center"><div class="small">Antes</div><div id="ce_a" style="height:44px;border-radius:8px;border:1px solid rgba(0,0,0,.2);background:${cur}"></div></div>
+      <div style="flex:1;text-align:center"><div class="small">Ahora</div><div id="ce_n" style="height:44px;border-radius:8px;border:1px solid rgba(0,0,0,.2);background:${cur}"></div></div>
+      <div style="flex:1"><div class="small" style="text-align:center">Código</div><input id="ce_x" value="${cur}" maxlength="7" autocomplete="off" autocapitalize="off" spellcheck="false" oninput="coEdHex(this.value)" style="text-align:center;font-family:monospace;height:44px"></div></div>
+    <div class="small">Tono (el color)</div><input type="range" id="ce_h" min="0" max="360" step="1" oninput="coEdMove()">
+    <div class="small">Intensidad (qué tan fuerte)</div><input type="range" id="ce_s" min="0" max="100" step="1" oninput="coEdMove()">
+    <div class="small">Claridad (de oscuro a claro)</div><input type="range" id="ce_l" min="0" max="100" step="1" oninput="coEdMove()">
+    <div style="display:flex;gap:6px;margin-bottom:6px">${ceBtn('Más claro',"coEdStep('l',4)")}${ceBtn('Más oscuro',"coEdStep('l',-4)")}</div>
+    <div style="display:flex;gap:6px;margin-bottom:6px">${ceBtn('Más intenso',"coEdStep('s',6)")}${ceBtn('Menos intenso',"coEdStep('s',-6)")}</div>
+    <div style="display:flex;gap:6px">${ceBtn('Volver al de antes',"coEdVolver()")}${ceBtn('Listo',"coEdit('"+k+"')")}</div></div>`;
+  coEdPaint(true);
+}
+function coEdHex2(){ return hsl2hex(CE.h,CE.s,CE.l); }
+function coEdApply(hex){
+  if(CE.k==='base'){ coBaseV=hex; const sw=$('co_sw_base'); if(sw) sw.style.background=hex; }
+  else coSet(CE.k,hex);
+}
+function coEdPaint(sliders,noHex){
+  const hex=coEdHex2(); $('ce_n').style.background=hex; if(!noHex) $('ce_x').value=hex;
+  if(sliders){ $('ce_h').value=Math.round(CE.h); $('ce_s').value=Math.round(CE.s); $('ce_l').value=Math.round(CE.l); }
+  const H=CE.h,S=CE.s,L=CE.l;
+  $('ce_h').style.background='linear-gradient(90deg,'+[0,60,120,180,240,300,360].map(x=>hsl2hex(x,Math.max(S,35),Math.min(Math.max(L,35),65))).join(',')+')';
+  $('ce_s').style.background='linear-gradient(90deg,'+hsl2hex(H,0,L)+','+hsl2hex(H,100,L)+')';
+  $('ce_l').style.background='linear-gradient(90deg,'+hsl2hex(H,S,0)+','+hsl2hex(H,S,50)+','+hsl2hex(H,S,100)+')';
+}
+function coEdMove(){ if(!CE) return; CE.h=+$('ce_h').value; CE.s=+$('ce_s').value; CE.l=+$('ce_l').value; coEdApply(coEdHex2()); coEdPaint(false); }
+function coEdStep(w,d){ if(!CE) return; CE[w]=Math.max(0,Math.min(100,CE[w]+d)); coEdApply(coEdHex2()); coEdPaint(true); }
+function coEdHex(v){ if(!CE) return; v=v.trim(); if(v[0]!=='#') v='#'+v; if(!/^#[0-9a-fA-F]{6}$/.test(v)) return; v=v.toLowerCase(); const hs=hex2hsl(v); CE.h=hs[0]; CE.s=hs[1]; CE.l=hs[2]; coEdApply(v); $('ce_n').style.background=v; coEdPaint(true,true); }
+function coEdVolver(){ if(!CE) return; const o=CE.orig, hs=hex2hsl(o); CE.h=hs[0]; CE.s=hs[1]; CE.l=hs[2]; coEdApply(o); coEdPaint(true); }
+
 const CO_DEF={fondo:'#faf5ee',secciones:'#efe3d4',texto:'#4a3428',suave:'#9a8676',dorado:'#b08d57',dorado2:'#8f6d3a',lineas:'#e5d8c7',boton:'#4a3428',oferta:'#7a1f2e',wa:'#1fa855'};
 const CO_INFO=[
  ['fondo','Fondo de la página','El fondo de toda la tienda y de la barra de arriba'],
@@ -1070,7 +1111,8 @@ function hex2hsl(hx){ let r=parseInt(hx.substr(1,2),16)/255,g=parseInt(hx.substr
 function renderColores(){
   if(!S||!$('co_list')) return;
   $('co_pre').innerHTML=CO_PRE.map((x,i)=>{ const c=Object.assign({},CO_DEF,x.c); return `<button class="btn line" style="padding:10px;text-align:left" onclick="coPreset(${i})"><span style="display:flex;gap:3px;margin-bottom:6px">${['fondo','secciones','dorado','texto'].map(k=>`<i style="display:block;width:22px;height:22px;border-radius:50%;background:${c[k]};border:1px solid rgba(0,0,0,.15)"></i>`).join('')}</span>${x.n}</button>`; }).join('');
-  $('co_list').innerHTML=CO_INFO.map(([k,t,d])=>`<div style="padding:10px 0;border-top:1px solid var(--line)"><div style="display:flex;align-items:center;gap:10px"><input type="color" value="${coV(k)}" oninput="coSet('${k}',this.value)" style="width:56px;height:44px;padding:2px;flex:none"><div style="flex:1;min-width:0"><b>${t}</b><div class="small">${d}</div></div>${COL()[k]?`<button class="btn sm line" onclick="coQuitar('${k}')">Quitar</button>`:''}</div></div>`).join('');
+  $('co_list').innerHTML=CO_INFO.map(([k,t,d])=>`<div style="padding:10px 0;border-top:1px solid var(--line)"><div style="display:flex;align-items:center;gap:10px"><button id="co_sw_${k}" onclick="coEdit('${k}')" aria-label="Cambiar: ${t}" style="width:56px;height:44px;border-radius:8px;border:1px solid rgba(0,0,0,.25);background:${coV(k)};flex:none;cursor:pointer"></button><div style="flex:1;min-width:0"><b>${t}</b><div class="small">${d}</div></div>${COL()[k]?`<button class="btn sm line" onclick="coQuitar('${k}')">Quitar</button>`:''}</div><div id="co_ed_${k}"></div></div>`).join('');
+  coBaseV=coV('dorado'); CE=null; if($('co_sw_base')) $('co_sw_base').style.background=coBaseV; if($('co_ed_base')) $('co_ed_base').innerHTML='';
   coMini();
 }
 function coMini(){
@@ -1087,11 +1129,11 @@ function coMini(){
   if(coRatio(g('texto'),g('secciones'))<4.5) w.push('Las letras principales casi no se leen sobre el fondo de las secciones.');
   $('co_warn').innerHTML=w.length?'<span style="color:#a32d2d">⚠ '+w.join('<br>⚠ ')+'</span>':'<span style="color:#3b6d11">✓ Se lee bien.</span>';
 }
-function coSet(k,v){ if(!coHex(v)) return; COL()[k]=v; coMini(); cambio(); }
+function coSet(k,v){ if(!coHex(v)) return; COL()[k]=v; coMini(); cambio(); const sw=$('co_sw_'+k); if(sw) sw.style.background=v; }
 function coQuitar(k){ delete COL()[k]; renderColores(); cambio(); }
 function coPreset(i){ S.ajustes.colores=Object.assign({},CO_PRE[i].c); renderColores(); cambio(); }
 function coReset(){ S.ajustes.colores={}; renderColores(); cambio(); }
-function coBase(){ const b=$('co_base').value; if(!coHex(b)) return; const [h,s]=hex2hsl(b), sa=Math.max(25,Math.min(s,70));
+function coBase(){ const b=coBaseV; if(!coHex(b)) return; const [h,s]=hex2hsl(b), sa=Math.max(25,Math.min(s,70));
   S.ajustes.colores={fondo:hsl2hex(h,Math.min(sa,45),97),secciones:hsl2hex(h,Math.min(sa,40),92),texto:hsl2hex(h,Math.min(sa,35),20),suave:hsl2hex(h,Math.min(sa,20),55),dorado:b,dorado2:hsl2hex(h,sa,Math.max(18,hex2hsl(b)[2]*.72)),lineas:hsl2hex(h,Math.min(sa,30),88),boton:hsl2hex(h,Math.min(sa,35),20)};
   renderColores(); cambio(); }
 
