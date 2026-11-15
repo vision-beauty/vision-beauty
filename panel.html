@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; frame-src about: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="vb-v" content="14">
+<meta name="vb-v" content="15">
 <title>Panel privado · Vision Beauty</title>
 <style>
 :root{--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--ok:#1f8a4c;--bad:#b3402e}
@@ -368,6 +368,7 @@ body.owner #admBox{display:none!important}
         <div id="admBox">
         <div class="card" id="admLock"><h2>🔧 Zona del administrador</h2>
           <p class="small" id="admTxt"></p>
+          <select id="adm_tipo" style="margin-top:8px;display:none" onchange="admTipoUI()"><option value="pw">Quiero usar una contraseña (más segura)</option><option value="pin">Quiero usar un PIN de números (más rápido)</option></select>
           <input id="adm_pw" type="password" placeholder="Clave de administrador" autocomplete="off" style="margin-top:8px">
           <input id="adm_pw2" type="password" placeholder="Repite la clave" autocomplete="off" style="margin-top:8px;display:none">
           <input id="adm_fr" placeholder="Frase de recuperación (ej: tu nombre completo)" autocomplete="off" style="margin-top:8px;display:none">
@@ -375,10 +376,12 @@ body.owner #admBox{display:none!important}
           <button class="btn gold" id="adm_go" style="width:100%;margin-top:8px" onclick="admEntrar()">Abrir</button>
           <button class="btn sm line" id="adm_olv" style="margin-top:8px;display:none" onclick="$('admRec').style.display='block'">Olvidé mi clave</button>
           <div id="admRec" style="display:none;margin-top:10px">
-            <p class="small">Escribe tu frase de recuperación (la que pusiste al crear tu clave) y elige una clave nueva.</p>
+            <p class="small">Escribe tu frase de recuperación actual y elige una clave nueva. Por seguridad también debes poner una frase de recuperación nueva.</p>
             <input id="rc_code" placeholder="Tu frase de recuperación" autocomplete="off" style="margin-top:6px">
+            <select id="rc_tipo" style="margin-top:6px" onchange="rcTipoUI()"><option value="pw">Nueva contraseña</option><option value="pin">Nuevo PIN de números</option></select>
             <input id="rc_pw" type="password" placeholder="Clave nueva" autocomplete="off" style="margin-top:6px">
             <input id="rc_pw2" type="password" placeholder="Repite la clave nueva" autocomplete="off" style="margin-top:6px">
+            <input id="rc_fr" placeholder="Frase de recuperación nueva" autocomplete="off" style="margin-top:6px">
             <button class="btn" style="width:100%;margin-top:8px" onclick="admReset()">Restablecer mi clave</button>
           </div>
           <div class="msg badc" id="adm_m"></div>
@@ -401,6 +404,16 @@ body.owner #admBox{display:none!important}
           <p class="small">Si algún día no puedes publicar, descarga el archivo y súbelo a GitHub a mano.</p>
           <button class="btn line" style="margin-top:8px;width:100%" onclick="descargar()">Descargar productos.js</button>
           <div class="msg ok" id="gm"></div><textarea id="gt" readonly style="display:none"></textarea>
+        </div>
+        <div class="card"><h2>Cambiar mi clave</h2>
+          <p class="small">Al cambiar tu clave también cambias tu frase de recuperación.</p>
+          <select id="ch_tipo" style="margin-top:6px" onchange="chTipoUI()"><option value="pw">Contraseña</option><option value="pin">PIN de números</option></select>
+          <input id="ch_old" type="password" placeholder="Tu clave actual" autocomplete="off" style="margin-top:6px">
+          <input id="ch_pw" type="password" placeholder="Clave nueva" autocomplete="off" style="margin-top:6px">
+          <input id="ch_pw2" type="password" placeholder="Repite la clave nueva" autocomplete="off" style="margin-top:6px">
+          <input id="ch_fr" placeholder="Frase de recuperación nueva (ej: tu nombre completo)" autocomplete="off" style="margin-top:6px">
+          <button class="btn gold" style="width:100%;margin-top:8px" onclick="admCambiar()">Guardar clave y frase nuevas</button>
+          <div class="msg" id="ch_m"></div>
         </div>
         <div class="card"><h2>Crear link de acceso</h2>
           <p class="small">Para la dueña del negocio. Ella no verá nada de GitHub: abre el link, escribe la clave de acceso que tú le pongas aquí y ya puede cambiar y publicar. Lo que ella publique lo ves tú y lo que publiques tú lo ve ella (al abrir el panel carga lo último publicado).</p>
@@ -1090,31 +1103,52 @@ async function descifrar(blob,pw){ const [s,i,c]=unUrlB(blob).split('.'); const 
 const normCode=c=>String(c||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9ñ]/g,'');
 const ADM=()=>{ try{ return JSON.parse(localStorage.getItem('vb_adm')||'null'); }catch(e){ return null; } };
 const mA=t=>{ $('adm_m').textContent=t||''; };
-function admVista(){
-  const a=ADM(), ab=sessionStorage.getItem('vb_adm')==='1';
-  $('admLock').style.display=ab?'none':'block'; $('admBody').style.display=ab?'block':'none';
-  $('adm_pw2').style.display=a?'none':'block'; $('adm_fr').style.display=a?'none':'block'; $('adm_frh').style.display=a?'none':'block'; $('adm_go').textContent=a?'Abrir':'Crear mi clave de administrador'; $('adm_olv').style.display=a?'inline-block':'none';
-  $('admTxt').textContent=a?'Esta zona es solo para ti. Escribe tu clave de administrador.':'Esta zona es solo para ti (administrador). Crea una clave para protegerla y una frase de recuperación por si la olvidas.';
+const esPin=v=>/^\d{4,8}$/.test(v);
+function adminErr(tipo,pw,pw2,fr){
+  if(tipo==='pin'){ if(!esPin(pw)) return 'El PIN debe ser de 4 a 8 números.'; } else if(pw.length<6) return 'La contraseña debe tener mínimo 6 caracteres.';
+  if(pw!==pw2) return 'Las dos claves no son iguales.';
+  if(normCode(fr).length<6) return 'La frase de recuperación debe tener mínimo 6 letras (por ejemplo tu nombre completo).';
+  return '';
 }
-async function admNueva(pw,frase){
+function setTipoInput(ids,tipo){ ids.forEach(id=>{ const e=$(id); if(!e) return; e.inputMode=tipo==='pin'?'numeric':'text'; if(tipo==='pin') e.maxLength=8; else e.removeAttribute('maxlength'); }); }
+function admTipoUI(){ const t=$('adm_tipo').value; setTipoInput(['adm_pw','adm_pw2'],t); $('adm_pw').placeholder=t==='pin'?'PIN (4 a 8 números)':'Contraseña (mínimo 6)'; $('adm_pw2').placeholder=t==='pin'?'Repite el PIN':'Repite la contraseña'; }
+function rcTipoUI(){ const t=$('rc_tipo').value; setTipoInput(['rc_pw','rc_pw2'],t); $('rc_pw').placeholder=t==='pin'?'PIN nuevo (4 a 8 números)':'Contraseña nueva'; }
+function chTipoUI(){ const t=$('ch_tipo').value; setTipoInput(['ch_pw','ch_pw2'],t); $('ch_pw').placeholder=t==='pin'?'PIN nuevo (4 a 8 números)':'Clave nueva'; }
+function admVista(){
+  const a=ADM(), ab=sessionStorage.getItem('vb_adm')==='1', pin=a&&a.t==='pin';
+  $('admLock').style.display=ab?'none':'block'; $('admBody').style.display=ab?'block':'none';
+  ['adm_pw2','adm_fr','adm_tipo'].forEach(i=>$(i).style.display=a?'none':'block'); $('adm_frh').style.display=a?'none':'block';
+  $('adm_go').textContent=a?'Abrir':'Crear mi clave de administrador'; $('adm_olv').style.display=a?'inline-block':'none';
+  if(a){ setTipoInput(['adm_pw'],pin?'pin':'pw'); $('adm_pw').placeholder=pin?'Tu PIN':'Clave de administrador'; } else admTipoUI();
+  $('admTxt').textContent=a?(pin?'Esta zona es solo para ti. Escribe tu PIN.':'Esta zona es solo para ti. Escribe tu clave de administrador.'):'Esta zona es solo para ti (administrador). Escoge si quieres contraseña o PIN, y una frase de recuperación por si la olvidas.';
+}
+async function admNueva(pw,frase,tipo){
   const s=rnd(16), rs=rnd(16);
-  localStorage.setItem('vb_adm',JSON.stringify({s:toB64(s),h:await hashPw(pw,s),rs:toB64(rs),rh:await hashPw(normCode(frase),rs)}));
+  localStorage.setItem('vb_adm',JSON.stringify({t:tipo==='pin'?'pin':'pw',s:toB64(s),h:await hashPw(pw,s),rs:toB64(rs),rh:await hashPw(normCode(frase),rs)}));
   sessionStorage.setItem('vb_adm','1');
 }
 async function admEntrar(){
   mA(''); const pw=$('adm_pw').value, a=ADM();
   try{
-    if(!a){ if(pw.length<6) return mA('La clave debe tener mínimo 6 caracteres.'); if(pw!==$('adm_pw2').value) return mA('Las dos claves no son iguales.'); if(normCode($('adm_fr').value).length<6) return mA('La frase de recuperación debe tener mínimo 6 letras (por ejemplo tu nombre completo).'); mA('Creando…'); await admNueva(pw,$('adm_fr').value); mA(''); }
-    else { mA('Revisando…'); const h=await hashPw(pw,fromB64(a.s)); if(h!==a.h) return mA('Clave incorrecta.'); sessionStorage.setItem('vb_adm','1'); mA(''); }
+    if(!a){ const t=$('adm_tipo').value, e=adminErr(t,pw,$('adm_pw2').value,$('adm_fr').value); if(e) return mA(e); mA('Creando…'); await admNueva(pw,$('adm_fr').value,t); mA(''); }
+    else { mA('Revisando…'); const h=await hashPw(pw,fromB64(a.s)); if(h!==a.h) return mA(a.t==='pin'?'PIN incorrecto.':'Clave incorrecta.'); sessionStorage.setItem('vb_adm','1'); mA(''); }
     $('adm_pw').value=''; $('adm_pw2').value=''; $('adm_fr').value=''; admVista();
   }catch(e){ mA('No se pudo. Abre el panel desde tu página segura (https).'); }
 }
 async function admReset(){
   const a=ADM(); mA(''); if(!a) return;
-  const pw=$('rc_pw').value; if(pw.length<6) return mA('La clave nueva debe tener mínimo 6 caracteres.'); if(pw!==$('rc_pw2').value) return mA('Las dos claves no son iguales.');
+  const t=$('rc_tipo').value, e=adminErr(t,$('rc_pw').value,$('rc_pw2').value,$('rc_fr').value); if(e) return mA(e);
   try{ const h=await hashPw(normCode($('rc_code').value),fromB64(a.rs)); if(h!==a.rh) return mA('Esa frase de recuperación no es correcta.');
-    await admNueva(pw,$('rc_code').value); ['rc_code','rc_pw','rc_pw2'].forEach(i=>$(i).value=''); $('admRec').style.display='none'; admVista();
+    await admNueva($('rc_pw').value,$('rc_fr').value,t); ['rc_code','rc_pw','rc_pw2','rc_fr'].forEach(i=>$(i).value=''); $('admRec').style.display='none'; admVista();
   }catch(e){ mA('No se pudo restablecer.'); }
+}
+async function admCambiar(){
+  const m=$('ch_m'), a=ADM(); m.className='msg badc'; m.textContent=''; if(!a) return;
+  const t=$('ch_tipo').value, e=adminErr(t,$('ch_pw').value,$('ch_pw2').value,$('ch_fr').value); if(e){ m.textContent=e; return; }
+  try{ const h=await hashPw($('ch_old').value,fromB64(a.s)); if(h!==a.h){ m.textContent='Tu clave actual no es correcta.'; return; }
+    await admNueva($('ch_pw').value,$('ch_fr').value,t); ['ch_old','ch_pw','ch_pw2','ch_fr'].forEach(i=>$(i).value='');
+    m.className='msg ok'; m.textContent='Listo ✓ Tu clave y tu frase de recuperación nuevas ya están guardadas.';
+  }catch(er){ m.textContent='No se pudo cambiar.'; }
 }
 function admCerrar(){ sessionStorage.removeItem('vb_adm'); admVista(); }
 const mI=t=>{ $('inv_m').textContent=t||''; };
