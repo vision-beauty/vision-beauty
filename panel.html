@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; frame-src about: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="vb-v" content="16">
+<meta name="vb-v" content="17">
 <title>Panel privado · Vision Beauty</title>
 <style>
 :root{--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--ok:#1f8a4c;--bad:#b3402e}
@@ -123,6 +123,36 @@ header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .mini{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;background:#fff}.mini.hid{opacity:.6}
 .wabg{background:#efe7dd;border-radius:12px;padding:12px}
 body.owner #admBox{display:none!important}
+
+.ihero{background:linear-gradient(135deg,#f4e4dc 0%,#efe3d4 55%,#e8d5bd 100%);border:1px solid var(--line);border-radius:18px;padding:18px 16px;margin-bottom:12px;position:relative;overflow:hidden;animation:iup .5s both}
+.ihero::after{content:"✦";position:absolute;right:16px;top:8px;font-size:2.6rem;color:rgba(176,141,87,.35)}
+.ihero .lg{max-height:44px;max-width:160px;display:block;margin-bottom:8px}
+.ihero .nm{font-family:Georgia,'Cormorant Garamond',serif;font-size:1.05rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold2)}
+.ihero h2{font-size:1.45rem;margin:4px 0 2px;font-weight:700}
+.ihero p{color:var(--mut);font-size:.88rem}
+.istat{display:flex;align-items:center;gap:10px;border-radius:14px;padding:12px 14px;margin-bottom:12px;border:1px solid var(--line);background:#fff;animation:iup .5s .06s both}
+.istat.warn{background:#fff6e0;border-color:#e9c97a}.istat.ok{background:#eaf7ee;border-color:#a9d9b7}
+.istat .em{font-size:1.5rem}.istat b{display:block;font-size:.95rem}.istat span{font-size:.8rem;color:var(--mut)}
+.istat button{margin-left:auto;flex:0 0 auto}
+.ikpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.ikpi button{border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px 4px;text-align:center;font-size:.7rem;color:var(--mut);animation:iup .5s .1s both;transition:transform .15s}
+.ikpi button b{display:block;font-size:1.35rem;color:var(--ink)}
+.ikpi button.bad b{color:#b3392b}.ikpi button.mid b{color:#c47e15}
+.ialert{background:#fff;border:1px solid #efc9c1;border-left:4px solid #b3392b;border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:.85rem;animation:iup .5s .14s both}
+.ih3{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold2);margin:16px 2px 8px;font-weight:700}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{display:flex;flex-direction:column;gap:2px;text-align:left;border:1px solid var(--line);background:#fff;border-radius:16px;padding:14px 12px;position:relative;min-height:92px;animation:iup .5s both;transition:transform .15s,box-shadow .15s}
+.tile:active,.ikpi button:active{transform:scale(.96)}
+.tile:hover{box-shadow:0 4px 14px rgba(74,52,40,.12)}
+.tile .ic{font-size:1.6rem;line-height:1}
+.tile b{font-size:.92rem;margin-top:6px;color:var(--ink)}
+.tile span.d{font-size:.74rem;color:var(--mut);line-height:1.25}
+.tile .chip{position:absolute;top:10px;right:10px;font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:99px;background:var(--sand);color:var(--mut)}
+.tile .chip.on{background:#dff3e5;color:#1c7c43}
+.tile.main{background:linear-gradient(135deg,#8f6d3a,#b08d57);border:0}
+.tile.main b,.tile.main span.d{color:#fff}
+.itienda{display:block;text-align:center;margin:18px 0 6px;padding:13px;border:1px solid var(--gold2);color:var(--gold2);border-radius:12px;font-weight:700;text-decoration:none}
+@keyframes iup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 </style>
 <script>
 /* autoactualización: si la página guardada es vieja, se recarga sola una vez */
@@ -141,7 +171,8 @@ body.owner #admBox{display:none!important}
 <body>
 <div class="menuBg" id="menuBg" onclick="if(event.target===this)menu(false)"><nav id="menu">
   <div class="mh">Panel · Vision Beauty</div>
-  <button data-t="prod" class="on">📦 Productos</button>
+  <button data-t="inicio" class="on">🏠 Inicio</button>
+  <button data-t="prod">📦 Productos</button>
   <button data-t="vista">👁️ Vista previa</button>
   <button data-t="dest">⭐ Destacados</button>
   <button data-t="inv" id="tabInv">📊 Inventario</button>
@@ -158,12 +189,14 @@ body.owner #admBox{display:none!important}
   <button data-t="pub">🚀 Publicar</button>
 </nav></div>
 <div class="app">
-  <header><button class="mbtn" id="mbtn" onclick="menu(true)" aria-label="Abrir menú">⋮</button><h1 id="h1">Panel · Productos</h1><span class="pill warn" id="pill">Cargando…</span></header>
+  <header><button class="mbtn" id="mbtn" onclick="menu(true)" aria-label="Abrir menú">⋮</button><h1 id="h1">Panel · Inicio</h1><span class="pill warn" id="pill">Cargando…</span></header>
 
   <div class="main">
     <div class="col">
       <!-- PRODUCTOS -->
-      <section class="pane on" id="p_prod">
+      <section class="pane on" id="p_inicio"><div id="ini"></div></section>
+
+      <section class="pane" id="p_prod">
         <div class="tools">
           <input id="q" placeholder="Buscar producto…">
           <select id="fc"></select>
@@ -566,6 +599,7 @@ function estadoPill(){
 function cambio(){
   clearTimeout(timer); timer=setTimeout(()=>{ guardarBorrador(); },500);
   estadoPill(); progPrev(); resumen(); badgeInv();
+  if($('p_inicio')&&$('p_inicio').classList.contains('on')) renderInicio();
 }
 
 /* ---------- GitHub ---------- */
@@ -1207,6 +1241,53 @@ $('acc_pw').addEventListener('keydown',e=>{ if(e.key==='Enter') accEntrar(); });
 $('adm_pw').addEventListener('keydown',e=>{ if(e.key==='Enter'&&ADM()) admEntrar(); });
 admVista();
 
+
+/* ---------- inicio ---------- */
+function irInv(f){ irTab('inv'); ivF=f; $('iv_f').value=f; ivVis=40; renderInvList(); }
+function renderInicio(){
+  if(!S||!$('ini')) return;
+  const h=new Date().getHours(), sal=h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches';
+  const owner=document.body.classList.contains('owner');
+  const A=S.productos, vis=A.filter(p=>!p.h), ag=A.filter(p=>!p.h&&(p.a||(typeof p.s==='number'&&p.s<=0))), po=A.filter(p=>!p.h&&!p.a&&typeof p.s==='number'&&p.s>0&&p.s<=UMBR());
+  const D=(S.ajustes.destacados&&S.ajustes.destacados.items||[]).length, cambios=hayCambios();
+  const on=b=>`<span class="chip ${b?'on':''}">${b?'Activo':'Apagado'}</span>`;
+  const lg=S.tienda.logo?`<img class="lg" src="${esc(thumbs[S.tienda.logo]||S.tienda.logo)}" alt="">`:`<div class="nm">${esc(S.tienda.nombre||'Vision Beauty')}</div>`;
+  const tile=(i,ic,t,d,go,extra,cls)=>`<button class="tile ${cls||''}" style="animation-delay:${.16+i*.045}s" onclick="${go}"><span class="ic">${ic}</span>${extra||''}<b>${t}</b><span class="d">${d}</span></button>`;
+  $('ini').innerHTML=`
+    <div class="ihero">${lg}<h2>${sal}${owner?' 💛':''}</h2><p>Desde aquí manejas toda tu tienda. Toca lo que quieras hacer.</p></div>
+    <div class="istat ${cambios?'warn':'ok'}"><span class="em">${cambios?'✏️':'✅'}</span><div><b>${cambios?'Tienes cambios sin publicar':'Tu tienda está al día'}</b><span>${cambios?'Todavía no se ven en la tienda.':'Todo lo que ves aquí ya está publicado.'}</span></div>${cambios?'<button class="btn sm gold" onclick="irTab(\'pub\')">Publicar</button>':''}</div>
+    <div class="ikpi">
+      <button onclick="irTab('prod')"><b>${vis.length}</b>Productos</button>
+      <button class="${ag.length?'bad':''}" onclick="irInv('cero')"><b>${ag.length}</b>Agotados</button>
+      <button class="${po.length?'mid':''}" onclick="irInv('poco')"><b>${po.length}</b>Por acabarse</button>
+      <button onclick="irTab('dest')"><b>${D}</b>Destacados</button>
+    </div>
+    ${ag.length?`<div class="ialert"><b>Para reponer:</b> ${ag.slice(0,4).map(p=>esc(p.n)).join(', ')}${ag.length>4?' y '+(ag.length-4)+' más':''}. <a href="#" onclick="irInv('cero');return false" style="color:var(--gold2);font-weight:700">Ver agotados</a></div>`:''}
+    <div class="ih3">Lo más usado</div>
+    <div class="tiles">
+      ${tile(0,'➕','Nuevo producto','Sube una foto y listo','abrirNuevo()','','main')}
+      ${tile(1,'📦','Productos','Precios, fotos y orden','irTab(\'prod\')')}
+      ${tile(2,'📊','Inventario','Cuántas unidades quedan','irTab(\'inv\')')}
+      ${tile(3,'👁️','Ver cómo queda','Vista previa de tu tienda','irTab(\'vista\')')}
+    </div>
+    <div class="ih3">Para vender más</div>
+    <div class="tiles">
+      ${tile(4,'⭐','Destacados','El carrusel de arriba','irTab(\'dest\')',`<span class="chip ${D?'on':''}">${D}</span>`)}
+      ${tile(5,'🎟️','Códigos','Descuentos con código','irTab(\'cupones\')',on(S.ajustes.cupones&&S.ajustes.cupones.activo))}
+      ${tile(6,'🌟','Reseñas','Opiniones de clientas','irTab(\'resenas\')',on(S.ajustes.resenas&&S.ajustes.resenas.activo))}
+      ${tile(7,'🙋','Ayuda al cliente','Botón de ayuda','irTab(\'ayuda\')',on(S.ajustes.ayuda&&S.ajustes.ayuda.activo))}
+    </div>
+    <div class="ih3">Tu tienda</div>
+    <div class="tiles">
+      ${tile(8,'💬','Mensajes','Lo que le llega a tu WhatsApp','irTab(\'msg\')')}
+      ${tile(9,'ℹ️','Franja de info','Entrega, pago y contacto','irTab(\'info\')')}
+      ${tile(10,'🔗','Redes y contacto','Instagram, Facebook, TikTok','irTab(\'redes\')')}
+      ${tile(11,'🏪','Logo y avisos','Logo, splash y anuncio','irTab(\'tienda\')')}
+    </div>
+    <a class="itienda" id="iniLink" href="#" target="_blank" rel="noopener noreferrer">Abrir mi tienda ↗</a>`;
+  const b=$('sitio').dataset.base; const l=$('iniLink'); if(l){ l.href=b?b+'?v='+Date.now():'#'; if(!b) l.style.display='none'; }
+}
+
 /* ---------- vista previa ---------- */
 let prevT=null, forzar=false;
 function construirPrev(){
@@ -1225,7 +1306,7 @@ function verSplash(){ forzar=true; if(window.innerWidth<1000) irTab('vista'); se
 function cerrar(id){ $(id).classList.remove('open'); }
 function pregunta(t,m,fn){ $('askT').textContent=t; $('askM').textContent=m; $('askOk').onclick=()=>{ cerrar('mAsk'); fn(); }; $('mAsk').classList.add('open'); }
 function resetTodo(){ pregunta('¿Descartar todos los cambios?','Vuelves a lo que está publicado en la tienda ahora mismo.',()=>{ S=clone(BASE); asegurarCats(); borrarBorrador(); todoRender(); cambio(); }); }
-const NOMBRES={prod:'Productos',vista:'Vista previa',dest:'Destacados',inv:'Inventario',info:'Franja de información',redes:'Redes y contacto',msg:'Mensajes de WhatsApp',resenas:'Reseñas',ayuda:'Ayuda al cliente',cupones:'Códigos promocionales',cat:'Categorías',tienda:'Tienda y avisos',pub:'Publicar'};
+const NOMBRES={inicio:'Inicio',prod:'Productos',vista:'Vista previa',dest:'Destacados',inv:'Inventario',info:'Franja de información',redes:'Redes y contacto',msg:'Mensajes de WhatsApp',resenas:'Reseñas',ayuda:'Ayuda al cliente',cupones:'Códigos promocionales',cat:'Categorías',tienda:'Tienda y avisos',pub:'Publicar'};
 function menu(v){ $('menuBg').classList.toggle('open',!!v); }
 function irTab(t){
   document.querySelectorAll('#menu button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
@@ -1236,13 +1317,14 @@ function irTab(t){
   if(t==='pub') resumen();
   if(t==='dest'){ renderDestList(); renderDestPick(); }
   if(t==='inv'){ renderInv(); }
+  if(t==='inicio') renderInicio();
 }
 document.querySelectorAll('#menu button[data-t]').forEach(b=>b.addEventListener('click',()=>irTab(b.dataset.t)));
 ['g_o','g_r','g_b','g_t'].forEach(id=>$(id).addEventListener('input',()=>{leerCfg();sitioLink();}));
 $('q').addEventListener('input',e=>{ buscar=e.target.value; visibles=30; lista(); });
 $('fc').addEventListener('change',e=>{ filtroCat=e.target.value; visibles=30; lista(); });
 
-function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); renderDest(); renderInv(); renderInfo(); renderRes(); renderAyuda(); renderCup(); resumen(); pintarPrev(); }
+function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); renderDest(); renderInv(); renderInfo(); renderRes(); renderAyuda(); renderCup(); resumen(); pintarPrev(); renderInicio(); }
 (async function(){
   pill('Cargando…','warn');
   try{ await cargarPublicado(); }catch(e){ pill('No se pudo leer la tienda','bad'); $('list').innerHTML='<p class="small">No pude leer productos.js. Abre este panel desde tu página publicada (no como archivo suelto).</p>'; return; }
@@ -1257,7 +1339,7 @@ function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(
     }
   }
   asegurarCats();
-  pintarCfg(); todoRender(); estadoPill(); irTab('prod');
+  pintarCfg(); todoRender(); estadoPill(); irTab('inicio');
   if(hubo) pill('Cambios sin publicar (borrador)','warn');
   setInterval(()=>sincronizar(),90000);
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden) sincronizar(); });
