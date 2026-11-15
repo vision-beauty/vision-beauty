@@ -30,7 +30,8 @@ header h1{font-size:1rem;font-weight:600;white-space:nowrap}
 .pvbar .t{font-size:.8rem;color:var(--mut);flex:1}
 .tabs{flex:0 0 auto;display:flex;background:#fff;border-top:1px solid var(--line);order:3}
 header{order:0}.main{order:2}
-.tabs button{flex:1;border:0;background:none;padding:12px 4px;font-size:.8rem;color:var(--mut);border-top:3px solid transparent}
+.tabs{overflow-x:auto}
+.tabs button{flex:1;min-width:62px;border:0;background:none;padding:12px 4px;font-size:.74rem;color:var(--mut);border-top:3px solid transparent}
 .tabs button.on{color:var(--ink);font-weight:600;border-top-color:var(--gold)}
 .pane{display:none}.pane.on{display:block}
 .pvbox{display:none;flex-direction:column;height:calc(100dvh - 120px);border:1px solid var(--line);background:#fff;border-radius:12px;overflow:hidden}
@@ -84,6 +85,18 @@ header{order:0}.main{order:2}
 .catrow button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 10px}
 ol.s{margin:8px 0 8px 20px;font-size:.9rem}ol.s li{margin-bottom:5px}
 .dragover{outline:2px dashed var(--gold)}
+.iv{display:flex;gap:10px;padding:10px;align-items:center;border-top:1px solid var(--line)}
+.iv:first-child{border-top:0}
+.iv img{width:44px;height:56px;object-fit:cover;border-radius:8px;background:var(--sand);flex:0 0 auto}
+.iv .i{flex:1;min-width:0}
+.iv .nm{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iv .st{font-size:.75rem;margin-top:2px;color:var(--mut)}
+.iv .st.low{color:#b5483a;font-weight:600}.iv .st.zero{color:var(--bad);font-weight:700}
+.stp{display:flex;align-items:center;gap:4px;flex:0 0 auto}
+.stp input{width:62px;text-align:center;padding:8px 4px}
+.stp button{border:1px solid var(--line);background:#fff;border-radius:8px;width:36px;height:38px;font-size:1.1rem;color:var(--ink)}
+.stp button.v{width:auto;padding:0 8px;font-size:.7rem;border-color:var(--ink);font-weight:600}
+.alr{background:#fdf0ec;border:1px solid #f0c9bd;border-radius:10px;padding:8px 10px;font-size:.85rem;margin-top:8px}
 .di{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;background:#fff}
 .di .top img{width:48px;height:60px}
 .di .ex2{padding:0 10px 10px}
@@ -105,6 +118,7 @@ ol.s{margin:8px 0 8px 20px;font-size:.9rem}ol.s li{margin-bottom:5px}
     <button data-t="prod" class="on">Productos</button>
     <button data-t="vista">Vista previa</button>
     <button data-t="dest">Destacados</button>
+    <button data-t="inv" id="tabInv">Inventario</button>
     <button data-t="tienda">Tienda</button>
     <button data-t="pub">Publicar</button>
   </div>
@@ -153,6 +167,24 @@ ol.s{margin:8px 0 8px 20px;font-size:.9rem}ol.s li{margin-bottom:5px}
           <div class="tools" style="margin-top:8px"><input id="d_q" placeholder="Buscar producto…"><select id="d_fc"></select></div>
           <div class="pk" id="d_pick"></div>
           <button class="btn line" id="d_mas" style="width:100%;margin-top:10px;display:none" onclick="dMas()">Mostrar más</button>
+        </div>
+      </section>
+
+      <!-- INVENTARIO -->
+      <section class="pane" id="p_inv">
+        <div class="card"><h2>Inventario</h2>
+          <p class="small">Escribe cuántas unidades tienes de cada producto. En la tienda sale "¡Quedan 3!" cuando se estén acabando, y al llegar a 0 se pone Agotado solo. Si dejas el espacio vacío, ese producto no tiene control.</p>
+          <div class="kpi" id="iv_kpi"></div>
+          <label class="l">Avisar cuando queden (o menos)</label><input id="iv_umb" inputmode="numeric" placeholder="3">
+          <div id="iv_alr"></div>
+          <button class="btn gold" style="width:100%;margin-top:10px" onclick="resumenWA()">📲 Enviarme el resumen por WhatsApp</button>
+          <p class="small" style="margin-top:6px">Se abre tu WhatsApp con el resumen listo para enviarte a ti mismo. No es automático: la tienda no tiene servidor y no puede escribirte sola.</p>
+        </div>
+        <div class="card"><h2>Productos</h2>
+          <p class="small" style="margin-bottom:6px">Cuando vendas, toca <b>Vendí</b> para restar 1. Luego publica para que la tienda se actualice.</p>
+          <div class="tools"><input id="iv_q" placeholder="Buscar producto…"><select id="iv_f"><option value="todos">Todos</option><option value="con">Con inventario</option><option value="poco">Pocos</option><option value="cero">Agotados</option><option value="sin">Sin inventario</option></select></div>
+          <div id="iv_list"></div>
+          <button class="btn line" id="iv_mas" style="width:100%;margin-top:10px;display:none" onclick="ivMas()">Mostrar más</button>
         </div>
       </section>
 
@@ -270,14 +302,14 @@ let abierto = new Set(), visibles = 30, filtroCat = 'Todas', buscar = '';
 /* ---------- estado visible ---------- */
 function pill(t,c){ const e=$('pill'); e.textContent=t; e.className='pill '+(c||''); }
 const defDest = () => ({activo:false,titulo:'Destacados',seg:10,auto:true,items:[]});
-const defAj = () => ({splash:{activo:false,titulo:'Vision Beauty',sub:'Siempre linda',seg:2.4},anuncio:{activo:false,texto:''},destacados:defDest()});
+const defAj = () => ({splash:{activo:false,titulo:'Vision Beauty',sub:'Siempre linda',seg:2.4},anuncio:{activo:false,texto:''},destacados:defDest(),inventario:{umbral:3}});
 
 /* ---------- leer lo publicado ---------- */
 function parseJS(txt){
   const g = re => { const m=re.exec(txt); if(!m) throw new Error('formato'); return JSON.parse(m[1]); };
   const tienda=g(/^const TIENDA = (.*);$/m), cats=g(/^const CATEGORIAS = (.*);$/m);
   let aj=defAj(); const ma=/^const AJUSTES = (.*);$/m.exec(txt);
-  if(ma){ const a=JSON.parse(ma[1]); aj={splash:Object.assign(aj.splash,a.splash||{}),anuncio:Object.assign(aj.anuncio,a.anuncio||{}),destacados:Object.assign(defDest(),a.destacados||{})}; if(!Array.isArray(aj.destacados.items)) aj.destacados.items=[]; }
+  if(ma){ const a=JSON.parse(ma[1]); aj={splash:Object.assign(aj.splash,a.splash||{}),anuncio:Object.assign(aj.anuncio,a.anuncio||{}),destacados:Object.assign(defDest(),a.destacados||{}),inventario:Object.assign({umbral:3},a.inventario||{})}; if(!Array.isArray(aj.destacados.items)) aj.destacados.items=[]; }
   const k='const PRODUCTOS = [\n', i=txt.indexOf(k), j=txt.lastIndexOf('\n];');
   if(i<0||j<0) throw new Error('formato');
   return {tienda,ajustes:aj,categorias:cats,productos:JSON.parse('['+txt.slice(i+k.length,j)+']')};
@@ -297,7 +329,7 @@ function guardarBorrador(){
 }
 function cargarBorrador(){
   try{ const t=localStorage.getItem('vb_draft'); if(!t) return false; const o=JSON.parse(t);
-    if(o&&o.productos&&o.tienda&&o.categorias){ S=o; S.ajustes=Object.assign(defAj(),S.ajustes||{}); S.ajustes.destacados=Object.assign(defDest(),S.ajustes.destacados||{}); if(!Array.isArray(S.ajustes.destacados.items)) S.ajustes.destacados.items=[]; S.productos.forEach(p=>{ if(p.i&&p.i.startsWith('data:')) thumbs[p.i]=p.i; }); return true; } }catch(e){}
+    if(o&&o.productos&&o.tienda&&o.categorias){ S=o; S.ajustes=Object.assign(defAj(),S.ajustes||{}); S.ajustes.destacados=Object.assign(defDest(),S.ajustes.destacados||{}); if(!Array.isArray(S.ajustes.destacados.items)) S.ajustes.destacados.items=[]; S.ajustes.inventario=Object.assign({umbral:3},S.ajustes.inventario||{}); S.productos.forEach(p=>{ if(p.i&&p.i.startsWith('data:')) thumbs[p.i]=p.i; }); return true; } }catch(e){}
   return false;
 }
 function borrarBorrador(){ try{ localStorage.removeItem('vb_draft'); }catch(e){} }
@@ -311,7 +343,7 @@ function estadoPill(){
 }
 function cambio(){
   clearTimeout(timer); timer=setTimeout(()=>{ guardarBorrador(); },500);
-  estadoPill(); progPrev(); resumen();
+  estadoPill(); progPrev(); resumen(); badgeInv();
 }
 
 /* ---------- GitHub ---------- */
@@ -399,8 +431,9 @@ function filtrados(){
   return S.productos.filter(p=>(filtroCat==='Todas'||p.c===filtroCat)&&(!q||(p.n||'').toLowerCase().includes(q)));
 }
 function precioTxt(p){
-  if(!p.p) return 'Consultar precio';
-  return (p.o&&p.o<p.p) ? `<s>${fmt(p.p)}</s>${fmt(p.o)}` : fmt(p.p);
+  const st = (typeof p.s==='number') ? ' · '+(p.s===0?'Sin stock':p.s+' en stock') : '';
+  if(!p.p) return 'Consultar precio'+st;
+  return ((p.o&&p.o<p.p) ? `<s>${fmt(p.p)}</s>${fmt(p.o)}` : fmt(p.p))+st;
 }
 function lista(){
   const arr=filtrados();
@@ -446,6 +479,7 @@ function prod(id){ return S.productos.find(p=>p.id===id); }
 function ed(id,k,v){
   const p=prod(id); if(!p) return;
   if(k==='p'||k==='o'){ const d=String(v).replace(/\D/g,''); const n=d?parseInt(d,10):null; if(k==='p') p.p=n; else { if(n) p.o=n; else delete p.o; } }
+  else if(k==='s'){ const d=String(v).replace(/\D/g,''); if(d==='') delete p.s; else p.s=Math.min(99999,parseInt(d,10)); }
   else p[k]=v;
   refrescarFila(id); cambio();
 }
@@ -512,7 +546,7 @@ function cargarAjustes(){
 function leerAjustes(){
   S.tienda={nombre:$('t_nombre').value.trim(),whatsapp:$('t_wa').value.replace(/\D/g,''),instagram:$('t_ig').value.replace('@','').trim()};
   const seg=parseFloat(String($('s_seg').value).replace(',','.'));
-  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()},destacados:S.ajustes.destacados||defDest()};
+  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()},destacados:S.ajustes.destacados||defDest(),inventario:S.ajustes.inventario||{umbral:3}};
   cambio();
 }
 ['t_nombre','t_wa','t_ig','s_on','s_t','s_s','s_seg','a_on','a_t'].forEach(id=>$(id).addEventListener(id==='s_on'||id==='a_on'?'change':'input',leerAjustes));
@@ -580,6 +614,63 @@ function renderDestPick(){
 }
 function dMas(){ dVis+=40; renderDestPick(); }
 
+/* ---------- inventario ---------- */
+let ivQ='', ivF='todos', ivVis=40;
+const UMBR = () => { const n=parseInt(S.ajustes.inventario&&S.ajustes.inventario.umbral,10); return n>0?n:3; };
+const conStock = p => typeof p.s==='number';
+function ivEstado(p){ if(!conStock(p)) return 'sin'; if(p.s<=0) return 'cero'; if(p.s<=UMBR()) return 'poco'; return 'ok'; }
+function ivTxt(p){ const e=ivEstado(p); return e==='sin'?'Sin control de inventario':e==='cero'?'Agotado':e==='poco'?'¡Quedan '+p.s+'!':p.s+' disponibles'; }
+function badgeInv(){
+  if(!S) return; const n=S.productos.filter(p=>{const e=ivEstado(p);return e==='cero'||e==='poco';}).length;
+  $('tabInv').textContent='Inventario'+(n?' ('+n+')':'');
+}
+function renderInv(){
+  if(!S) return;
+  $('iv_umb').value=UMBR(); renderInvKpi(); renderInvList(); badgeInv();
+}
+function renderInvKpi(){
+  const A=S.productos, c=A.filter(conStock), tot=c.reduce((m,p)=>m+Math.max(0,p.s),0);
+  const poco=A.filter(p=>ivEstado(p)==='poco'), cero=A.filter(p=>ivEstado(p)==='cero');
+  $('iv_kpi').innerHTML=[['Unidades',tot],['Pocos',poco.length],['Agotados',cero.length],['Sin control',A.length-c.length]].map(([a,b])=>`<div><b>${b}</b>${a}</div>`).join('');
+  $('iv_alr').innerHTML = (poco.length||cero.length) ? '<div class="alr">'+(cero.length?'<b>Agotados:</b> '+cero.slice(0,8).map(p=>esc(p.n)).join(', ')+(cero.length>8?'…':'')+'<br>':'')+(poco.length?'<b>Se están acabando:</b> '+poco.slice(0,8).map(p=>esc(p.n)+' ('+p.s+')').join(', ')+(poco.length>8?'…':''):'')+'</div>' : '';
+}
+function ivFiltrados(){
+  const q=ivQ.toLowerCase();
+  return S.productos.filter(p=>{ const e=ivEstado(p);
+    if(ivF==='con'&&e==='sin') return false; if(ivF==='poco'&&e!=='poco') return false; if(ivF==='cero'&&e!=='cero') return false; if(ivF==='sin'&&e!=='sin') return false;
+    return !q || (p.n||'').toLowerCase().includes(q); });
+}
+function renderInvList(){
+  const arr=ivFiltrados();
+  $('iv_list').innerHTML = arr.slice(0,ivVis).map(p=>{ const e=ivEstado(p);
+    return `<div class="iv" id="iv${p.id}"><img src="${esc(th(p.i))}" alt="" loading="lazy">
+      <div class="i"><div class="nm">${esc(p.n)}</div><div class="st ${e==='poco'?'low':e==='cero'?'zero':''}" id="ivs${p.id}">${ivTxt(p)}</div></div>
+      <div class="stp"><button class="v" onclick="ivMenos(${p.id})" title="Vendí 1">Vendí</button><input inputmode="numeric" id="ivi${p.id}" value="${conStock(p)?p.s:''}" placeholder="—" oninput="ivSet(${p.id},this.value)"><button onclick="ivMas1(${p.id})">+</button></div></div>`; }).join('') || '<p class="small">No hay productos con ese filtro.</p>';
+  $('iv_mas').style.display = arr.length>ivVis ? 'block':'none';
+}
+function ivMas(){ ivVis+=40; renderInvList(); }
+function ivAct(id){
+  const p=prod(id), e=ivEstado(p), t=$('ivs'+id); if(!t) return;
+  t.textContent=ivTxt(p); t.className='st '+(e==='poco'?'low':e==='cero'?'zero':''); const i=$('ivi'+id); if(i && document.activeElement!==i) i.value=conStock(p)?p.s:'';
+  renderInvKpi(); badgeInv();
+}
+function ivSet(id,v){ ed(id,'s',v); ivAct(id); }
+function ivMenos(id){ const p=prod(id); if(!conStock(p)) return; const n=Math.max(0,p.s-1); ed(id,'s',String(n)); const i=$('ivi'+id); if(i) i.value=n; ivAct(id); }
+function ivMas1(id){ const p=prod(id); const n=conStock(p)?p.s+1:1; ed(id,'s',String(n)); const i=$('ivi'+id); if(i) i.value=n; ivAct(id); }
+$('iv_q').addEventListener('input',e=>{ ivQ=e.target.value; ivVis=40; renderInvList(); });
+$('iv_f').addEventListener('change',e=>{ ivF=e.target.value; ivVis=40; renderInvList(); });
+$('iv_umb').addEventListener('input',e=>{ const n=parseInt(String(e.target.value).replace(/\D/g,''),10); S.ajustes.inventario={umbral:n>0?Math.min(999,n):3}; renderInvKpi(); renderInvList(); badgeInv(); cambio(); });
+function resumenWA(){
+  const A=S.productos, c=A.filter(conStock), tot=c.reduce((m,p)=>m+Math.max(0,p.s),0);
+  const poco=A.filter(p=>ivEstado(p)==='poco').sort((a,b)=>a.s-b.s), cero=A.filter(p=>ivEstado(p)==='cero');
+  const L=['📦 Inventario Vision Beauty',''];
+  L.push('Agotados ('+cero.length+'):'); cero.slice(0,40).forEach(p=>L.push('• '+p.n)); if(!cero.length) L.push('Ninguno');
+  L.push('','Se están acabando ('+poco.length+'):'); poco.slice(0,40).forEach(p=>L.push('• '+p.n+': quedan '+p.s)); if(!poco.length) L.push('Ninguno');
+  L.push('','Total de unidades con control: '+tot);
+  const num=String(S.tienda.whatsapp||'').replace(/\D/g,'');
+  window.open('https://wa.me/'+num+'?text='+encodeURIComponent(L.join('\n')),'_blank','noopener');
+}
+
 /* ---------- generar archivo ---------- */
 function compacto(p){ const o={}; for(const k of Object.keys(p)){ const v=p[k]; if(v===null||v===undefined||v===false||v==='') { if(k==='p') o.p=null; continue; } o[k]=v; } return o; }
 function generarJS(vista){
@@ -606,7 +697,7 @@ function resumen(){
   const nuevos=S.productos.filter(p=>!BASEMAP[p.id]).length;
   const edit=S.productos.filter(p=>BASEMAP[p.id]&&JSON.stringify(compacto(BASEMAP[p.id]))!==JSON.stringify(compacto(p))).length;
   const borr=BASE.productos.filter(b=>!S.productos.some(p=>p.id===b.id)).length;
-  const k=[['Nuevos',nuevos],['Editados',edit],['Borrados',borr],['Agotados',S.productos.filter(p=>p.a).length],['En oferta',S.productos.filter(p=>p.o&&p.o<p.p).length],['Ocultos',S.productos.filter(p=>p.h).length],['Destacados',S.ajustes.destacados.items.length]];
+  const k=[['Nuevos',nuevos],['Editados',edit],['Borrados',borr],['Agotados',S.productos.filter(p=>p.a||p.s===0).length],['En oferta',S.productos.filter(p=>p.o&&p.o<p.p).length],['Ocultos',S.productos.filter(p=>p.h).length],['Destacados',S.ajustes.destacados.items.length]];
   $('kpi').innerHTML=k.map(([a,b])=>`<div><b>${b}</b>${a}</div>`).join('');
 }
 
@@ -634,13 +725,14 @@ function irTab(t){
   if(t==='vista'){ forzar=false; setTimeout(pintarPrev,50); }
   if(t==='pub') resumen();
   if(t==='dest'){ renderDestList(); renderDestPick(); }
+  if(t==='inv'){ renderInv(); }
 }
 document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>irTab(b.dataset.t)));
 ['g_o','g_r','g_b','g_t'].forEach(id=>$(id).addEventListener('input',()=>{leerCfg();sitioLink();}));
 $('q').addEventListener('input',e=>{ buscar=e.target.value; visibles=30; lista(); });
 $('fc').addEventListener('change',e=>{ filtroCat=e.target.value; visibles=30; lista(); });
 
-function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); renderDest(); resumen(); pintarPrev(); }
+function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); renderDest(); renderInv(); resumen(); pintarPrev(); }
 (async function(){
   pill('Cargando…','warn');
   try{ await cargarPublicado(); }catch(e){ pill('No se pudo leer la tienda','bad'); $('list').innerHTML='<p class="small">No pude leer productos.js. Abre este panel desde tu página publicada (no como archivo suelto).</p>'; return; }

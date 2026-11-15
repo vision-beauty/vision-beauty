@@ -147,6 +147,8 @@ footer a{color:var(--gold2)}
 .ddots{display:flex;justify-content:center;gap:8px;margin-top:14px}
 .ddots button{width:8px;height:8px;border-radius:4px;border:0;background:var(--line);padding:0;cursor:pointer;transition:.3s}
 .ddots button.on{width:26px;background:var(--gold)}
+.stk{font-size:.78rem;color:#b5483a;letter-spacing:.03em;margin-top:2px;font-weight:500}
+.stk.ok{color:var(--mut);font-weight:400}
 .qrow{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:12px}
 .mbox .qrow{justify-content:flex-start}
 .ql{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
@@ -250,6 +252,15 @@ const AJ = (typeof AJUSTES!=='undefined') ? AJUSTES : {};
 const VISIBLES = PRODUCTOS.filter(p=>!p.h);
 const pf = p => (p.o && p.p && p.o<p.p) ? p.o : p.p;
 const enOferta = p => !!(p.o && p.p && p.o<p.p);
+const AGOT = p => !!p.a || (typeof p.s==='number' && p.s<=0);
+const stockN = p => (typeof p.s==='number' && p.s>0) ? p.s : null;
+const UMB = (AJ.inventario && Number(AJ.inventario.umbral)>0) ? Number(AJ.inventario.umbral) : 3;
+const maxQ = p => stockN(p) || 99;
+function stockHtml(p,full){
+  const s=stockN(p); if(s===null || p.a) return '';
+  if(s<=UMB) return '<div class="stk">'+(s===1?'¡Última unidad!':'¡Quedan '+s+'!')+'</div>';
+  return full ? '<div class="stk ok">'+s+' disponibles</div>' : '';
+}
 const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const fmt = n => "$" + n.toLocaleString("es-CO");
 let carrito = {}, filtro = "Todo", visibles = 24;
@@ -285,7 +296,7 @@ let actual = [];
 function badges(p){
   let b=""; if(p.nu) b+='<span>Nuevo</span>';
   if(enOferta(p)) b+='<span class="of">-'+Math.round((1-p.o/p.p)*100)+'%</span>';
-  if(p.a) b+='<span class="ag">Agotado</span>';
+  if(AGOT(p)) b+='<span class="ag">Agotado</span>';
   return b?'<div class="bd">'+b+'</div>':'';
 }
 function precioHtml(p){
@@ -295,27 +306,29 @@ function precioHtml(p){
 function wa(p){ return 'https://wa.me/'+String(TIENDA.whatsapp).replace(/\D/g,'')+'?text='+encodeURIComponent('Hola, me interesa: '+p.n+' ('+p.c+')'); }
 function accion(p,estilo,conQty){
   const st = estilo ? ' style="background:var(--ink);color:var(--cream)"' : '';
-  if(p.a) return '<button class="add" disabled>Agotado</button>';
+  if(AGOT(p)) return '<button class="add" disabled>Agotado</button>';
   if(!p.p) return '<a class="add" target="_blank" rel="noopener noreferrer" href="'+esc(wa(p))+'">Preguntar por WhatsApp</a>';
-  if(conQty) return '<div class="qrow"><span class="ql">Cantidad</span><div class="qs"><button type="button" aria-label="Menos" onclick="qch(this,-1)">−</button><span class="qv">1</span><button type="button" aria-label="Más" onclick="qch(this,1)">+</button></div></div>'
+  if(conQty) return '<div class="qrow"><span class="ql">Cantidad</span><div class="qs"><button type="button" aria-label="Menos" onclick="qch(this,-1)">−</button><span class="qv" data-max="'+maxQ(p)+'">1</span><button type="button" aria-label="Más" onclick="qch(this,1)">+</button></div></div>'
     +'<button class="add"'+st+' onclick="addQ('+p.id+',this)">Agregar a la bolsa</button>';
   return '<button class="add"'+st+' onclick="add('+p.id+',this)">Agregar a la bolsa</button>';
 }
-function qch(b,d){ const v=b.parentNode.querySelector(".qv"); v.textContent=Math.min(99,Math.max(1,(parseInt(v.textContent,10)||1)+d)); }
+function qch(b,d){ const v=b.parentNode.querySelector(".qv"); const mx=parseInt(v.getAttribute("data-max"),10)||99; const nv=(parseInt(v.textContent,10)||1)+d; v.textContent=Math.min(mx,Math.max(1,nv)); }
 function addQ(id,btn){
-  const box=btn.parentNode, v=box.querySelector(".qv"), n=parseInt(v&&v.textContent,10)||1;
-  carrito[id]=(carrito[id]||0)+n; render();
-  btn.classList.add("ok"); btn.textContent="Agregado ("+n+") ✓"; if(v) v.textContent="1";
-  setTimeout(()=>{btn.classList.remove("ok");btn.textContent="Agregar a la bolsa"},1200);
+  const box=btn.parentNode, v=box.querySelector(".qv"), p=PRODUCTOS.find(x=>x.id===id);
+  let n=parseInt(v&&v.textContent,10)||1; const libre=maxQ(p)-(carrito[id]||0); let msg;
+  if(libre<=0) msg="Ya tienes todo el stock en tu bolsa";
+  else { if(n>libre){ n=libre; msg="Solo quedan "+libre; } else msg="Agregado ("+n+") ✓"; carrito[id]=(carrito[id]||0)+n; render(); }
+  btn.classList.add("ok"); btn.textContent=msg; if(v) v.textContent="1";
+  setTimeout(()=>{btn.classList.remove("ok");btn.textContent="Agregar a la bolsa"},1500);
 }
 function lista(){
   const arr = VISIBLES.filter(pasa);
   actual = arr;
   $("grid").innerHTML = arr.slice(0,visibles).map((p,i)=>`
-    <article class="card ${p.a?'soldout':''}" style="animation-delay:${(i%12)*40}ms">
+    <article class="card ${AGOT(p)?'soldout':''}" style="animation-delay:${(i%12)*40}ms">
       <div class="pic" onclick="abrirM(${p.id})"><img src="${esc(p.i)}" alt="${esc(p.n)}" loading="lazy">${badges(p)}</div>
       <div class="meta"><h3 onclick="abrirM(${p.id})">${esc(p.n)}</h3>
-      ${precioHtml(p)}
+      ${precioHtml(p)}${stockHtml(p)}
       ${accion(p)}
       </div>
     </article>`).join("");
@@ -328,7 +341,7 @@ function abrirM(id){
   $("mCat").textContent = p.c; $("mNom").textContent = p.n;
   $("mPre").innerHTML = precioHtml(p).replace(/<\/?div[^>]*>/g,"");
   $("mDes").textContent = p.d || "";
-  $("mAcc").innerHTML = accion(p,true,true);
+  $("mAcc").innerHTML = stockHtml(p,true)+accion(p,true,true);
   $("modal").classList.add("open"); document.body.style.overflow="hidden";
 }
 function cerrarM(){ $("modal").classList.remove("open"); document.body.style.overflow=""; }
@@ -344,10 +357,12 @@ let tx=null;
 $("modal").addEventListener("touchstart",e=>{tx=e.touches[0].clientX},{passive:true});
 $("modal").addEventListener("touchend",e=>{ if(tx===null) return; const dx=e.changedTouches[0].clientX-tx; if(Math.abs(dx)>70) navM(dx<0?1:-1); tx=null; });
 function add(id,btn){
+  const pr=PRODUCTOS.find(x=>x.id===id);
+  if(pr && (carrito[id]||0)>=maxQ(pr)){ if(btn){btn.textContent="Solo quedan "+maxQ(pr);setTimeout(()=>{btn.textContent="Agregar a la bolsa"},1500);} return; }
   carrito[id]=(carrito[id]||0)+1; render();
   if(btn){btn.classList.add("ok");btn.textContent="Agregado ✓";setTimeout(()=>{btn.classList.remove("ok");btn.textContent="Agregar a la bolsa"},1000);}
 }
-function chg(id,d){carrito[id]=(carrito[id]||0)+d;if(carrito[id]<=0)delete carrito[id];render();}
+function chg(id,d){const pr=PRODUCTOS.find(x=>x.id==id); carrito[id]=Math.min(pr?maxQ(pr):99,(carrito[id]||0)+d);if(carrito[id]<=0)delete carrito[id];render();}
 function render(){
   const ids = Object.keys(carrito); let total=0,cnt=0;
   $("items").innerHTML = ids.length ? ids.map(id=>{
@@ -378,10 +393,10 @@ filtros();lista();render();
   $("dTit").textContent = D.titulo || "Destacados"; $("destacados").style.display = "block";
   const flechas = n>1 ? '<button class="darr l" aria-label="Anterior" onclick="event.stopPropagation();dGo(-1)">‹</button><button class="darr r" aria-label="Siguiente" onclick="event.stopPropagation();dGo(1)">›</button>' : '';
   $("dTrack").innerHTML = it.map((x,i)=>{ const p=x.p, fr=x.t||p.d||"";
-    return '<article class="dslide'+(p.a?' soldout':'')+'">'
+    return '<article class="dslide'+(AGOT(p)?' soldout':'')+'">'
       +'<div class="dpic" onclick="abrirM('+p.id+')"><img src="'+esc(p.i)+'" alt="'+esc(p.n)+'"'+(i?' loading="lazy"':'')+'>'+badges(p)+flechas+'</div>'
       +'<div class="dtxt"><div class="dcat">'+esc(p.c)+'</div><h3 onclick="abrirM('+p.id+')">'+esc(p.n)+'</h3>'
-      +(fr?'<p class="dfrase">'+esc(fr)+'</p>':'')+precioHtml(p)+accion(p,true,true)
+      +(fr?'<p class="dfrase">'+esc(fr)+'</p>':'')+precioHtml(p)+stockHtml(p,true)+accion(p,true,true)
       +'<button class="dmore" onclick="abrirM('+p.id+')">Ver detalle</button></div></article>'; }).join("");
   $("dDots").innerHTML = n>1 ? it.map((x,i)=>'<button aria-label="Ir al destacado '+(i+1)+'" onclick="dSet('+i+')"></button>').join("") : "";
   const slides = $("dTrack").children, dots = $("dDots").children, bar = $("dBar");
