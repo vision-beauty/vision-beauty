@@ -118,6 +118,7 @@ header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .wab .th img{width:64px;height:64px;object-fit:cover;flex:none}
 .wab .th span{font-size:.75rem;padding:6px 6px 6px 0;color:#444}
 .wab .hr{display:block;text-align:right;font-size:.68rem;color:#667781;margin-top:2px}
+.sepg{font-weight:700;font-size:.8rem;color:var(--muted,#7a6a5c);margin:10px 2px 6px;text-transform:uppercase;letter-spacing:.04em}.sepg.bad{color:#b3392b}
 .wabg{background:#efe7dd;border-radius:12px;padding:12px}
 </style>
 </head>
@@ -180,6 +181,7 @@ header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
           <div id="d_list"></div>
         </div>
         <div class="card"><h2>Agregar productos</h2>
+          <button class="btn gold" style="width:100%;margin-bottom:10px" onclick="abrirNuevo('dest')">+ Crear producto nuevo y ponerlo aquí</button>
           <p class="small">Toca los productos que quieres mostrar. Puedes escoger varios. Toca otra vez para quitarlos.</p>
           <div class="tools" style="margin-top:8px"><input id="d_q" placeholder="Buscar producto…"><select id="d_fc"></select></div>
           <div class="pk" id="d_pick"></div>
@@ -194,6 +196,7 @@ header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
           <div class="kpi" id="iv_kpi"></div>
           <label class="l">Avisar cuando queden (o menos)</label><input id="iv_umb" inputmode="numeric" placeholder="3">
           <div id="iv_alr"></div>
+          <button class="btn line" style="width:100%;margin-top:10px" onclick="abrirNuevo('inv')">+ Agregar producto nuevo</button>
           <button class="btn gold" style="width:100%;margin-top:10px" onclick="resumenWA()">📲 Enviarme el resumen por WhatsApp</button>
           <p class="small" style="margin-top:6px">Se abre tu WhatsApp con el resumen listo para enviarte a ti mismo. No es automático: la tienda no tiene servidor y no puede escribirte sola.</p>
         </div>
@@ -335,6 +338,7 @@ header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
     <div><label class="l">Categoría</label><select id="n_c"></select></div></div>
   <label class="l">¿Categoría nueva? (opcional)</label><input id="n_cn">
   <label class="l">Descripción breve</label><textarea id="n_d" style="height:70px"></textarea>
+  <label class="l">Cantidad en inventario (opcional)</label><input id="n_s" inputmode="numeric" placeholder="Déjalo vacío si no llevas control">
   <div class="sw"><input type="checkbox" id="n_nu" checked><label for="n_nu">Marcar como "Nuevo"</label></div>
   <div class="msg badc" id="n_m"></div>
   <div class="row2" style="margin-top:12px"><button class="btn line" onclick="cerrar('mNuevo')">Cancelar</button><button class="btn" onclick="crear()">Agregar</button></div>
@@ -505,12 +509,15 @@ function precioTxt(p){
   if(!p.p) return 'Consultar precio'+st;
   return ((p.o&&p.o<p.p) ? `<s>${fmt(p.p)}</s>${fmt(p.o)}` : fmt(p.p))+st;
 }
+const agot = p => !!p.a || (typeof p.s==='number' && p.s<=0);
+function ordenados(){ const a=filtrados(); return a.filter(agot).concat(a.filter(p=>!agot(p))); }
 function lista(){
-  const arr=filtrados();
-  $('cuenta').textContent = arr.length+' de '+S.productos.length+' productos · usa ↑ ↓ para cambiar el orden en que aparecen';
-  $('list').innerHTML = arr.slice(0,visibles).map(p=>{
+  const arr=ordenados(), nAg=arr.filter(agot).length;
+  $('cuenta').textContent = arr.length+' de '+S.productos.length+' productos'+(nAg?' · '+nAg+' agotados arriba':'')+' · usa ↑ ↓ para cambiar el orden en que aparecen';
+  $('list').innerHTML = arr.slice(0,visibles).map((p,ix)=>{
+    const sep = (nAg && ix===0 ? '<div class="sepg bad">🔴 Agotados ('+nAg+')</div>' : '') + (nAg && ix===nAg && arr.length>nAg ? '<div class="sepg">Disponibles</div>' : '');
     const b=BASEMAP[p.id], chg = !b || JSON.stringify(compacto(b))!==JSON.stringify(compacto(p));
-    return `<div class="it ${abierto.has(p.id)?'open':''} ${p.h?'hid':''} ${chg?'chg':''}" id="it${p.id}" draggable="false" ondragover="dOver(event)" ondragleave="dLeave(event)" ondrop="dDrop(event,${p.id})">
+    return sep+`<div class="it ${abierto.has(p.id)?'open':''} ${p.h?'hid':''} ${chg?'chg':''}" id="it${p.id}" draggable="false" ondragover="dOver(event)" ondragleave="dLeave(event)" ondrop="dDrop(event,${p.id})">
       <div class="top">
         <span class="grip" draggable="true" ondragstart="dStart(event,${p.id})" title="Arrastra para mover">⠿</span>
         <img src="${esc(th(p.i))}" alt="" onclick="tg(${p.id})">
@@ -561,7 +568,7 @@ function refrescarFila(id){
 }
 function flag(id,k){ const p=prod(id); if(p[k]) delete p[k]; else p[k]=1; lista(); cambio(); }
 function mover(id,d){
-  const arr=filtrados(); const i=arr.findIndex(p=>p.id===id), j=i+d; if(j<0||j>=arr.length) return;
+  const p0=prod(id), arr=ordenados().filter(x=>agot(x)===agot(p0)); const i=arr.findIndex(p=>p.id===id), j=i+d; if(j<0||j>=arr.length) return;
   const a=S.productos.indexOf(arr[i]), b=S.productos.indexOf(arr[j]);
   [S.productos[a],S.productos[b]]=[S.productos[b],S.productos[a]]; lista(); cambio();
   const e=$('it'+id); if(e) e.scrollIntoView({block:'nearest'});
@@ -595,15 +602,20 @@ function cambiarFoto(id,inp){ const f=inp.files[0]; if(!f) return; procesarFoto(
 
 /* ---------- producto nuevo ---------- */
 let fotoN=null;
-function abrirNuevo(){ fotoN=null; $('prev').style.display='none'; $('foto').value=''; ['n_n','n_p','n_cn','n_d'].forEach(i=>$(i).value=''); $('n_nu').checked=true; $('n_m').textContent=''; $('mNuevo').classList.add('open'); }
+let nuevoModo='prod';
+function abrirNuevo(m){ nuevoModo=(m==='dest'||m==='inv')?m:'prod'; $('n_s').value=''; fotoN=null; $('prev').style.display='none'; $('foto').value=''; ['n_n','n_p','n_cn','n_d'].forEach(i=>$(i).value=''); $('n_nu').checked=true; $('n_m').textContent=''; $('mNuevo').classList.add('open'); }
 $('foto').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f) return; procesarFoto(f,d=>{ fotoN=d; $('prev').src=d; $('prev').style.display='block'; }); });
 function crear(){
   const n=$('n_n').value.trim(); if(!fotoN) return $('n_m').textContent='Falta la foto.'; if(!n) return $('n_m').textContent='Falta el nombre.';
   const cn=$('n_cn').value.trim(); const c=cn||$('n_c').value; if(cn&&!S.categorias.includes(cn)) S.categorias.push(cn);
   const d=$('n_p').value.replace(/\D/g,''); const id=S.productos.reduce((m,p)=>Math.max(m,p.id),0)+1;
   const p={id,n,c,p:d?parseInt(d,10):null,i:fotoN,d:$('n_d').value.trim()}; if($('n_nu').checked) p.nu=1;
-  S.productos.unshift(p); filtroCat='Todas'; buscar=''; $('q').value=''; llenarCats(); renderCats(); lista(); cerrar('mNuevo'); cambio();
-  const c2=document.querySelector('.col'); if(c2) c2.scrollTo({top:0,behavior:'smooth'});
+  const sd=$('n_s').value.replace(/\D/g,''); if(sd!=='') p.s=Math.min(99999,parseInt(sd,10));
+  S.productos.unshift(p); filtroCat='Todas'; buscar=''; $('q').value=''; llenarCats(); renderCats(); lista(); cerrar('mNuevo');
+  if(nuevoModo==='dest'){ DEST().items.push({id,t:''}); renderDest(); }
+  if(nuevoModo==='inv') ivQ='', $('iv_q').value='', renderInv();
+  badgeInv(); cambio();
+  if(nuevoModo==='prod'){ const c2=document.querySelector('.col'); if(c2) c2.scrollTo({top:0,behavior:'smooth'}); }
 }
 
 /* ---------- tienda ---------- */
@@ -689,7 +701,7 @@ function dMas(){ dVis+=40; renderDestPick(); }
 let ivQ='', ivF='todos', ivVis=40;
 const UMBR = () => { const n=parseInt(S.ajustes.inventario&&S.ajustes.inventario.umbral,10); return n>0?n:3; };
 const conStock = p => typeof p.s==='number';
-function ivEstado(p){ if(!conStock(p)) return 'sin'; if(p.s<=0) return 'cero'; if(p.s<=UMBR()) return 'poco'; return 'ok'; }
+function ivEstado(p){ if(p.a) return 'cero'; if(!conStock(p)) return 'sin'; if(p.s<=0) return 'cero'; if(p.s<=UMBR()) return 'poco'; return 'ok'; }
 function ivTxt(p){ const e=ivEstado(p); return e==='sin'?'Sin control de inventario':e==='cero'?'Agotado':e==='poco'?'¡Quedan '+p.s+'!':p.s+' disponibles'; }
 function badgeInv(){
   if(!S) return; const n=S.productos.filter(p=>{const e=ivEstado(p);return e==='cero'||e==='poco';}).length;
@@ -712,7 +724,8 @@ function ivFiltrados(){
     return !q || (p.n||'').toLowerCase().includes(q); });
 }
 function renderInvList(){
-  const arr=ivFiltrados();
+  const rk=p=>{const e=ivEstado(p);return e==='cero'?0:e==='poco'?1:2;};
+  const arr=ivFiltrados().map((p,i)=>[p,i]).sort((a,b)=>rk(a[0])-rk(b[0])||a[1]-b[1]).map(x=>x[0]);
   $('iv_list').innerHTML = arr.slice(0,ivVis).map(p=>{ const e=ivEstado(p);
     return `<div class="iv" id="iv${p.id}"><img src="${esc(th(p.i))}" alt="" loading="lazy">
       <div class="i"><div class="nm">${esc(p.n)}</div><div class="st ${e==='poco'?'low':e==='cero'?'zero':''}" id="ivs${p.id}">${ivTxt(p)}</div></div>
@@ -725,9 +738,9 @@ function ivAct(id){
   t.textContent=ivTxt(p); t.className='st '+(e==='poco'?'low':e==='cero'?'zero':''); const i=$('ivi'+id); if(i && document.activeElement!==i) i.value=conStock(p)?p.s:'';
   renderInvKpi(); badgeInv();
 }
-function ivSet(id,v){ ed(id,'s',v); ivAct(id); }
+function ivSet(id,v){ const p0=prod(id); if(p0&&p0.a&&parseInt(String(v).replace(/\D/g,''),10)>0) delete p0.a; ed(id,'s',v); ivAct(id); }
 function ivMenos(id){ const p=prod(id); if(!conStock(p)) return; const n=Math.max(0,p.s-1); ed(id,'s',String(n)); const i=$('ivi'+id); if(i) i.value=n; ivAct(id); }
-function ivMas1(id){ const p=prod(id); const n=conStock(p)?p.s+1:1; ed(id,'s',String(n)); const i=$('ivi'+id); if(i) i.value=n; ivAct(id); }
+function ivMas1(id){ const p=prod(id); if(p.a) delete p.a; const n=conStock(p)?p.s+1:1; ed(id,'s',String(n)); const i=$('ivi'+id); if(i) i.value=n; ivAct(id); }
 $('iv_q').addEventListener('input',e=>{ ivQ=e.target.value; ivVis=40; renderInvList(); });
 $('iv_f').addEventListener('change',e=>{ ivF=e.target.value; ivVis=40; renderInvList(); });
 $('iv_umb').addEventListener('input',e=>{ const n=parseInt(String(e.target.value).replace(/\D/g,''),10); S.ajustes.inventario={umbral:n>0?Math.min(999,n):3}; renderInvKpi(); renderInvList(); badgeInv(); cambio(); });
