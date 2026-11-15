@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; frame-src about: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="vb-v" content="12">
+<meta name="vb-v" content="13">
 <title>Panel privado · Vision Beauty</title>
 <style>
 :root{--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--ok:#1f8a4c;--bad:#b3402e}
@@ -1122,7 +1122,7 @@ async function invCrear(){
   mI(''); const c=cfg(), pw=$('inv_pw').value.trim();
   if(!c.token||!c.owner||!c.repo) return mI('Primero conecta GitHub aquí arriba (usuario, repositorio y clave).');
   if(pw.length<6) return mI('La clave de acceso debe tener mínimo 6 caracteres.');
-  try{ mI('Creando…'); const blob=await cifrar({v:1,o:c.owner,r:c.repo,b:c.branch||'main',t:c.token},pw);
+  try{ mI('Creando…'); const blob=await cifrar({v:1,o:c.owner,r:c.repo,b:c.branch||'main',t:c.token},pw.toLowerCase());
     $('inv_link').value=location.origin+location.pathname+'#acc='+blob; $('inv_out').style.display='block'; mI('');
   }catch(e){ mI('No se pudo crear el link.'); }
 }
@@ -1134,7 +1134,7 @@ if(/^#acc=/.test(location.hash)) $('accO').style.display='flex';
 async function accEntrar(){
   accM(''); const pw=$('acc_pw').value; if(!pw) return accM('Escribe la clave.');
   $('acc_go').disabled=true; accM('Revisando…');
-  try{ const o=await descifrar(location.hash.slice(5),pw); if(!o||!o.t||!o.o||!o.r) throw 0;
+  try{ const blob=location.hash.slice(5), a=pw.trim(); let o; try{ o=await descifrar(blob,a.toLowerCase()); }catch(e1){ o=await descifrar(blob,pw); } if(!o||!o.t||!o.o||!o.r) throw 0;
     localStorage.setItem('vb_gh',JSON.stringify({owner:o.o,repo:o.r,branch:o.b||'main',token:o.t}));
     if(!ADM()) localStorage.setItem('vb_role','owner');
     history.replaceState(null,'',location.pathname); location.reload();
