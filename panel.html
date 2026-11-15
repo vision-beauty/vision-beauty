@@ -119,6 +119,7 @@ header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .wab .th span{font-size:.75rem;padding:6px 6px 6px 0;color:#444}
 .wab .hr{display:block;text-align:right;font-size:.68rem;color:#667781;margin-top:2px}
 .sepg{font-weight:700;font-size:.8rem;color:var(--muted,#7a6a5c);margin:10px 2px 6px;text-transform:uppercase;letter-spacing:.04em}.sepg.bad{color:#b3392b}
+.mini{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;background:#fff}.mini.hid{opacity:.6}
 .wabg{background:#efe7dd;border-radius:12px;padding:12px}
 </style>
 </head>
@@ -133,6 +134,9 @@ header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
   <button data-t="info">ℹ️ Franja de información</button>
   <button data-t="redes">🔗 Redes y contacto</button>
   <button data-t="msg">💬 Mensajes de WhatsApp</button>
+  <button data-t="resenas">🌟 Reseñas</button>
+  <button data-t="ayuda">🙋 Ayuda al cliente</button>
+  <button data-t="cupones">🎟️ Códigos promocionales</button>
   <button data-t="cat">🗂️ Categorías</button>
   <button data-t="tienda">🏪 Tienda y avisos</button>
   <hr>
@@ -213,6 +217,17 @@ header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
         <div class="card"><h2>Nombre de la tienda</h2>
           <input id="t_nombre">
         </div>
+        <div class="card"><h2>Logo</h2>
+          <p class="small">Si pones un logo, cambia el nombre escrito de arriba y de abajo de la tienda. Funciona mejor un PNG con fondo transparente. Se sube al publicar.</p>
+          <div id="lg_prev" style="background:var(--sand);border-radius:10px;padding:12px;text-align:center;margin-bottom:8px;display:none"><img id="lg_img" alt="" style="max-height:70px;max-width:100%"></div>
+          <label class="pick" style="padding:10px">🖼️ Elegir logo<input type="file" accept="image/*" id="lg_file" style="display:none"></label>
+          <button class="btn sm bad" id="lg_del" style="margin-top:8px;display:none" onclick="logoQuitar()">Quitar logo</button>
+          <div class="msg badc" id="lg_m"></div>
+        </div>
+        <div class="card"><h2>Estadísticas de visitas</h2>
+          <p class="small">Opcional. Crea una cuenta gratis en Google Analytics, copia el ID de medición (empieza con G-) y pégalo aquí. Luego publica y verás en Google cuántas personas entran y qué productos miran.</p>
+          <input id="ga_id" placeholder="G-XXXXXXXXXX" autocapitalize="characters">
+        </div>
         <div class="card"><h2>Splash de entrada</h2>
           <p class="small">Pantalla de bienvenida con animación que aparece una vez cuando alguien entra.</p>
           <div class="sw"><input type="checkbox" id="s_on"><label for="s_on">Activar splash</label></div>
@@ -226,6 +241,45 @@ header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
           <div class="sw"><input type="checkbox" id="a_on"><label for="a_on">Mostrar anuncio</label></div>
           <label class="l">Texto</label><input id="a_t" placeholder="Ej: Envío gratis en compras desde $60.000">
         </div>
+      </section>
+
+
+      <!-- RESEÑAS -->
+      <section class="pane" id="p_resenas">
+        <div class="card"><h2>Reseñas de clientas</h2>
+          <p class="small">Salen en la tienda justo antes de "¿Cómo comprar?". Pon solo opiniones reales de tus clientas.</p>
+          <div class="sw"><input type="checkbox" id="r_on"><label for="r_on">Mostrar reseñas en la página</label></div>
+          <label class="l">Título de la sección</label><input id="r_t" placeholder="Lo que dicen nuestras clientas">
+        </div>
+        <div class="card"><h2 id="r_cnt">Reseñas</h2><div id="r_list"></div>
+          <button class="btn gold" style="width:100%;margin-top:6px" onclick="rAdd()">+ Agregar reseña</button></div>
+      </section>
+
+      <!-- AYUDA -->
+      <section class="pane" id="p_ayuda">
+        <div class="card"><h2>Ayuda al cliente</h2>
+          <p class="small">Sale un botón "¿Necesitas ayuda?" abajo a la izquierda de la tienda. La clienta escoge qué le pasó y se abre tu WhatsApp con el problema ya escrito. Siempre existe la opción "Otro", donde ella escribe su problema.</p>
+          <div class="sw"><input type="checkbox" id="y_on"><label for="y_on">Mostrar el botón de ayuda</label></div>
+          <label class="l">Título</label><input id="y_t" placeholder="¿Necesitas ayuda?">
+          <label class="l">Primera línea del mensaje</label><input id="y_i" placeholder="Hola Vision Beauty, necesito ayuda.">
+        </div>
+        <div class="card"><h2>Opciones para escoger</h2>
+          <div id="y_list"></div>
+          <button class="btn gold" style="width:100%;margin-top:6px" onclick="yAdd()">+ Agregar opción</button>
+          <p class="small" style="margin-top:6px">"Otro" se agrega solo al final.</p>
+        </div>
+        <div class="card"><h2>Así lo verá WhatsApp</h2><div id="pv_ayuda"></div></div>
+      </section>
+
+      <!-- CUPONES -->
+      <section class="pane" id="p_cupones">
+        <div class="card"><h2>Códigos promocionales</h2>
+          <p class="small">Con el check activo, en la bolsa aparece la casilla "Código promocional". Si está apagado, la casilla no se ve y los códigos no funcionan.</p>
+          <div class="sw"><input type="checkbox" id="c_on"><label for="c_on">Mostrar casilla de código en la bolsa</label></div>
+          <p class="small" style="margin-top:6px">Ojo: los códigos quedan dentro de la página, así que una persona con conocimientos técnicos podría verlos. Úsalos para promos, no para algo secreto.</p>
+        </div>
+        <div class="card"><h2 id="c_cnt">Códigos</h2><div id="c_list"></div>
+          <button class="btn gold" style="width:100%;margin-top:6px" onclick="cAdd()">+ Crear código</button></div>
       </section>
 
       <!-- REDES -->
@@ -376,14 +430,22 @@ const defInfoAj = () => ({items:defInfo()});
 const goodInfo = i => (i&&Array.isArray(i.items)&&i.items.length) ? i : defInfoAj();
 const defMsg = () => ({contacto:'Hola Vision Beauty, quiero más información',consulta:'Hola, me interesa: {producto} ({categoria})',pedido_ini:'Hola Vision Beauty, quiero hacer un pedido:',pedido_fin:'',fotos:true});
 const defDest = () => ({activo:false,titulo:'Destacados',seg:10,auto:true,items:[]});
-const defAj = () => ({splash:{activo:false,titulo:'Vision Beauty',sub:'Siempre linda',seg:2.4},anuncio:{activo:false,texto:''},destacados:defDest(),inventario:{umbral:3},info:defInfoAj(),mensajes:defMsg()});
+const defRes = () => ({activo:false,titulo:'Lo que dicen nuestras clientas',items:[]});
+const defAyuda = () => ({activo:false,titulo:'¿Necesitas ayuda?',inicio:'Hola Vision Beauty, necesito ayuda.',opciones:['No me ha llegado mi pedido','Quiero cambiar mi dirección de entrega','Mi producto llegó dañado o diferente','Quiero cambiar o devolver un producto','Tengo dudas con el pago']});
+const defCup = () => ({activo:false,items:[]});
+function normNuevos(aj,src){ src=src||{};
+  aj.resenas=Object.assign(defRes(),src.resenas||{}); if(!Array.isArray(aj.resenas.items)) aj.resenas.items=[];
+  aj.ayuda=Object.assign(defAyuda(),src.ayuda||{}); if(!Array.isArray(aj.ayuda.opciones)) aj.ayuda.opciones=defAyuda().opciones;
+  aj.cupones=Object.assign(defCup(),src.cupones||{}); if(!Array.isArray(aj.cupones.items)) aj.cupones.items=[];
+  aj.analitica=Object.assign({ga:''},src.analitica||{}); return aj; }
+const defAj = () => normNuevos({splash:{activo:false,titulo:'Vision Beauty',sub:'Siempre linda',seg:2.4},anuncio:{activo:false,texto:''},destacados:defDest(),inventario:{umbral:3},info:defInfoAj(),mensajes:defMsg()});
 
 /* ---------- leer lo publicado ---------- */
 function parseJS(txt){
   const g = re => { const m=re.exec(txt); if(!m) throw new Error('formato'); return JSON.parse(m[1]); };
   const tienda=g(/^const TIENDA = (.*);$/m), cats=g(/^const CATEGORIAS = (.*);$/m);
   let aj=defAj(); const ma=/^const AJUSTES = (.*);$/m.exec(txt);
-  if(ma){ const a=JSON.parse(ma[1]); aj={splash:Object.assign(aj.splash,a.splash||{}),anuncio:Object.assign(aj.anuncio,a.anuncio||{}),destacados:Object.assign(defDest(),a.destacados||{}),inventario:Object.assign({umbral:3},a.inventario||{}),info:goodInfo(a.info),mensajes:Object.assign(defMsg(),a.mensajes||{})}; if(!(a.mensajes&&a.mensajes.contacto)){ const w=((a.info||{}).items||[]).find(x=>x.tipo==='wa'); if(w&&w.m) aj.mensajes.contacto=w.m; } if(!Array.isArray(aj.destacados.items)) aj.destacados.items=[]; }
+  if(ma){ const a=JSON.parse(ma[1]); aj={splash:Object.assign(aj.splash,a.splash||{}),anuncio:Object.assign(aj.anuncio,a.anuncio||{}),destacados:Object.assign(defDest(),a.destacados||{}),inventario:Object.assign({umbral:3},a.inventario||{}),info:goodInfo(a.info),mensajes:Object.assign(defMsg(),a.mensajes||{})}; if(!(a.mensajes&&a.mensajes.contacto)){ const w=((a.info||{}).items||[]).find(x=>x.tipo==='wa'); if(w&&w.m) aj.mensajes.contacto=w.m; } if(!Array.isArray(aj.destacados.items)) aj.destacados.items=[]; normNuevos(aj,a); }
   const k='const PRODUCTOS = [\n', i=txt.indexOf(k), j=txt.lastIndexOf('\n];');
   if(i<0||j<0) throw new Error('formato');
   return {tienda,ajustes:aj,categorias:cats,productos:JSON.parse('['+txt.slice(i+k.length,j)+']')};
@@ -403,7 +465,7 @@ function guardarBorrador(){
 }
 function cargarBorrador(){
   try{ const t=localStorage.getItem('vb_draft'); if(!t) return false; const o=JSON.parse(t);
-    if(o&&o.productos&&o.tienda&&o.categorias){ S=o; S.ajustes=Object.assign(defAj(),S.ajustes||{}); S.ajustes.destacados=Object.assign(defDest(),S.ajustes.destacados||{}); if(!Array.isArray(S.ajustes.destacados.items)) S.ajustes.destacados.items=[]; S.ajustes.inventario=Object.assign({umbral:3},S.ajustes.inventario||{}); S.ajustes.info=goodInfo(S.ajustes.info); S.ajustes.mensajes=Object.assign(defMsg(),S.ajustes.mensajes||{}); S.productos.forEach(p=>{ if(p.i&&p.i.startsWith('data:')) thumbs[p.i]=p.i; }); return true; } }catch(e){}
+    if(o&&o.productos&&o.tienda&&o.categorias){ S=o; S.ajustes=Object.assign(defAj(),S.ajustes||{}); S.ajustes.destacados=Object.assign(defDest(),S.ajustes.destacados||{}); if(!Array.isArray(S.ajustes.destacados.items)) S.ajustes.destacados.items=[]; S.ajustes.inventario=Object.assign({umbral:3},S.ajustes.inventario||{}); S.ajustes.info=goodInfo(S.ajustes.info); S.ajustes.mensajes=Object.assign(defMsg(),S.ajustes.mensajes||{}); normNuevos(S.ajustes,S.ajustes); S.productos.forEach(p=>{ if(p.i&&p.i.startsWith('data:')) thumbs[p.i]=p.i; }); return true; } }catch(e){}
   return false;
 }
 function borrarBorrador(){ try{ localStorage.removeItem('vb_draft'); }catch(e){} }
@@ -466,6 +528,13 @@ async function publicar(){
       const r=await gh(nombre,{method:'PUT',body:{message:'Foto nueva desde el panel',content:p.i.split(',')[1],branch:c.branch}});
       if(!r.ok) throw r;
       thumbs[nombre]=p.i; p.i=nombre;
+    }
+    if(S.tienda.logo&&S.tienda.logo.startsWith('data:')){
+      msgG('Subiendo logo…',true);
+      const ln='img/logo_'+Date.now().toString(36)+'.png';
+      const rl=await gh(ln,{method:'PUT',body:{message:'Logo desde el panel',content:S.tienda.logo.split(',')[1],branch:c.branch}});
+      if(!rl.ok) throw rl;
+      thumbs[ln]=S.tienda.logo; S.tienda.logo=ln;
     }
     msgG('Publicando…',true);
     const txt=generarJS(); const content=btoa(unescape(encodeURIComponent(txt)));
@@ -624,15 +693,15 @@ function cargarAjustes(){
   $('t_nombre').value=S.tienda.nombre; $('t_wa').value=S.tienda.whatsapp; $('t_ig').value=S.tienda.instagram||''; $('t_fb').value=S.tienda.facebook||''; $('t_tt').value=S.tienda.tiktok||'';
   const s=S.ajustes.splash, a=S.ajustes.anuncio;
   $('s_on').checked=!!s.activo; $('s_t').value=s.titulo||''; $('s_s').value=s.sub||''; $('s_seg').value=s.seg||2.4;
-  $('a_on').checked=!!a.activo; $('a_t').value=a.texto||'';
+  $('a_on').checked=!!a.activo; $('a_t').value=a.texto||''; $('ga_id').value=(S.ajustes.analitica&&S.ajustes.analitica.ga)||''; logoVista();
 }
 function leerAjustes(){
-  S.tienda={nombre:$('t_nombre').value.trim(),whatsapp:$('t_wa').value.replace(/\D/g,''),instagram:$('t_ig').value.replace(/^@/,'').trim(),facebook:$('t_fb').value.trim(),tiktok:$('t_tt').value.trim()};
+  const lg0=S.tienda.logo; S.tienda={nombre:$('t_nombre').value.trim(),whatsapp:$('t_wa').value.replace(/\D/g,''),instagram:$('t_ig').value.replace(/^@/,'').trim(),facebook:$('t_fb').value.trim(),tiktok:$('t_tt').value.trim()}; if(lg0) S.tienda.logo=lg0;
   const seg=parseFloat(String($('s_seg').value).replace(',','.'));
-  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()},destacados:S.ajustes.destacados||defDest(),inventario:S.ajustes.inventario||{umbral:3},info:S.ajustes.info||defInfoAj(),mensajes:S.ajustes.mensajes||defMsg()};
+  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()},destacados:S.ajustes.destacados||defDest(),inventario:S.ajustes.inventario||{umbral:3},info:S.ajustes.info||defInfoAj(),mensajes:S.ajustes.mensajes||defMsg(),resenas:S.ajustes.resenas||defRes(),ayuda:S.ajustes.ayuda||defAyuda(),cupones:S.ajustes.cupones||defCup(),analitica:{ga:$('ga_id').value.trim()}};
   cambio();
 }
-['t_nombre','t_wa','t_ig','t_fb','t_tt','s_on','s_t','s_s','s_seg','a_on','a_t'].forEach(id=>$(id).addEventListener(id==='s_on'||id==='a_on'?'change':'input',leerAjustes));
+['ga_id','t_nombre','t_wa','t_ig','t_fb','t_tt','s_on','s_t','s_s','s_seg','a_on','a_t'].forEach(id=>$(id).addEventListener(id==='s_on'||id==='a_on'?'change':'input',leerAjustes));
 
 /* ---------- destacados ---------- */
 let dQ='', dFc='Todas', dVis=40;
@@ -755,6 +824,91 @@ function resumenWA(){
   window.open('https://wa.me/'+num+'?text='+encodeURIComponent(L.join('\n')),'_blank','noopener');
 }
 
+
+/* ---------- logo ---------- */
+function logoVista(){
+  const l=S.tienda.logo; $('lg_prev').style.display=l?'block':'none'; $('lg_del').style.display=l?'inline-block':'none';
+  if(l) $('lg_img').src=thumbs[l]||l;
+}
+function logoQuitar(){ delete S.tienda.logo; logoVista(); cambio(); }
+$('lg_file').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return; $('lg_m').textContent='';
+  const r=new FileReader();
+  r.onload=()=>{ const im=new Image(); im.onerror=()=>{ $('lg_m').textContent='No pude leer esa imagen. Prueba con un PNG o JPG.'; };
+    im.onload=()=>{ const M=600, s=Math.min(1,M/Math.max(im.width,im.height));
+      const c=document.createElement('canvas'); c.width=Math.max(1,Math.round(im.width*s)); c.height=Math.max(1,Math.round(im.height*s));
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      S.tienda.logo=c.toDataURL('image/png'); logoVista(); cambio(); };
+    im.src=r.result; };
+  r.readAsDataURL(f); e.target.value='';
+});
+
+/* ---------- reseñas ---------- */
+const RES=()=>S.ajustes.resenas;
+function renderRes(){
+  const R=RES(); $('r_on').checked=!!R.activo; $('r_t').value=R.titulo||'';
+  $('r_cnt').textContent='Reseñas ('+R.items.length+')';
+  $('r_list').innerHTML=R.items.map((x,i)=>`<div class="mini">
+    <div class="row2"><div><label class="l">Nombre</label><input value="${esc(x.n||'')}" placeholder="Ej: Laura M." oninput="rSet(${i},'n',this.value)"></div>
+    <div><label class="l">Estrellas</label><select onchange="rSet(${i},'e',this.value)">${[5,4,3,2,1].map(n=>`<option value="${n}" ${(+x.e||5)===n?'selected':''}>${'★'.repeat(n)} (${n})</option>`).join('')}</select></div></div>
+    <label class="l">Lo que dijo</label><textarea style="height:80px" oninput="rSet(${i},'t',this.value)">${esc(x.t||'')}</textarea>
+    <div class="mv"><button class="btn sm line" onclick="rMover(${i},-1)">↑ Subir</button><button class="btn sm line" onclick="rMover(${i},1)">↓ Bajar</button><button class="btn sm bad" onclick="rQuitar(${i})">Borrar</button></div></div>`).join('')||'<p class="small">Aún no hay reseñas. Agrega la primera.</p>';
+}
+function rSet(i,k,v){ RES().items[i][k]=(k==='e')?(+v||5):v; cambio(); }
+function rAdd(){ RES().items.push({n:'',e:5,t:''}); renderRes(); cambio(); }
+function rQuitar(i){ RES().items.splice(i,1); renderRes(); cambio(); }
+function rMover(i,d){ const a=RES().items, j=i+d; if(j<0||j>=a.length) return; [a[i],a[j]]=[a[j],a[i]]; renderRes(); cambio(); }
+$('r_on').addEventListener('change',()=>{ RES().activo=$('r_on').checked; cambio(); });
+$('r_t').addEventListener('input',()=>{ RES().titulo=$('r_t').value; cambio(); });
+
+/* ---------- ayuda al cliente ---------- */
+const AYU=()=>S.ajustes.ayuda;
+function renderAyuda(){
+  const A=AYU(); $('y_on').checked=!!A.activo; $('y_t').value=A.titulo||''; $('y_i').value=A.inicio||'';
+  $('y_list').innerHTML=A.opciones.map((o,i)=>`<div class="mini" style="display:flex;gap:6px;align-items:center">
+    <input value="${esc(o)}" oninput="ySet(${i},this.value)" style="flex:1">
+    <button class="btn sm line" onclick="yMover(${i},-1)">↑</button><button class="btn sm line" onclick="yMover(${i},1)">↓</button><button class="btn sm bad" onclick="yQuitar(${i})">×</button></div>`).join('')||'<p class="small">Sin opciones: se usarán las de siempre.</p>';
+  prevAyuda();
+}
+function prevAyuda(){
+  const A=AYU(), op=(A.opciones.find(x=>String(x).trim())||'No me ha llegado mi pedido');
+  const t=(A.inicio||'Hola Vision Beauty, necesito ayuda.')+'\nProblema: '+op+'\nDetalle: (lo que ella escriba)\nNombre: Ana';
+  $('pv_ayuda').innerHTML='<div class="wabg"><div class="wab">'+String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'<span class="hr">ahora ✓✓</span></div></div>';
+}
+function ySet(i,v){ AYU().opciones[i]=v; prevAyuda(); cambio(); }
+function yAdd(){ AYU().opciones.push(''); renderAyuda(); cambio(); }
+function yQuitar(i){ AYU().opciones.splice(i,1); renderAyuda(); cambio(); }
+function yMover(i,d){ const a=AYU().opciones, j=i+d; if(j<0||j>=a.length) return; [a[i],a[j]]=[a[j],a[i]]; renderAyuda(); cambio(); }
+$('y_on').addEventListener('change',()=>{ AYU().activo=$('y_on').checked; cambio(); });
+$('y_t').addEventListener('input',()=>{ AYU().titulo=$('y_t').value; cambio(); });
+$('y_i').addEventListener('input',()=>{ AYU().inicio=$('y_i').value; prevAyuda(); cambio(); });
+
+/* ---------- códigos promocionales ---------- */
+const CUPS=()=>S.ajustes.cupones;
+function renderCup(){
+  const C=CUPS(); $('c_on').checked=!!C.activo; $('c_cnt').textContent='Códigos ('+C.items.length+')';
+  $('c_list').innerHTML=C.items.map((x,i)=>`<div class="mini ${x.on===false?'hid':''}">
+    <div class="row2"><div><label class="l">Código</label><input value="${esc(x.c||'')}" placeholder="SIEMPRELINDA10" autocapitalize="characters" oninput="cSet(${i},'c',this.value.toUpperCase().replace(/\\s/g,''))"></div>
+    <div><label class="l">Tipo de descuento</label><select onchange="cSet(${i},'tipo',this.value)"><option value="pct" ${x.tipo!=='monto'?'selected':''}>Porcentaje (%)</option><option value="monto" ${x.tipo==='monto'?'selected':''}>Valor fijo ($)</option></select></div></div>
+    <div class="row2"><div><label class="l">${x.tipo==='monto'?'Descuento en pesos':'Descuento en %'}</label><input inputmode="numeric" value="${x.v||''}" oninput="cSet(${i},'v',this.value)"></div>
+    <div><label class="l">Compra mínima (opcional)</label><input inputmode="numeric" value="${x.min||''}" placeholder="Sin mínimo" oninput="cSet(${i},'min',this.value)"></div></div>
+    <label class="l">Vence el (opcional)</label><input type="date" value="${esc(x.vence||'')}" onchange="cSet(${i},'vence',this.value)">
+    <div class="sw"><input type="checkbox" id="cx${i}" ${x.on!==false?'checked':''} onchange="cSet(${i},'on',this.checked)"><label for="cx${i}">Código activo</label></div>
+    <button class="btn sm bad" onclick="cQuitar(${i})">Borrar código</button></div>`).join('')||'<p class="small">Todavía no hay códigos. Crea el primero.</p>';
+}
+function cSet(i,k,v){
+  const x=CUPS().items[i];
+  if(k==='v'||k==='min'){ const n=parseInt(String(v).replace(/\D/g,''),10); if(n>0) x[k]=(k==='v'&&x.tipo!=='monto')?Math.min(100,n):n; else delete x[k]; }
+  else if(k==='vence'){ if(v) x.vence=v; else delete x.vence; }
+  else if(k==='on'){ if(v) delete x.on; else x.on=false; }
+  else x[k]=v;
+  if(k==='tipo'||k==='on') renderCup();
+  cambio();
+}
+function cAdd(){ CUPS().items.push({c:'',tipo:'pct',v:10}); renderCup(); cambio(); }
+function cQuitar(i){ CUPS().items.splice(i,1); renderCup(); cambio(); }
+$('c_on').addEventListener('change',()=>{ CUPS().activo=$('c_on').checked; cambio(); });
+
 /* ---------- mensajes de WhatsApp ---------- */
 function prevMsg(){
   const M=S.ajustes.mensajes, F=M.fotos!==false;
@@ -802,7 +956,8 @@ function infSet(i,k,v){ const x=S.ajustes.info.items[i]; if(!x) return; x[k]=v; 
 function compacto(p){ const o={}; for(const k of Object.keys(p)){ const v=p[k]; if(v===null||v===undefined||v===false||v==='') { if(k==='p') o.p=null; continue; } o[k]=v; } return o; }
 function generarJS(vista){
   const cats=S.categorias.filter(c=>S.productos.some(p=>p.c===c));
-  return 'const TIENDA = '+JSON.stringify(S.tienda)+';\nconst AJUSTES = '+JSON.stringify(S.ajustes)+';\nconst CATEGORIAS = '+JSON.stringify(cats)+';\nconst PRODUCTOS = [\n'+S.productos.map(p=>{ const q=compacto(p); if(vista&&q.i&&thumbs[q.i]) q.i=thumbs[q.i]; return JSON.stringify(q); }).join(',\n')+'\n];\n';
+  const T=Object.assign({},S.tienda); if(vista&&T.logo&&thumbs[T.logo]) T.logo=thumbs[T.logo];
+  return 'const TIENDA = '+JSON.stringify(T)+';\nconst AJUSTES = '+JSON.stringify(S.ajustes)+';\nconst CATEGORIAS = '+JSON.stringify(cats)+';\nconst PRODUCTOS = [\n'+S.productos.map(p=>{ const q=compacto(p); if(vista&&q.i&&thumbs[q.i]) q.i=thumbs[q.i]; return JSON.stringify(q); }).join(',\n')+'\n];\n';
 }
 async function descargar(){
   const txt=generarJS(); $('gt').value=txt; $('gm').textContent='';
@@ -846,7 +1001,7 @@ function verSplash(){ forzar=true; if(window.innerWidth<1000) irTab('vista'); se
 function cerrar(id){ $(id).classList.remove('open'); }
 function pregunta(t,m,fn){ $('askT').textContent=t; $('askM').textContent=m; $('askOk').onclick=()=>{ cerrar('mAsk'); fn(); }; $('mAsk').classList.add('open'); }
 function resetTodo(){ pregunta('¿Descartar todos los cambios?','Vuelves a lo que está publicado en la tienda ahora mismo.',()=>{ S=clone(BASE); asegurarCats(); borrarBorrador(); todoRender(); cambio(); }); }
-const NOMBRES={prod:'Productos',vista:'Vista previa',dest:'Destacados',inv:'Inventario',info:'Franja de información',redes:'Redes y contacto',msg:'Mensajes de WhatsApp',cat:'Categorías',tienda:'Tienda y avisos',pub:'Publicar'};
+const NOMBRES={prod:'Productos',vista:'Vista previa',dest:'Destacados',inv:'Inventario',info:'Franja de información',redes:'Redes y contacto',msg:'Mensajes de WhatsApp',resenas:'Reseñas',ayuda:'Ayuda al cliente',cupones:'Códigos promocionales',cat:'Categorías',tienda:'Tienda y avisos',pub:'Publicar'};
 function menu(v){ $('menuBg').classList.toggle('open',!!v); }
 function irTab(t){
   document.querySelectorAll('#menu button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
@@ -863,7 +1018,7 @@ document.querySelectorAll('#menu button[data-t]').forEach(b=>b.addEventListener(
 $('q').addEventListener('input',e=>{ buscar=e.target.value; visibles=30; lista(); });
 $('fc').addEventListener('change',e=>{ filtroCat=e.target.value; visibles=30; lista(); });
 
-function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); renderDest(); renderInv(); renderInfo(); resumen(); pintarPrev(); }
+function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); renderDest(); renderInv(); renderInfo(); renderRes(); renderAyuda(); renderCup(); resumen(); pintarPrev(); }
 (async function(){
   pill('Cargando…','warn');
   try{ await cargarPublicado(); }catch(e){ pill('No se pudo leer la tienda','bad'); $('list').innerHTML='<p class="small">No pude leer productos.js. Abre este panel desde tu página publicada (no como archivo suelto).</p>'; return; }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Vision Beauty · Siempre linda</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -175,6 +175,40 @@ footer a{color:var(--gold2)}
 .social{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:6px 0 14px}
 .social a{border:1px solid var(--line);padding:9px 18px;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);text-decoration:none;transition:.2s}
 .social a:hover{border-color:var(--gold2);color:var(--gold2)}
+
+.logo img{display:block;margin:0 auto;max-height:42px;max-width:170px;width:auto;height:auto}
+footer .logo img{max-height:56px}
+.tools{max-width:1100px;margin:0 auto 26px;padding:0 4px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tools input{grid-column:1/-1}
+.tools input,.tools select{font-family:inherit;font-size:.88rem;font-weight:300;padding:12px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:0;width:100%}
+.dpic,.pic{position:relative}
+.shr{position:absolute;top:8px;right:8px;z-index:3;width:34px;height:34px;border-radius:50%;border:0;background:rgba(250,245,238,.93);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.shr svg,.shrb svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.shrb{background:none;border:0;font-family:inherit;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold2);cursor:pointer;display:inline-flex;gap:7px;align-items:center;padding:8px 2px;align-self:flex-start}
+.rev{padding:50px 0 10px;text-align:center}
+.rev h2{font-size:2.4rem;font-weight:400}
+.rtrack{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:22px 18px 14px;-webkit-overflow-scrolling:touch;max-width:1100px;margin:auto}
+.rc{flex:0 0 min(300px,82%);scroll-snap-align:center;background:#fff;border:1px solid var(--line);padding:20px 18px;text-align:left}
+.rc .st{color:var(--gold);letter-spacing:.15em;font-size:.95rem}
+.rc p{font-family:'Cormorant Garamond',serif;font-size:1.15rem;line-height:1.4;margin:10px 0 12px;color:var(--ink)}
+.rc b{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;font-weight:400;color:var(--gold2)}
+.ayb{position:fixed;left:14px;bottom:14px;z-index:30;background:var(--ink);color:var(--cream);border:0;border-radius:999px;padding:12px 18px;font-family:inherit;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;box-shadow:0 4px 14px rgba(0,0,0,.28);cursor:pointer}
+.aybox{background:var(--cream);width:min(520px,100%);max-height:92vh;overflow:auto;padding:24px 20px 24px;position:relative;animation:slu .25s both}
+.aybox h3{font-size:1.7rem;line-height:1.1;margin-bottom:4px;padding-right:34px}
+.aybox .isub{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold2);margin-bottom:6px}
+.aopt{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);padding:12px;margin-top:8px;font-family:inherit;font-size:.9rem;font-weight:300;color:var(--ink);cursor:pointer}
+.aopt.on{border-color:var(--ink);background:var(--sand);font-weight:400}
+.aybox textarea,.aybox input{width:100%;margin-top:8px;font-family:inherit;font-size:.92rem;padding:12px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+.aybox textarea{min-height:92px;resize:vertical}
+#toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);background:var(--ink);color:var(--cream);padding:11px 18px;font-size:.8rem;letter-spacing:.06em;z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
+#toast.on{opacity:1}
+.cup{display:flex;gap:8px}
+.cup button{background:var(--ink);color:var(--cream);border:0;padding:0 16px;font-family:inherit;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+.cupm{font-size:.76rem;min-height:1em}
+.cupm.ok{color:#1c7c43}.cupm.no{color:#b3392b}
+.cupl{display:flex;justify-content:space-between;font-size:.9rem;color:var(--mut)}
+.cupl b{font-weight:400;color:#1c7c43}
+.cupl button{background:none;border:0;color:var(--gold2);font-family:inherit;font-size:.72rem;text-decoration:underline;cursor:pointer;margin-left:8px}
 </style>
 </head>
 <body>
@@ -182,7 +216,7 @@ footer a{color:var(--gold2)}
 <div id="splash" style="display:none"><div class="sl" id="slT"></div><div class="sp"></div><div class="ss" id="slS"></div></div>
 <div class="top">
   <a class="ig" id="ig" href="#" target="_blank" rel="noopener noreferrer">Instagram</a>
-  <div class="logo">Vision Beauty<small>Siempre linda</small></div>
+  <div class="logo" id="logoTop">Vision Beauty<small>Siempre linda</small></div>
   <button class="bag" onclick="openCart()">Bolsa (<span id="count">0</span>)</button>
 </div>
 
@@ -210,10 +244,13 @@ footer a{color:var(--gold2)}
 <section class="sec" id="catalogo">
   <h2>Nuestra colección</h2>
   <div class="line"></div>
+  <div class="tools"><input id="busq" type="search" placeholder="Buscar un producto…" aria-label="Buscar"><select id="selRango" aria-label="Filtrar por precio"></select><select id="selOrden" aria-label="Ordenar"><option value="">Orden: recomendado</option><option value="asc">Precio: menor a mayor</option><option value="desc">Precio: mayor a menor</option></select></div>
   <div class="filters" id="filters"></div>
   <div class="grid" id="grid"></div>
   <button class="more" id="more" onclick="verMas()">Ver más</button>
 </section>
+
+<section class="rev" id="resenas" style="display:none"><h2 id="rTit">Reseñas</h2><div class="line"></div><div class="rtrack" id="rTrack"></div></section>
 
 <section class="about">
   <h2>¿Cómo comprar?</h2>
@@ -227,16 +264,19 @@ footer a{color:var(--gold2)}
 </section>
 
 <footer>
-  <div class="logo">Vision Beauty</div>
+  <div class="logo" id="logoFoot">Vision Beauty</div>
   <div class="social" id="social"></div>
   <div id="foot"></div>
 </footer>
+<button class="ayb" id="ayBtn" style="display:none" onclick="abrirAyuda()">¿Necesitas ayuda?</button>
+<div id="toast"></div>
 
 <div id="modal" onclick="if(event.target===this)cerrarM()">
   <div class="mbox" role="dialog" aria-modal="true">
     <button class="mclose" onclick="cerrarM()" aria-label="Cerrar">×</button>
     <div class="big"><img id="mImg" alt=""></div>
     <div class="txt">
+      <button class="shrb" onclick="compartir(mId,event)"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg> Compartir</button>
       <div class="cat" id="mCat"></div>
       <h2 id="mNom"></h2>
       <div class="price" id="mPre"></div>
@@ -244,6 +284,16 @@ footer a{color:var(--gold2)}
       <div id="mAcc"></div>
       <div class="nav"><button onclick="navM(-1)">← Anterior</button><button onclick="navM(1)">Siguiente →</button></div>
     </div>
+  </div>
+</div>
+
+<div id="ayM" class="ovl sheetm" onclick="if(event.target===this)cerrarAyuda()">
+  <div class="aybox ayf" role="dialog" aria-modal="true"><button class="mclose" onclick="cerrarAyuda()" aria-label="Cerrar">×</button>
+    <h3 id="ayT">¿Necesitas ayuda?</h3><div class="isub">Cuéntanos qué pasó</div>
+    <div id="ayOps"></div>
+    <div id="ayTxtBox" style="display:none"><textarea id="ayTxt" maxlength="600"></textarea></div>
+    <input id="ayNom" placeholder="Tu nombre (opcional)" maxlength="60">
+    <a id="ayGo" class="wa off" style="margin-top:14px" href="#" target="_blank" rel="noopener noreferrer">Enviar por WhatsApp</a>
   </div>
 </div>
 
@@ -256,6 +306,7 @@ footer a{color:var(--gold2)}
   <div class="qbox" role="dialog" aria-modal="true"><button class="mclose" onclick="cerrarQty()" aria-label="Cerrar">×</button>
     <div class="qhead"><img id="qImg" alt=""><div><div class="qn" id="qNom"></div><div id="qPre"></div><div id="qStk"></div></div></div>
     <div id="qBody"></div>
+    <button class="shrb" onclick="compartir(qId,event)"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg> Compartir este producto</button>
     <div class="qsub"><span>Subtotal</span><b id="qSub"></b></div>
   </div>
 </div>
@@ -265,6 +316,8 @@ footer a{color:var(--gold2)}
     <h2>Tu bolsa <button class="x" onclick="closeCart()">×</button></h2>
     <div class="items" id="items"></div>
     <div class="foot">
+      <div id="cupBox" style="display:none"><div class="cup"><input id="cupIn" placeholder="Código promocional" autocapitalize="characters" maxlength="30"><button type="button" onclick="aplicarCup()">Aplicar</button></div><div class="cupm" id="cupMsg"></div></div>
+      <div class="cupl" id="cupLine" style="display:none"></div>
       <div class="total"><span>Total</span><span id="total">$0</span></div>
       <input id="nombre" placeholder="Tu nombre">
       <input id="dir" placeholder="Ciudad y dirección de entrega">
@@ -293,6 +346,10 @@ function stockHtml(p,full){
 const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const fmt = n => "$" + n.toLocaleString("es-CO");
 let carrito = {}, filtro = "Todo", visibles = 24;
+const CU = AJ.cupones || {}, CUP_ON = !!CU.activo;
+let cupon = null;
+const evt = (n,o)=>{ try{ if(window.gtag) window.gtag("event",n,o||{}); }catch(e){} };
+
 const $ = id => document.getElementById(id);
 /* anuncio superior */
 if(AJ.anuncio && AJ.anuncio.activo && AJ.anuncio.texto){ $("ann").textContent = AJ.anuncio.texto; $("ann").style.display = "block"; }
@@ -332,7 +389,12 @@ function filtros(){
   $("filters").innerHTML = cats.map(c=>`<button class="chip ${c===filtro?'on':''}" onclick="setF('${esc(c).replace(/&#39;/g,"\\'")}')">${esc(c)}</button>`).join("");
 }
 function setF(c){filtro=c;visibles=24;filtros();lista();const g=$("grid");g.classList.remove("fade");void g.offsetWidth;g.classList.add("fade");}
-function pasa(p){ return filtro==="Todo" || (filtro==="✨ Novedades"&&p.nu) || (filtro==="🏷️ Ofertas"&&enOferta(p)) || p.c===filtro; }
+const norm = t => String(t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+let busq = "", rango = "", orden = "";
+const RANGOS = [["","Todos los precios"],["0-20000","Hasta $20.000"],["20000-30000","$20.000 a $30.000"],["30000-40000","$30.000 a $40.000"],["40000-","Más de $40.000"]];
+function enRango(p){ if(!rango) return true; if(!p.p) return false; const r=rango.split("-"), v=pf(p); return v>(+r[0]||0) && (r[1]===""||v<=+r[1]); }
+function pasa(p){ return (filtro==="Todo" || (filtro==="✨ Novedades"&&p.nu) || (filtro==="🏷️ Ofertas"&&enOferta(p)) || p.c===filtro)
+  && (!busq || norm(p.n+" "+p.c+" "+(p.d||"")).includes(norm(busq))) && enRango(p); }
 function verMas(){visibles+=24;lista();}
 let actual = [];
 function badges(p){
@@ -360,21 +422,22 @@ function addQ(id,btn){
   let n=parseInt(v&&v.textContent,10)||1; const libre=maxQ(p)-(carrito[id]||0); let msg;
   if(libre<=0) msg="Ya tienes todo el stock en tu bolsa";
   else { if(n>libre){ n=libre; msg="Solo quedan "+libre; } else msg="Agregado ("+n+") ✓"; carrito[id]=(carrito[id]||0)+n; render(); }
-  btn.classList.add("ok"); btn.textContent=msg; if(v) v.textContent="1";
+  btn.classList.add("ok"); btn.textContent=msg; if(v) v.textContent="1"; evt("add_to_cart",{item_id:String(id)});
   if(btn.closest("#qsh")){ setTimeout(cerrarQty,900); qsub(); }
   setTimeout(()=>{btn.classList.remove("ok");btn.textContent="Agregar a la bolsa"},1500);
 }
 function lista(){
-  const arr = VISIBLES.filter(pasa);
+  let arr = VISIBLES.filter(pasa);
+  if(orden) arr = arr.slice().sort((x,y)=>{ const a=x.p?pf(x):null, b=y.p?pf(y):null; if(a===null&&b===null) return 0; if(a===null) return 1; if(b===null) return -1; return orden==="asc"?a-b:b-a; });
   actual = arr;
   $("grid").innerHTML = arr.slice(0,visibles).map((p,i)=>`
     <article class="card ${AGOT(p)?'soldout':''}" style="animation-delay:${(i%12)*40}ms">
-      <div class="pic" onclick="abrirM(${p.id})"><img src="${esc(p.i)}" alt="${esc(p.n)}" loading="lazy">${badges(p)}</div>
+      <div class="pic" onclick="abrirM(${p.id})"><img src="${esc(p.i)}" alt="${esc(p.n)}" loading="lazy">${badges(p)}<button class="shr" aria-label="Compartir" onclick="compartir(${p.id},event)"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg></button></div>
       <div class="meta"><h3 onclick="abrirM(${p.id})">${esc(p.n)}</h3>
       ${precioHtml(p)}${stockHtml(p)}
       ${accion(p)}
       </div>
-    </article>`).join("");
+    </article>`).join("") || '<p style="grid-column:1/-1;text-align:center;color:var(--mut);padding:30px 10px">No encontramos productos con esa búsqueda. Prueba con otra palabra o cambia el filtro.</p>';
   $("more").style.display = arr.length>visibles ? "block" : "none";
 }
 let mId = null;
@@ -422,12 +485,20 @@ function render(){
     return `<div class="row"><img src="${esc(p.i)}" alt=""><div class="n"><b>${esc(p.n)}</b>${fmt(pf(p)*q)}</div>
       <div class="qty"><button onclick="chg(${id},-1)">−</button>${q}<button onclick="chg(${id},1)">+</button></div></div>`;
   }).join("") : `<div class="empty">Tu bolsa está vacía ✨</div>`;
+  const sub=total; let desc=0, cm="";
+  if(CUP_ON && cupon){ if(cupon.min && sub<cupon.min) cm="Compra mínima "+fmt(cupon.min)+" para usar este código"; else desc=cupDesc(sub); }
+  total=sub-desc;
   $("count").textContent=cnt; $("total").textContent=fmt(total);
+  $("cupBox").style.display=CUP_ON?"block":"none";
+  const cl=$("cupLine");
+  if(CUP_ON && cupon){ cl.style.display="flex"; cl.innerHTML='<span>Código '+esc(cupon.c)+'<button type="button" onclick="quitarCup()">Quitar</button></span><b>'+(desc?'−'+fmt(desc):'$0')+'</b>';
+    const cmEl=$("cupMsg"); cmEl.className="cupm "+(cm?"no":"ok"); cmEl.textContent=cm||"¡Código aplicado!"; } else cl.style.display="none";
+  const cupTxt = desc ? "Subtotal: "+fmt(sub)+"\nCódigo "+cupon.c+": −"+fmt(desc)+"\n" : "";
   const nom=$("nombre").value.trim(), dir=$("dir").value.trim();
   const lineas = ids.map(id=>{const p=PRODUCTOS.find(x=>x.id==id);return lineaPed(p,carrito[id]);});
-  const msg = `${MSG.pedido_ini}\n${lineas.join("\n")}\n\nTotal: ${fmt(total)}\nNombre: ${nom}\nEntrega: ${dir}`+(MSG.pedido_fin?`\n\n${MSG.pedido_fin}`:"");
+  const msg = `${MSG.pedido_ini}\n${lineas.join("\n")}\n\n${cupTxt}Total: ${fmt(total)}\nNombre: ${nom}\nEntrega: ${dir}`+(MSG.pedido_fin?`\n\n${MSG.pedido_fin}`:"");
   const pw=document.getElementById("perkWa");
-  if(pw) pw.href = "https://wa.me/" + WA + "?text=" + encodeURIComponent(MSG.contacto + (ids.length ? `\n\nMe interesa:\n${lineas.join("\n")}\nTotal: ${fmt(total)}` : ""));
+  if(pw) pw.href = "https://wa.me/" + WA + "?text=" + encodeURIComponent(MSG.contacto + (ids.length ? `\n\nMe interesa:\n${lineas.join("\n")}\n${cupTxt}Total: ${fmt(total)}` : ""));
   const a=$("wa");
   a.href = "https://wa.me/" + WA + "?text=" + encodeURIComponent(msg);
   a.classList.toggle("off", !(ids.length && nom && dir));
@@ -465,7 +536,7 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ cerrarInfo(); cer
   const flechas = n>1 ? '<button class="darr l" aria-label="Anterior" onclick="event.stopPropagation();dGo(-1)">‹</button><button class="darr r" aria-label="Siguiente" onclick="event.stopPropagation();dGo(1)">›</button>' : '';
   $("dTrack").innerHTML = it.map((x,i)=>{ const p=x.p, fr=x.t||p.d||"";
     return '<article class="dslide'+(AGOT(p)?' soldout':'')+'">'
-      +'<div class="dpic" onclick="abrirM('+p.id+')"><img src="'+esc(p.i)+'" alt="'+esc(p.n)+'"'+(i?' loading="lazy"':'')+'>'+badges(p)+flechas+'</div>'
+      +'<div class="dpic" onclick="abrirM('+p.id+')"><img src="'+esc(p.i)+'" alt="'+esc(p.n)+'"'+(i?' loading="lazy"':'')+'>'+badges(p)+'<button class="shr" aria-label="Compartir" onclick="compartir('+p.id+',event)"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg></button>'+flechas+'</div>'
       +'<div class="dtxt"><div class="dcat">'+esc(p.c)+'</div><h3 onclick="abrirM('+p.id+')">'+esc(p.n)+'</h3>'
       +(fr?'<p class="dfrase">'+esc(fr)+'</p>':'')+precioHtml(p)+stockHtml(p,true)+accion(p,true,true)
       +'<button class="dmore" onclick="abrirM('+p.id+')">Ver detalle</button></div></article>'; }).join("");
@@ -493,6 +564,100 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ cerrarInfo(); cer
   if("IntersectionObserver" in window) new IntersectionObserver(es=>{ vis=es[0].isIntersecting; restart(); },{threshold:.2}).observe($("destacados"));
   show(0);
 })();
+
+/* ---------- cupones ---------- */
+function cupDesc(sub){ if(!cupon) return 0; if(cupon.min && sub<cupon.min) return 0; return cupon.tipo==="monto" ? Math.min(cupon.v,sub) : Math.round(sub*Math.min(100,cupon.v)/100); }
+function aplicarCup(){
+  const code=$("cupIn").value.trim().toUpperCase(), m=$("cupMsg");
+  const no=t=>{ m.className="cupm no"; m.textContent=t; };
+  if(!code) return no("Escribe tu código");
+  const c=(CU.items||[]).find(x=>x && x.on!==false && String(x.c||"").trim().toUpperCase()===code);
+  if(!c) return no("Ese código no es válido");
+  if(c.vence){ const d=new Date(c.vence+"T23:59:59"); if(!isNaN(d) && d<new Date()) return no("Este código ya venció"); }
+  const v=Number(c.v)||0; if(v<=0) return no("Ese código no es válido");
+  cupon={c:code,tipo:c.tipo==="monto"?"monto":"pct",v:v,min:Number(c.min)||0}; render();
+}
+function quitarCup(){ cupon=null; $("cupIn").value=""; $("cupMsg").textContent=""; render(); }
+$("cupIn").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); aplicarCup(); } });
+
+/* ---------- compartir ---------- */
+function toast(t){ const e=$("toast"); e.textContent=t; e.classList.add("on"); clearTimeout(toast.t); toast.t=setTimeout(()=>e.classList.remove("on"),2200); }
+function shareUrl(id){ return location.origin+location.pathname+"?p="+id; }
+async function compartir(id,ev){
+  if(ev){ ev.stopPropagation(); ev.preventDefault(); }
+  const p=PRODUCTOS.find(x=>x.id===id); if(!p) return;
+  const url=shareUrl(id), txt=p.n+(p.p?" · "+fmt(pf(p)):"")+" — "+(TIENDA.nombre||"Vision Beauty");
+  evt("share",{item_id:String(id)});
+  if(navigator.share){
+    try{
+      let data={title:p.n,text:txt,url:url};
+      try{ const r=await fetch(p.i), b=await r.blob(), f=new File([b],"producto.jpg",{type:b.type||"image/jpeg"});
+        if(navigator.canShare && navigator.canShare({files:[f]})) data={files:[f],title:p.n,text:txt+"\n"+url}; }catch(e){}
+      await navigator.share(data); return;
+    }catch(e){ if(e && e.name==="AbortError") return; }
+  }
+  try{ await navigator.clipboard.writeText(url); toast("Enlace copiado ✓"); }
+  catch(e){ window.open("https://wa.me/?text="+encodeURIComponent(txt+"\n"+url),"_blank","noopener"); }
+}
+(function(){ const m=/[?&]p=(\d+)/.exec(location.search); if(!m) return; const p=PRODUCTOS.find(x=>x.id==m[1]); if(p && !p.h) abrirM(p.id); })();
+
+/* ---------- buscador, precio y orden ---------- */
+(function(){
+  $("selRango").innerHTML = RANGOS.filter(r=>!r[0] || VISIBLES.some(p=>{ const o=rango; rango=r[0]; const k=enRango(p); rango=o; return k; })).map(r=>'<option value="'+r[0]+'">'+r[1]+'</option>').join("");
+  $("busq").addEventListener("input",e=>{ busq=e.target.value.trim(); visibles=24; lista(); });
+  $("selRango").addEventListener("change",e=>{ rango=e.target.value; visibles=24; lista(); });
+  $("selOrden").addEventListener("change",e=>{ orden=e.target.value; visibles=24; lista(); });
+})();
+
+/* ---------- logo ---------- */
+(function(){
+  const L=String(TIENDA.logo||"").trim();
+  if(!/^(img\/[\w.\-]+|data:image\/(png|jpe?g|webp|gif|svg\+xml);base64,[A-Za-z0-9+\/=]+)$/.test(L)) return;
+  ["logoTop","logoFoot"].forEach(id=>{ const e=$(id); e.textContent=""; const i=new Image(); i.src=L; i.alt=TIENDA.nombre||"Vision Beauty"; e.appendChild(i); });
+})();
+
+/* ---------- reseñas ---------- */
+(function(){
+  const R=AJ.resenas; if(!R || !R.activo) return;
+  const it=(R.items||[]).filter(x=>x && String(x.t||"").trim()); if(!it.length) return;
+  $("rTit").textContent=R.titulo || "Lo que dicen nuestras clientas";
+  $("rTrack").innerHTML=it.map(x=>{ const e=Math.max(1,Math.min(5,Math.round(Number(x.e)||5)));
+    return '<div class="rc"><div class="st" aria-label="'+e+' de 5 estrellas">'+"★".repeat(e)+'<span style="color:var(--line)">'+"★".repeat(5-e)+'</span></div><p>“'+esc(x.t)+'”</p><b>'+esc(x.n||"Clienta")+'</b></div>'; }).join("");
+  $("resenas").style.display="block";
+})();
+
+/* ---------- ayuda al cliente ---------- */
+const AY = AJ.ayuda || {};
+const AY_OPS = ((Array.isArray(AY.opciones) && AY.opciones.some(x=>String(x).trim())) ? AY.opciones : ["No me ha llegado mi pedido","Quiero cambiar mi dirección de entrega","Mi producto llegó dañado o diferente","Quiero cambiar o devolver un producto","Tengo dudas con el pago"]).map(x=>String(x).trim()).filter(Boolean).concat(["Otro"]);
+let ayOp = null;
+if(AY.activo) $("ayBtn").style.display="block";
+function abrirAyuda(){
+  ayOp=null; $("ayTxt").value=""; $("ayT").textContent=AY.titulo||"¿Necesitas ayuda?";
+  $("ayOps").innerHTML=AY_OPS.map((o,i)=>'<button type="button" class="aopt" onclick="ayPick('+i+')">'+esc(o)+'</button>').join("");
+  ayAct(); $("ayM").classList.add("open"); document.body.style.overflow="hidden";
+}
+function cerrarAyuda(){ $("ayM").classList.remove("open"); if(!$("modal").classList.contains("open")) document.body.style.overflow=""; }
+function ayPick(i){ ayOp=AY_OPS[i]; [...$("ayOps").children].forEach((b,j)=>b.classList.toggle("on",j===i)); ayAct(); }
+function ayAct(){
+  const otro=ayOp==="Otro", txt=$("ayTxt").value.trim(), nom=$("ayNom").value.trim();
+  $("ayTxtBox").style.display=ayOp?"block":"none";
+  $("ayTxt").placeholder=otro?"Cuéntanos qué problema tienes":"Cuéntanos más (opcional)";
+  const m=(AY.inicio||"Hola Vision Beauty, necesito ayuda.")+"\nProblema: "+(ayOp||"")+(txt?"\nDetalle: "+txt:"")+(nom?"\nNombre: "+nom:"");
+  const a=$("ayGo"); a.href="https://wa.me/"+WA+"?text="+encodeURIComponent(m); a.classList.toggle("off",!(ayOp && (!otro||txt)));
+}
+$("ayTxt").addEventListener("input",ayAct); $("ayNom").addEventListener("input",ayAct);
+$("ayGo").addEventListener("click",()=>evt("ayuda"));
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") cerrarAyuda(); });
+
+/* ---------- estadísticas (Google Analytics, solo si se pone el ID) ---------- */
+(function(){
+  const g=String((AJ.analitica&&AJ.analitica.ga)||"").trim();
+  if(!/^G-[A-Z0-9]{4,20}$/i.test(g) || window.top!==window) return;
+  window.dataLayer=window.dataLayer||[]; window.gtag=function(){ window.dataLayer.push(arguments); };
+  window.gtag("js",new Date()); window.gtag("config",g);
+  const sc=document.createElement("script"); sc.async=true; sc.src="https://www.googletagmanager.com/gtag/js?id="+encodeURIComponent(g); document.head.appendChild(sc);
+})();
+$("wa").addEventListener("click",()=>evt("begin_checkout"));
 </script>
 </body>
 </html>
