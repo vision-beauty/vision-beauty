@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; frame-src about: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="vb-v" content="15">
+<meta name="vb-v" content="16">
 <title>Panel privado · Vision Beauty</title>
 <style>
 :root{--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--ok:#1f8a4c;--bad:#b3402e}
@@ -524,17 +524,29 @@ function parseJS(txt){
   if(i<0||j<0) throw new Error('formato');
   return {tienda,ajustes:aj,categorias:cats,productos:JSON.parse('['+txt.slice(i+k.length,j)+']')};
 }
+async function leerRemoto(){
+  try{ const c=cfg(); if(!c.owner||!c.repo||!c.token) return null;
+    const g=await gh('productos.js',{query:'?ref='+encodeURIComponent(c.branch||'main')}); if(!g.ok) return null;
+    const j=await g.json(); if(!j.content) return null;
+    return parseJS(decodeURIComponent(escape(atob(String(j.content).replace(/\s/g,'')))));
+  }catch(e){ return null; }
+}
 async function cargarPublicado(){
-  const r=await fetch('productos.js?nc='+Date.now(),{cache:'no-store'});
-  if(!r.ok) throw new Error('No se pudo leer productos.js');
-  BASE=parseJS(await r.text());
+  const rem=await leerRemoto();
+  if(rem){ BASE=rem; }
+  else {
+    const r=await fetch('productos.js?nc='+Date.now(),{cache:'no-store'});
+    if(!r.ok) throw new Error('No se pudo leer productos.js');
+    BASE=parseJS(await r.text());
+  }
   try{ const t=await fetch('index.html?nc='+Date.now(),{cache:'no-store'}); if(t.ok) TPL=await t.text(); }catch(e){}
   BASEMAP={}; BASE.productos.forEach(p=>BASEMAP[p.id]=p);
 }
 
 /* ---------- borrador local ---------- */
+function hashSnap(o){ const s=JSON.stringify(canon(normalizar(o))); let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return s.length+':'+h; }
 function guardarBorrador(){
-  try{ localStorage.setItem('vb_draft',JSON.stringify(S)); $('warnLS').style.display='none'; }
+  try{ localStorage.setItem('vb_draft',JSON.stringify(S)); localStorage.setItem('vb_draftmeta',JSON.stringify({b:hashSnap(BASE),c:hayCambios()})); $('warnLS').style.display='none'; }
   catch(e){ $('warnLS').style.display='block'; }
 }
 function cargarBorrador(){
@@ -542,7 +554,7 @@ function cargarBorrador(){
     if(o&&o.productos&&o.tienda&&o.categorias){ S=o; S.ajustes=Object.assign(defAj(),S.ajustes||{}); S.ajustes.destacados=Object.assign(defDest(),S.ajustes.destacados||{}); if(!Array.isArray(S.ajustes.destacados.items)) S.ajustes.destacados.items=[]; S.ajustes.inventario=Object.assign({umbral:3},S.ajustes.inventario||{}); S.ajustes.info=goodInfo(S.ajustes.info); S.ajustes.mensajes=Object.assign(defMsg(),S.ajustes.mensajes||{}); normNuevos(S.ajustes,S.ajustes); S.productos.forEach(p=>{ if(p.i&&p.i.startsWith('data:')) thumbs[p.i]=p.i; }); return true; } }catch(e){}
   return false;
 }
-function borrarBorrador(){ try{ localStorage.removeItem('vb_draft'); }catch(e){} }
+function borrarBorrador(){ try{ localStorage.removeItem('vb_draft'); localStorage.removeItem('vb_draftmeta'); }catch(e){} }
 
 /* ---------- cambios ---------- */
 function normalizar(o){ return {t:o.tienda,a:o.ajustes,c:o.categorias.filter(c=>o.productos.some(p=>p.c===c)),p:o.productos.map(compacto)}; }
@@ -607,11 +619,21 @@ async function esperarEnVivo(txt){
   }
   return false;
 }
+let sincronizando=false, publicando=false;
+async function sincronizar(){
+  if(sincronizando||publicando||!BASE||!S) return; sincronizando=true;
+  try{ const nb=await leerRemoto(); if(!nb) return;
+    if(JSON.stringify(canon(normalizar(nb)))===JSON.stringify(canon(normalizar(BASE)))) return;
+    if(hayCambios()){ pill('Hay cambios nuevos publicados · tienes cambios sin publicar','warn'); return; }
+    BASE=nb; BASEMAP={}; BASE.productos.forEach(p=>BASEMAP[p.id]=p); S=clone(BASE); asegurarCats(); guardarBorrador(); todoRender();
+    pill('Se actualizó con lo último publicado ✓','ok'); setTimeout(estadoPill,3500);
+  }catch(e){} finally{ sincronizando=false; }
+}
 async function publicar(){
   const c=leerCfg(); sitioLink();
   if(!c.owner||!c.repo||!c.token) return msgG('Primero conecta GitHub (más abajo).',false);
   if(!hayCambios()) return msgG('No hay cambios por publicar.',true);
-  $('bpub').disabled=true;
+  $('bpub').disabled=true; publicando=true;
   try{
     msgG('Preparando todo…',true,5); await limpiarCache();
     msgG('Revisando la última versión…',true,15);
@@ -619,7 +641,7 @@ async function publicar(){
     if(chk.ok){ try{ const j=await chk.json(); if(j.content){ const rem=parseJS(decodeURIComponent(escape(atob(String(j.content).replace(/\s/g,''))))); 
       if(JSON.stringify(canon(normalizar(rem)))!==JSON.stringify(canon(normalizar(BASE)))){
         const seguir=await confirmar('La tienda cambió mientras tenías el panel abierto','Alguien publicó otros cambios (¿desde otro celular?). Si sigues, se reemplazan por los tuyos. ¿Publicar igual?');
-        if(!seguir){ msgG('Publicación cancelada. Recarga el panel para ver lo último.',false,-1); $('bpub').disabled=false; return; }
+        if(!seguir){ msgG('Publicación cancelada. Recarga el panel para ver lo último.',false,-1); $('bpub').disabled=false; publicando=false; return; }
       } } }catch(e){} }
     const nuevas=S.productos.filter(p=>p.i&&p.i.startsWith('data:'));
     let n=0;
@@ -656,7 +678,7 @@ async function publicar(){
   }catch(e){
     msgG(e&&e.status?errTxt(e):'No se pudo publicar. Revisa tu internet e intenta otra vez.',false); guardarBorrador();
   }
-  $('bpub').disabled=false;
+  $('bpub').disabled=false; publicando=false;
 }
 
 /* ---------- categorías ---------- */
@@ -1225,9 +1247,20 @@ function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(
   pill('Cargando…','warn');
   try{ await cargarPublicado(); }catch(e){ pill('No se pudo leer la tienda','bad'); $('list').innerHTML='<p class="small">No pude leer productos.js. Abre este panel desde tu página publicada (no como archivo suelto).</p>'; return; }
   S=clone(BASE); asegurarCats();
-  const hubo=cargarBorrador(); asegurarCats();
+  let hubo=false, meta=null; try{ meta=JSON.parse(localStorage.getItem('vb_draftmeta')||'null'); }catch(e){}
+  if(localStorage.getItem('vb_draft')){
+    if(!meta || meta.b===hashSnap(BASE)) hubo=cargarBorrador();
+    else if(!meta.c) borrarBorrador();
+    else {
+      const ultimo=await confirmar('Hay cambios nuevos en la tienda','Otra persona publicó cambios mientras tú tenías cambios sin publicar en este celular. ¿Cargar lo último publicado? Si dices Sí, se descartan tus cambios sin publicar. Si cancelas, los conservas, pero al publicar reemplazarás lo que la otra persona publicó.');
+      if(ultimo) borrarBorrador(); else hubo=cargarBorrador();
+    }
+  }
+  asegurarCats();
   pintarCfg(); todoRender(); estadoPill(); irTab('prod');
   if(hubo) pill('Cambios sin publicar (borrador)','warn');
+  setInterval(()=>sincronizar(),90000);
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) sincronizar(); });
 })();
 </script>
 </body>
