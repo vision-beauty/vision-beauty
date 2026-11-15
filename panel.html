@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; frame-src about: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="vb-v" content="23">
+<meta name="vb-v" content="24">
 <title>Panel privado · Vision Beauty</title>
 <style>
 :root{--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--ok:#1f8a4c;--bad:#b3402e}
@@ -1048,7 +1048,7 @@ async function rfCargar(){
   try{
     const a=await fbReq(fbBase()+':runQuery',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({structuredQuery:{from:[{collectionId:'resenas'}],limit:200}})});
     const g=(f,k,t)=>f&&f[k]?f[k][t]:undefined;
-    RF=(a||[]).filter(d=>d.document).map(d=>{ const f=d.document.fields||{}; return {id:d.document.name.split('/').pop(),n:g(f,'n','stringValue')||'',e:Number(g(f,'e','integerValue'))||5,t:g(f,'t','stringValue')||'',r:g(f,'r','stringValue')||'',v:g(f,'v','booleanValue')!==false,f:g(f,'f','timestampValue')||''}; }).sort((x,y)=>String(y.f).localeCompare(String(x.f)));
+    RF=(a||[]).filter(d=>d.document).map(d=>{ const f=d.document.fields||{}; return {id:d.document.name.split('/').pop(),n:g(f,'n','stringValue')||'',e:Number(g(f,'e','integerValue'))||5,t:g(f,'t','stringValue')||'',r:g(f,'r','stringValue')||'',l:Math.max(0,Number(g(f,'l','integerValue'))||0),v:g(f,'v','booleanValue')!==false,f:g(f,'f','timestampValue')||''}; }).sort((x,y)=>String(y.f).localeCompare(String(x.f)));
     rfM('',true); rfPintar();
   }catch(e){ L.innerHTML=''; rfM(rfErr(e),false); }
 }
@@ -1065,7 +1065,7 @@ function rfPintar(){
     <div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(x.n)}</b><span class="small">${'★'.repeat(x.e)}${x.f?' · '+esc(new Date(x.f).toLocaleDateString('es-CO')):''}</span></div>
     <p style="margin:6px 0">${esc(x.t)}</p>
     ${x.r?`<p class="small" style="margin:4px 0">Tu respuesta: ${esc(x.r)}</p>`:''}
-    <div class="small" style="margin-bottom:6px">${x.v?'Se ve en la tienda':'Oculta (no se ve en la tienda)'}</div>
+    <div class="small" style="margin-bottom:6px">${x.v?'Se ve en la tienda':'Oculta (no se ve en la tienda)'} · ${x.l} me gusta</div>
     <div class="mv"><button class="btn sm line" onclick="rfVis(${i})">${x.v?'Ocultar':'Mostrar'}</button><button class="btn sm line" onclick="rfResp(${i})">${x.r?'Editar respuesta':'Responder'}</button><button class="btn sm bad" onclick="rfDel(${i})">Borrar</button></div>
     <div id="rf_r${i}"></div></div>`).join('')+'<button class="btn sm line" style="margin-top:6px" onclick="rfCargar()">Actualizar lista</button>';
 }

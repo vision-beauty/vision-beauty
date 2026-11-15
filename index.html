@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="vb-v" content="23">
+<meta name="vb-v" content="24">
 <title>Vision Beauty · Siempre linda</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -206,6 +206,10 @@ footer .logo img{max-height:56px}
 .rc b{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;font-weight:400;color:var(--gold2)}
 .rc .rr{margin-top:12px;padding:10px 12px;background:var(--sand);font-size:.85rem;line-height:1.4;color:var(--ink)}
 .rc .rr b{display:block;margin-bottom:2px}
+.rc .lk{display:inline-flex;align-items:center;gap:6px;margin:0 0 0 12px;vertical-align:middle;background:none;border:0;padding:4px 0;font-family:'Jost';font-size:.85rem;color:var(--mut);cursor:pointer}
+.rc .lk svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;transition:transform .2s}
+.rc .lk.on{color:#a32d2d}.rc .lk.on svg{fill:currentColor}
+.rc .lk:active svg{transform:scale(1.25)}
 .rbtn{margin-top:14px;background:none;border:1px solid var(--ink);padding:12px 26px;font-family:'Jost';font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;color:var(--ink)}
 .rbtn:hover{background:var(--ink);color:var(--cream)}
 .rfm{max-width:460px;margin:18px auto 0;padding:0 18px;text-align:left}
@@ -702,13 +706,14 @@ async function compartir(id,ev){
   const R=AJ.resenas; if(!R || !R.activo) return;
   const FB=R.fb||{}, nube=!!(FB.k&&FB.p&&R.form!==false&&/^https?:$/.test(location.protocol)&&window.top===window);
   const base="https://firestore.googleapis.com/v1/projects/"+encodeURIComponent(FB.p||"")+"/databases/(default)/documents";
+  let MIS={}; try{ MIS=JSON.parse(localStorage.getItem("vb_lk")||"{}")||{}; }catch(e){}
   let manual=(R.items||[]).filter(x=>x && String(x.t||"").trim()), nubeL=[];
   function pinta(){
     const it=nubeL.concat(manual); if(!it.length && !nube) return;
     $("rTit").textContent=R.titulo || "Lo que dicen nuestras clientas";
     $("rTrack").style.display=it.length?"flex":"none";
     $("rTrack").innerHTML=it.map(x=>{ const e=Math.max(1,Math.min(5,Math.round(Number(x.e)||5)));
-      return '<div class="rc"><div class="st" aria-label="'+e+' de 5 estrellas">'+"★".repeat(e)+'<span style="color:var(--line)">'+"★".repeat(5-e)+'</span></div><p>“'+esc(x.t)+'”</p><b>'+esc(x.n||"Clienta")+'</b>'+(x.r?'<div class="rr"><b>Respuesta de '+esc((TIENDA&&TIENDA.nombre)||"la tienda")+'</b>'+esc(x.r)+'</div>':'')+'</div>'; }).join("");
+      return '<div class="rc"><div class="st" aria-label="'+e+' de 5 estrellas">'+"★".repeat(e)+'<span style="color:var(--line)">'+"★".repeat(5-e)+'</span></div><p>“'+esc(x.t)+'”</p><b>'+esc(x.n||"Clienta")+'</b>'+(x.r?'<div class="rr"><b>Respuesta de '+esc((TIENDA&&TIENDA.nombre)||"la tienda")+'</b>'+esc(x.r)+'</div>':'')+(x.id?'<button type="button" class="lk'+(MIS[x.id]?' on':'')+'" data-id="'+esc(x.id)+'" aria-label="Me gusta esta reseña" aria-pressed="'+(MIS[x.id]?'true':'false')+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z"/></svg><span>'+(x.l>0?x.l:'')+'</span></button>':'')+'</div>'; }).join("");
     $("resenas").style.display="block";
   }
   pinta();
@@ -716,10 +721,24 @@ async function compartir(id,ev){
   const gv=(f,k,t)=>f&&f[k]?f[k][t]:undefined;
   fetch(base+":runQuery?key="+encodeURIComponent(FB.k),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({structuredQuery:{from:[{collectionId:"resenas"}],where:{fieldFilter:{field:{fieldPath:"v"},op:"EQUAL",value:{booleanValue:true}}},limit:60}})})
     .then(r=>r.ok?r.json():[]).then(a=>{
-      nubeL=(Array.isArray(a)?a:[]).filter(d=>d.document).map(d=>{ const f=d.document.fields||{}; return {n:gv(f,"n","stringValue"),e:Number(gv(f,"e","integerValue"))||5,t:gv(f,"t","stringValue")||"",r:gv(f,"r","stringValue")||"",f:gv(f,"f","timestampValue")||""}; })
+      nubeL=(Array.isArray(a)?a:[]).filter(d=>d.document).map(d=>{ const f=d.document.fields||{}; return {id:d.document.name.split("/").pop(),l:Math.max(0,Number(gv(f,"l","integerValue"))||0),n:gv(f,"n","stringValue"),e:Number(gv(f,"e","integerValue"))||5,t:gv(f,"t","stringValue")||"",r:gv(f,"r","stringValue")||"",f:gv(f,"f","timestampValue")||""}; })
         .filter(x=>x.t.trim()).sort((x,y)=>String(y.f).localeCompare(String(x.f)));
       pinta();
     }).catch(()=>{});
+  $("rTrack").addEventListener("click",async e=>{
+    const b=e.target.closest(".lk"); if(!b||b.disabled) return;
+    const id=b.dataset.id, it=nubeL.find(x=>x.id===id); if(!it) return;
+    const sube=!MIS[id], d=sube?1:-1; b.disabled=true;
+    it.l=Math.max(0,(it.l||0)+d); if(sube) MIS[id]=1; else delete MIS[id]; pinta();
+    try{
+      const r=await fetch(base+":commit?key="+encodeURIComponent(FB.k),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({writes:[{transform:{document:"projects/"+FB.p+"/databases/(default)/documents/resenas/"+id,fieldTransforms:[{fieldPath:"l",increment:{integerValue:String(d)}}]}}]})});
+      if(!r.ok) throw 0;
+      try{ localStorage.setItem("vb_lk",JSON.stringify(MIS)); }catch(x){}
+      if(sube) evt("review_like",{});
+    }catch(x){
+      it.l=Math.max(0,(it.l||0)-d); if(sube) delete MIS[id]; else MIS[id]=1; pinta();
+    }
+  });
   let est=5;
   $("rForm").innerHTML='<button class="rbtn" id="rAbrir" type="button">Escribir mi reseña</button><div class="rfm" id="rFm" style="display:none"><label for="rN">Tu nombre</label><input id="rN" maxlength="40" autocomplete="given-name" placeholder="Ej: Laura M."><label>Tu calificación</label><div class="rst" id="rSt" role="radiogroup" aria-label="Calificación"></div><label for="rT">Tu opinión</label><textarea id="rT" maxlength="400" placeholder="Cuéntanos cómo te fue con tu compra"></textarea><input class="hp" id="rHp" tabindex="-1" autocomplete="off" aria-hidden="true"><button class="rbtn" id="rEnv" type="button">Publicar mi reseña</button><div class="rmsg" id="rMsg" role="status"></div></div>';
   const pe=()=>{ $("rSt").innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=est?'on':'')+'" data-n="'+n+'" aria-label="'+n+' de 5">★</button>').join(""); };
