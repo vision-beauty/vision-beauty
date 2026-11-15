@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; frame-src about: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="vb-v" content="24">
+<meta name="vb-v" content="25">
 <title>Panel privado · Vision Beauty</title>
 <style>
 :root{--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--ok:#1f8a4c;--bad:#b3402e}
@@ -185,6 +185,7 @@ body.owner #rf_cfg{display:none!important}
   <button data-t="ayuda">🙋 Ayuda al cliente</button>
   <button data-t="cupones">🎟️ Códigos promocionales</button>
   <button data-t="cat">🗂️ Categorías</button>
+  <button data-t="colores">🎨 Colores</button>
   <button data-t="tienda">🏪 Tienda y avisos</button>
   <hr>
   <button data-t="pub">🚀 Publicar</button>
@@ -342,6 +343,24 @@ body.owner #rf_cfg{display:none!important}
         </div>
         <div class="card"><h2 id="c_cnt">Códigos</h2><div id="c_list"></div>
           <button class="btn gold" style="width:100%;margin-top:6px" onclick="cAdd()">+ Crear código</button></div>
+      </section>
+
+      <!-- COLORES -->
+      <section class="pane" id="p_colores">
+        <div class="card"><h2>Paletas listas</h2>
+          <p class="small">Toca una y se cambia todo de una vez. Después puedes ajustar cada parte abajo.</p>
+          <div id="co_pre" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px"></div>
+        </div>
+        <div class="card"><h2>Cambiar todo con un solo color</h2>
+          <p class="small">Elige el color que más te gusta y armamos toda la paleta a partir de él.</p>
+          <div style="display:flex;gap:10px;align-items:center"><input type="color" id="co_base" value="#b08d57" style="width:64px;height:44px;padding:2px"><button class="btn gold" style="flex:1" onclick="coBase()">Aplicar a toda la tienda</button></div>
+        </div>
+        <div class="card"><h2>Vista rápida</h2><div id="co_mini"></div><div id="co_warn" class="small" style="margin-top:8px"></div></div>
+        <div class="card"><h2>Color de cada apartado</h2>
+          <p class="small">Cada fila dice dónde se ve ese color en la tienda.</p>
+          <div id="co_list"></div>
+          <button class="btn line" style="width:100%;margin-top:10px" onclick="coReset()">Volver a los colores originales</button>
+        </div>
       </section>
 
       <!-- REDES -->
@@ -558,7 +577,8 @@ function normNuevos(aj,src){ src=src||{};
   aj.resenas=Object.assign(defRes(),src.resenas||{}); if(!Array.isArray(aj.resenas.items)) aj.resenas.items=[];
   aj.ayuda=Object.assign(defAyuda(),src.ayuda||{}); if(!Array.isArray(aj.ayuda.opciones)) aj.ayuda.opciones=defAyuda().opciones;
   aj.cupones=Object.assign(defCup(),src.cupones||{}); if(!Array.isArray(aj.cupones.items)) aj.cupones.items=[];
-  aj.analitica=Object.assign({ga:''},src.analitica||{}); return aj; }
+  aj.analitica=Object.assign({ga:''},src.analitica||{});
+  aj.colores=(src.colores&&typeof src.colores==='object'&&!Array.isArray(src.colores))?Object.assign({},src.colores):{}; return aj; }
 const defAj = () => normNuevos({splash:{activo:false,titulo:'Vision Beauty',sub:'Siempre linda',seg:2.4},anuncio:{activo:false,texto:''},destacados:defDest(),inventario:{umbral:3},info:defInfoAj(),mensajes:defMsg()});
 
 /* ---------- leer lo publicado ---------- */
@@ -872,7 +892,7 @@ function cargarAjustes(){
 function leerAjustes(){
   const lg0=S.tienda.logo; S.tienda={nombre:$('t_nombre').value.trim(),whatsapp:$('t_wa').value.replace(/\D/g,''),instagram:$('t_ig').value.replace(/^@/,'').trim(),facebook:$('t_fb').value.trim(),tiktok:$('t_tt').value.trim()}; if(lg0) S.tienda.logo=lg0;
   const seg=parseFloat(String($('s_seg').value).replace(',','.'));
-  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()},destacados:S.ajustes.destacados||defDest(),inventario:S.ajustes.inventario||{umbral:3},info:S.ajustes.info||defInfoAj(),mensajes:S.ajustes.mensajes||defMsg(),resenas:S.ajustes.resenas||defRes(),ayuda:S.ajustes.ayuda||defAyuda(),cupones:S.ajustes.cupones||defCup(),analitica:{ga:$('ga_id').value.trim()}};
+  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()},destacados:S.ajustes.destacados||defDest(),inventario:S.ajustes.inventario||{umbral:3},info:S.ajustes.info||defInfoAj(),mensajes:S.ajustes.mensajes||defMsg(),resenas:S.ajustes.resenas||defRes(),ayuda:S.ajustes.ayuda||defAyuda(),cupones:S.ajustes.cupones||defCup(),analitica:{ga:$('ga_id').value.trim()},colores:S.ajustes.colores||{}};
   cambio();
 }
 ['ga_id','t_nombre','t_wa','t_ig','t_fb','t_tt','s_on','s_t','s_s','s_seg','a_on','a_t'].forEach(id=>$(id).addEventListener(id==='s_on'||id==='a_on'?'change':'input',leerAjustes));
@@ -1019,6 +1039,62 @@ $('lg_file').addEventListener('change',e=>{
 
 /* ---------- reseñas ---------- */
 const RES=()=>S.ajustes.resenas;
+
+/* ---------- colores ---------- */
+const CO_DEF={fondo:'#faf5ee',secciones:'#efe3d4',texto:'#4a3428',suave:'#9a8676',dorado:'#b08d57',dorado2:'#8f6d3a',lineas:'#e5d8c7',boton:'#4a3428',oferta:'#7a1f2e',wa:'#1fa855'};
+const CO_INFO=[
+ ['fondo','Fondo de la página','El fondo de toda la tienda y de la barra de arriba'],
+ ['secciones','Fondo de las secciones','La portada, "¿Cómo comprar?" y la pantalla de bienvenida'],
+ ['texto','Letras principales','Títulos, nombres de productos, precios y el botón Bolsa'],
+ ['suave','Letras suaves','Descripciones, textos pequeños y ayudas'],
+ ['dorado','Dorado (detalles)','Estrellas, flechas, líneas y bordes de botones redondos'],
+ ['dorado2','Dorado oscuro','Subtítulos, "Siempre linda" y títulos pequeños'],
+ ['lineas','Líneas y bordes','Marcos de las tarjetas y separadores'],
+ ['boton','Botón Agregar','El botón "Agregar" de cada producto'],
+ ['oferta','Etiqueta Oferta','La etiqueta de descuento sobre la foto'],
+ ['wa','Botón de WhatsApp','Los botones verdes de WhatsApp']];
+const CO_PRE=[
+ {n:'Clásica',c:{}},
+ {n:'Rosa suave',c:{fondo:'#fdf4f4',secciones:'#f6e1e3',texto:'#4a2c35',suave:'#a07c85',dorado:'#c08a86',dorado2:'#9b5f63',lineas:'#efd6d8',boton:'#4a2c35',oferta:'#9b2f4a'}},
+ {n:'Salvia',c:{fondo:'#f6f8f3',secciones:'#e4ebdd',texto:'#2f3d33',suave:'#7d8f80',dorado:'#7d9a72',dorado2:'#55704d',lineas:'#d8e2cf',boton:'#2f3d33',oferta:'#8a3b2b'}},
+ {n:'Lavanda',c:{fondo:'#f8f5fc',secciones:'#ebe3f5',texto:'#33294a',suave:'#8a7fa3',dorado:'#9c84c7',dorado2:'#6f58a0',lineas:'#ddd3ec',boton:'#33294a',oferta:'#8c2f5a'}},
+ {n:'Azul cielo',c:{fondo:'#f3f8fc',secciones:'#dfecf6',texto:'#1f3447',suave:'#6f8aa0',dorado:'#5e92b8',dorado2:'#3a6b92',lineas:'#d0e1ee',boton:'#1f3447',oferta:'#a03a3a'}},
+ {n:'Negro y dorado',c:{fondo:'#fbf8f1',secciones:'#efe9da',texto:'#1c1c1c',suave:'#7a7466',dorado:'#c0a050',dorado2:'#8a6d1f',lineas:'#e3dccb',boton:'#111111',oferta:'#8b1e1e'}}];
+const COL=()=>{ if(!S.ajustes.colores||typeof S.ajustes.colores!=='object') S.ajustes.colores={}; return S.ajustes.colores; };
+const coV=k=>COL()[k]||CO_DEF[k];
+const coHex=v=>/^#[0-9a-fA-F]{6}$/.test(v);
+function coLum(h){ const c=[1,3,5].map(i=>{ const v=parseInt(h.substr(i,2),16)/255; return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4); }); return .2126*c[0]+.7152*c[1]+.0722*c[2]; }
+function coRatio(a,b){ const x=coLum(a), y=coLum(b); return (Math.max(x,y)+.05)/(Math.min(x,y)+.05); }
+function hsl2hex(h,s,l){ h=((h%360)+360)%360; s/=100; l/=100; const a=s*Math.min(l,1-l), f=n=>{ const k=(n+h/30)%12; return l-a*Math.max(-1,Math.min(k-3,9-k,1)); }; return '#'+[f(0),f(8),f(4)].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join(''); }
+function hex2hsl(hx){ let r=parseInt(hx.substr(1,2),16)/255,g=parseInt(hx.substr(3,2),16)/255,b=parseInt(hx.substr(5,2),16)/255; const M=Math.max(r,g,b), m=Math.min(r,g,b), d=M-m; let h=0; if(d){ if(M===r) h=((g-b)/d)%6; else if(M===g) h=(b-r)/d+2; else h=(r-g)/d+4; h*=60; } const l=(M+m)/2, s=d?d/(1-Math.abs(2*l-1)):0; return [h<0?h+360:h,s*100,l*100]; }
+function renderColores(){
+  if(!S||!$('co_list')) return;
+  $('co_pre').innerHTML=CO_PRE.map((x,i)=>{ const c=Object.assign({},CO_DEF,x.c); return `<button class="btn line" style="padding:10px;text-align:left" onclick="coPreset(${i})"><span style="display:flex;gap:3px;margin-bottom:6px">${['fondo','secciones','dorado','texto'].map(k=>`<i style="display:block;width:22px;height:22px;border-radius:50%;background:${c[k]};border:1px solid rgba(0,0,0,.15)"></i>`).join('')}</span>${x.n}</button>`; }).join('');
+  $('co_list').innerHTML=CO_INFO.map(([k,t,d])=>`<div style="padding:10px 0;border-top:1px solid var(--line)"><div style="display:flex;align-items:center;gap:10px"><input type="color" value="${coV(k)}" oninput="coSet('${k}',this.value)" style="width:56px;height:44px;padding:2px;flex:none"><div style="flex:1;min-width:0"><b>${t}</b><div class="small">${d}</div></div>${COL()[k]?`<button class="btn sm line" onclick="coQuitar('${k}')">Quitar</button>`:''}</div></div>`).join('');
+  coMini();
+}
+function coMini(){
+  const g=k=>coV(k);
+  $('co_mini').innerHTML=`<div style="border:1px solid ${g('lineas')};background:${g('fondo')};border-radius:10px;overflow:hidden">
+    <div style="padding:10px;text-align:center;border-bottom:1px solid ${g('lineas')};color:${g('texto')};letter-spacing:.2em;font-size:13px">VISION BEAUTY<div style="color:${g('dorado2')};font-style:italic;letter-spacing:.05em;font-size:12px">Siempre linda</div></div>
+    <div style="background:${g('secciones')};padding:12px;text-align:center;color:${g('suave')};font-size:12px">Portada y secciones</div>
+    <div style="padding:12px;display:flex;gap:12px;align-items:center"><div style="width:84px;height:84px;background:${g('secciones')};border:1px solid ${g('lineas')};position:relative"><span style="position:absolute;top:5px;left:5px;background:${g('oferta')};color:#fff;font-size:9px;padding:2px 6px;border-radius:3px">OFERTA</span></div>
+      <div style="flex:1"><div style="color:${g('texto')};font-size:14px">Aretes argolla</div><div style="color:${g('suave')};font-size:12px">Aretes</div><div style="color:${g('texto')};font-size:18px;margin:2px 0 6px">$20.000 <span style="color:${g('dorado')}">★★★★★</span></div>
+      <div style="display:flex;gap:6px"><span style="background:${g('boton')};color:${g('fondo')};font-size:12px;padding:6px 14px">Agregar</span><span style="background:${g('wa')};color:#fff;font-size:12px;padding:6px 10px">WhatsApp</span></div></div></div></div>`;
+  const w=[]; if(coRatio(g('texto'),g('fondo'))<4.5) w.push('Las letras principales casi no se leen sobre el fondo. Usa un color más oscuro o un fondo más claro.');
+  if(coRatio(g('suave'),g('fondo'))<2.5) w.push('Las letras suaves casi no se ven sobre el fondo.');
+  if(coRatio(g('fondo'),g('boton'))<3) w.push('El texto del botón Agregar casi no se lee sobre su color.');
+  if(coRatio(g('texto'),g('secciones'))<4.5) w.push('Las letras principales casi no se leen sobre el fondo de las secciones.');
+  $('co_warn').innerHTML=w.length?'<span style="color:#a32d2d">⚠ '+w.join('<br>⚠ ')+'</span>':'<span style="color:#3b6d11">✓ Se lee bien.</span>';
+}
+function coSet(k,v){ if(!coHex(v)) return; COL()[k]=v; coMini(); cambio(); }
+function coQuitar(k){ delete COL()[k]; renderColores(); cambio(); }
+function coPreset(i){ S.ajustes.colores=Object.assign({},CO_PRE[i].c); renderColores(); cambio(); }
+function coReset(){ S.ajustes.colores={}; renderColores(); cambio(); }
+function coBase(){ const b=$('co_base').value; if(!coHex(b)) return; const [h,s]=hex2hsl(b), sa=Math.max(25,Math.min(s,70));
+  S.ajustes.colores={fondo:hsl2hex(h,Math.min(sa,45),97),secciones:hsl2hex(h,Math.min(sa,40),92),texto:hsl2hex(h,Math.min(sa,35),20),suave:hsl2hex(h,Math.min(sa,20),55),dorado:b,dorado2:hsl2hex(h,sa,Math.max(18,hex2hsl(b)[2]*.72)),lineas:hsl2hex(h,Math.min(sa,30),88),boton:hsl2hex(h,Math.min(sa,35),20)};
+  renderColores(); cambio(); }
+
 function renderRes(){
   const R=RES(); R.fb=R.fb||{k:'',p:''}; if(typeof R.form!=='boolean') R.form=true;
   $('r_on').checked=!!R.activo; $('r_t').value=R.titulo||''; $('r_form').checked=R.form!==false; $('r_k').value=R.fb.k||''; $('r_p').value=R.fb.p||''; const fl=FBL(); if(fl&&fl.e&&document.activeElement!==$('rf_e')) $('rf_e').value=fl.e;
@@ -1379,7 +1455,7 @@ function verSplash(){ forzar=true; if(window.innerWidth<1000) irTab('vista'); se
 function cerrar(id){ $(id).classList.remove('open'); }
 function pregunta(t,m,fn){ $('askT').textContent=t; $('askM').textContent=m; $('askOk').onclick=()=>{ cerrar('mAsk'); fn(); }; $('mAsk').classList.add('open'); }
 function resetTodo(){ pregunta('¿Descartar todos los cambios?','Vuelves a lo que está publicado en la tienda ahora mismo.',()=>{ S=clone(BASE); asegurarCats(); borrarBorrador(); todoRender(); cambio(); }); }
-const NOMBRES={inicio:'Inicio',prod:'Productos',vista:'Vista previa',dest:'Destacados',inv:'Inventario',info:'Franja de información',redes:'Redes y contacto',msg:'Mensajes de WhatsApp',resenas:'Reseñas',ayuda:'Ayuda al cliente',cupones:'Códigos promocionales',cat:'Categorías',tienda:'Tienda y avisos',pub:'Publicar'};
+const NOMBRES={inicio:'Inicio',prod:'Productos',vista:'Vista previa',dest:'Destacados',inv:'Inventario',info:'Franja de información',redes:'Redes y contacto',msg:'Mensajes de WhatsApp',resenas:'Reseñas',colores:'Colores',ayuda:'Ayuda al cliente',cupones:'Códigos promocionales',cat:'Categorías',tienda:'Tienda y avisos',pub:'Publicar'};
 function menu(v){ $('menuBg').classList.toggle('open',!!v); }
 function irTab(t){
   document.querySelectorAll('#menu button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
@@ -1398,7 +1474,7 @@ document.querySelectorAll('#menu button[data-t]').forEach(b=>b.addEventListener(
 $('q').addEventListener('input',e=>{ buscar=e.target.value; visibles=30; lista(); });
 $('fc').addEventListener('change',e=>{ filtroCat=e.target.value; visibles=30; lista(); });
 
-function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); renderDest(); renderInv(); renderInfo(); renderRes(); renderAyuda(); renderCup(); resumen(); pintarPrev(); renderInicio(); }
+function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); renderDest(); renderInv(); renderInfo(); renderRes(); renderAyuda(); renderCup(); renderColores(); resumen(); pintarPrev(); renderInicio(); }
 (async function(){
   pill('Cargando…','warn');
   try{ await cargarPublicado(); }catch(e){ pill('No se pudo leer la tienda','bad'); $('list').innerHTML='<p class="small">No pude leer productos.js. Abre este panel desde tu página publicada (no como archivo suelto).</p>'; return; }
