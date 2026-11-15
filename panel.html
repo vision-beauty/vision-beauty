@@ -112,6 +112,13 @@ header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
 #menu button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;background:none;padding:13px 12px;border-radius:10px;font-size:1rem;color:var(--ink)}
 #menu button.on{background:var(--sand);font-weight:700}
 #menu hr{border:0;border-top:1px solid var(--line);margin:8px 6px}
+.wab{background:#e7ffdb;border-radius:12px 12px 2px 12px;padding:8px 10px 6px;max-width:100%;box-shadow:0 1px 1px rgba(0,0,0,.12);font-size:.86rem;line-height:1.35;white-space:pre-wrap;word-break:break-word;color:#111}
+.wab .lk{color:#0a7cc2;text-decoration:underline}
+.wab .th{display:flex;gap:8px;background:rgba(0,0,0,.06);border-radius:8px;overflow:hidden;margin:2px 0 6px;white-space:normal}
+.wab .th img{width:64px;height:64px;object-fit:cover;flex:none}
+.wab .th span{font-size:.75rem;padding:6px 6px 6px 0;color:#444}
+.wab .hr{display:block;text-align:right;font-size:.68rem;color:#667781;margin-top:2px}
+.wabg{background:#efe7dd;border-radius:12px;padding:12px}
 </style>
 </head>
 <body>
@@ -234,19 +241,25 @@ header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
 
       <!-- MENSAJES -->
       <section class="pane" id="p_msg">
+        <div class="card"><h2>Fotos en el mensaje</h2>
+          <p class="small">Agrega debajo de cada producto el enlace de su foto. En WhatsApp la foto se ve al abrir el enlace (a veces sale pequeña de una vez dentro del chat).</p>
+          <label style="display:flex;gap:10px;align-items:center;font-weight:600"><input type="checkbox" id="m_fotos" style="width:20px;height:20px"> Incluir el enlace de la foto</label>
+        </div>
         <div class="card"><h2>Botón "Pide por WhatsApp"</h2>
           <p class="small">Este es el mensaje que sale escrito cuando alguien toca ese botón. Si ya tiene productos en la bolsa, se agregan solos al final.</p>
           <label class="l">Mensaje</label><textarea id="m_contacto" style="height:80px"></textarea>
+          <label class="l">Así lo verá WhatsApp (con productos en la bolsa)</label><div id="pv_contacto"></div>
         </div>
         <div class="card"><h2>Preguntar por un producto</h2>
           <p class="small">Se usa en los productos sin precio ("Preguntar por WhatsApp"). Escribe <b>{producto}</b> y <b>{categoria}</b> donde quieras que salgan el nombre y la categoría.</p>
           <label class="l">Mensaje</label><textarea id="m_consulta" style="height:80px"></textarea>
+          <label class="l">Así lo verá WhatsApp</label><div id="pv_consulta"></div>
         </div>
         <div class="card"><h2>Pedido desde la bolsa</h2>
           <p class="small">Después del inicio se escriben solos los productos con su cantidad, el total, el nombre y la dirección que la clienta puso.</p>
           <label class="l">Inicio del mensaje</label><textarea id="m_pi" style="height:70px"></textarea>
           <label class="l">Final del mensaje (opcional)</label><textarea id="m_pf" style="height:70px" placeholder="Ej: Quedo atenta a los datos de pago. ¡Gracias!"></textarea>
-          <label class="l">Así se verá</label><pre id="m_prev" style="white-space:pre-wrap;background:var(--sand);border-radius:10px;padding:10px;font-family:inherit;font-size:.85rem"></pre>
+          <label class="l">Así lo verá WhatsApp</label><div id="pv_pedido"></div>
         </div>
       </section>
 
@@ -357,7 +370,7 @@ const defInfo = () => [
   {t:'Pide por WhatsApp',s:'Atención personalizada',m:'Hola Vision Beauty, quiero más información',tipo:'wa',on:true}];
 const defInfoAj = () => ({items:defInfo()});
 const goodInfo = i => (i&&Array.isArray(i.items)&&i.items.length) ? i : defInfoAj();
-const defMsg = () => ({contacto:'Hola Vision Beauty, quiero más información',consulta:'Hola, me interesa: {producto} ({categoria})',pedido_ini:'Hola Vision Beauty, quiero hacer un pedido:',pedido_fin:''});
+const defMsg = () => ({contacto:'Hola Vision Beauty, quiero más información',consulta:'Hola, me interesa: {producto} ({categoria})',pedido_ini:'Hola Vision Beauty, quiero hacer un pedido:',pedido_fin:'',fotos:true});
 const defDest = () => ({activo:false,titulo:'Destacados',seg:10,auto:true,items:[]});
 const defAj = () => ({splash:{activo:false,titulo:'Vision Beauty',sub:'Siempre linda',seg:2.4},anuncio:{activo:false,texto:''},destacados:defDest(),inventario:{umbral:3},info:defInfoAj(),mensajes:defMsg()});
 
@@ -595,7 +608,7 @@ function crear(){
 
 /* ---------- tienda ---------- */
 function cargarAjustes(){
-  { const M=S.ajustes.mensajes; $('m_contacto').value=M.contacto||''; $('m_consulta').value=M.consulta||''; $('m_pi').value=M.pedido_ini||''; $('m_pf').value=M.pedido_fin||''; prevMsg(); }
+  { const M=S.ajustes.mensajes; $('m_contacto').value=M.contacto||''; $('m_consulta').value=M.consulta||''; $('m_pi').value=M.pedido_ini||''; $('m_pf').value=M.pedido_fin||''; $('m_fotos').checked=M.fotos!==false; prevMsg(); }
   $('t_nombre').value=S.tienda.nombre; $('t_wa').value=S.tienda.whatsapp; $('t_ig').value=S.tienda.instagram||''; $('t_fb').value=S.tienda.facebook||''; $('t_tt').value=S.tienda.tiktok||'';
   const s=S.ajustes.splash, a=S.ajustes.anuncio;
   $('s_on').checked=!!s.activo; $('s_t').value=s.titulo||''; $('s_s').value=s.sub||''; $('s_seg').value=s.seg||2.4;
@@ -731,14 +744,32 @@ function resumenWA(){
 
 /* ---------- mensajes de WhatsApp ---------- */
 function prevMsg(){
-  const M=S.ajustes.mensajes;
-  $('m_prev').textContent=(M.pedido_ini||'')+'\n• 2 x Cadenas con dije 06 ($80.000)\n\nTotal: $80.000\nNombre: Ana\nEntrega: Bogotá, Calle 1 # 2-3'+(M.pedido_fin?'\n\n'+M.pedido_fin:'');
+  const M=S.ajustes.mensajes, F=M.fotos!==false;
+  const pr=(S.productos||[]).filter(x=>x.p&&x.i&&!x.h).slice(0,2);
+  const ej=pr.length?pr:[{n:'Cadenas con dije 06',p:40000,i:''}];
+  const pf=x=>(x.o&&x.o<x.p)?x.o:x.p;
+  const fm=n=>'$'+Math.round(n).toLocaleString('es-CO');
+  const url=x=>x.i?new URL(x.i,location.href).href:'';
+  const E=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const linea=(x,q)=>'• '+q+' x '+x.n+' ('+fm(pf(x)*q)+')'+(F&&x.i?'\n   📷 '+url(x):'');
+  const lineas=ej.map((x,i)=>linea(x,i?1:2));
+  const tot=ej.reduce((a,x,i)=>a+pf(x)*(i?1:2),0);
+  const bub=(txt,x)=>{
+    let h=E(txt).replace(/(https?:\/\/\S+)/g,'<span class="lk">$1</span>');
+    const th=(F&&x&&x.i)?'<div class="th"><img src="'+E(x.i)+'" alt=""><span>'+E(x.n)+'<br>vision-beauty.github.io</span></div>':'';
+    return '<div class="wabg"><div class="wab">'+th+h+'<span class="hr">ahora ✓✓</span></div></div>';
+  };
+  const x0=ej[0];
+  $('pv_contacto').innerHTML=bub((M.contacto||'')+'\n\nMe interesa:\n'+lineas.join('\n')+'\nTotal: '+fm(tot),F?x0:null);
+  $('pv_consulta').innerHTML=bub((M.consulta||'').split('{producto}').join(x0.n).split('{categoria}').join('Cadenas')+(F&&x0.i?'\n📷 '+url(x0):''),F?x0:null);
+  $('pv_pedido').innerHTML=bub((M.pedido_ini||'')+'\n'+lineas.join('\n')+'\n\nTotal: '+fm(tot)+'\nNombre: Ana\nEntrega: Bogotá, Calle 1 # 2-3'+(M.pedido_fin?'\n\n'+M.pedido_fin:''),F?x0:null);
 }
 function leerMsg(){
-  S.ajustes.mensajes={contacto:$('m_contacto').value,consulta:$('m_consulta').value,pedido_ini:$('m_pi').value,pedido_fin:$('m_pf').value};
+  S.ajustes.mensajes={contacto:$('m_contacto').value,consulta:$('m_consulta').value,pedido_ini:$('m_pi').value,pedido_fin:$('m_pf').value,fotos:$('m_fotos').checked};
   prevMsg(); cambio();
 }
 ['m_contacto','m_consulta','m_pi','m_pf'].forEach(id=>$(id).addEventListener('input',leerMsg));
+$('m_fotos').addEventListener('change',leerMsg);
 
 /* ---------- franja de información ---------- */
 function renderInfo(){

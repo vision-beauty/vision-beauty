@@ -313,7 +313,10 @@ const MSG = (()=>{ const m=Object.assign({}, AJ.mensajes||{}); const w=((AJ.info
   return { contacto: m.contacto || (w&&w.m) || "Hola Vision Beauty, quiero más información",
            consulta: m.consulta || "Hola, me interesa: {producto} ({categoria})",
            pedido_ini: m.pedido_ini || "Hola Vision Beauty, quiero hacer un pedido:",
-           pedido_fin: m.pedido_fin || "" }; })();
+           pedido_fin: m.pedido_fin || "",
+           fotos: m.fotos !== false }; })();
+const fotoUrl = p => { try{ return new URL(p.i, location.href).href; }catch(e){ return ""; } };
+const lineaPed = (p,q) => "• "+q+" x "+p.n+" ("+fmt(pf(p)*q)+")"+(MSG.fotos && p.i ? "\n   📷 "+fotoUrl(p) : "");
 const esUrl = v => /^https?:\/\//i.test(String(v||"").trim());
 const socUrl = (v,base) => { v=String(v||"").trim(); if(!v) return ""; if(esUrl(v)) return v; if(/^[a-z][a-z0-9+.-]*:/i.test(v)) return ""; return base+encodeURIComponent(v.replace(/^@/,"")); };
 const URL_IG = socUrl(TIENDA.instagram,"https://instagram.com/"), URL_FB = socUrl(TIENDA.facebook,"https://facebook.com/"), URL_TT = socUrl(TIENDA.tiktok,"https://www.tiktok.com/@");
@@ -342,7 +345,7 @@ function precioHtml(p){
   if(!p.p) return '<div class="ask">Consultar precio</div>';
   return enOferta(p) ? '<div class="price"><span class="old">'+fmt(p.p)+'</span>'+fmt(p.o)+'</div>' : '<div class="price">'+fmt(p.p)+'</div>';
 }
-function wa(p){ return 'https://wa.me/'+WA+'?text='+encodeURIComponent(MSG.consulta.split('{producto}').join(p.n).split('{categoria}').join(p.c)); }
+function wa(p){ return 'https://wa.me/'+WA+'?text='+encodeURIComponent(MSG.consulta.split('{producto}').join(p.n).split('{categoria}').join(p.c)+(MSG.fotos && p.i ? "\n📷 "+fotoUrl(p) : "")); }
 function accion(p,estilo,conQty){
   const st = estilo ? ' style="background:var(--ink);color:var(--cream)"' : '';
   if(AGOT(p)) return '<button class="add" disabled>Agotado</button>';
@@ -421,7 +424,7 @@ function render(){
   }).join("") : `<div class="empty">Tu bolsa está vacía ✨</div>`;
   $("count").textContent=cnt; $("total").textContent=fmt(total);
   const nom=$("nombre").value.trim(), dir=$("dir").value.trim();
-  const lineas = ids.map(id=>{const p=PRODUCTOS.find(x=>x.id==id);return `• ${carrito[id]} x ${p.n} (${fmt(pf(p)*carrito[id])})`;});
+  const lineas = ids.map(id=>{const p=PRODUCTOS.find(x=>x.id==id);return lineaPed(p,carrito[id]);});
   const msg = `${MSG.pedido_ini}\n${lineas.join("\n")}\n\nTotal: ${fmt(total)}\nNombre: ${nom}\nEntrega: ${dir}`+(MSG.pedido_fin?`\n\n${MSG.pedido_fin}`:"");
   const pw=document.getElementById("perkWa");
   if(pw) pw.href = "https://wa.me/" + WA + "?text=" + encodeURIComponent(MSG.contacto + (ids.length ? `\n\nMe interesa:\n${lineas.join("\n")}\nTotal: ${fmt(total)}` : ""));
