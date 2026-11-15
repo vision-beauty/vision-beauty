@@ -147,6 +147,13 @@ footer a{color:var(--gold2)}
 .ddots{display:flex;justify-content:center;gap:8px;margin-top:14px}
 .ddots button{width:8px;height:8px;border-radius:4px;border:0;background:var(--line);padding:0;cursor:pointer;transition:.3s}
 .ddots button.on{width:26px;background:var(--gold)}
+.qrow{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:12px}
+.mbox .qrow{justify-content:flex-start}
+.ql{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
+.qs{display:inline-flex;align-items:center;border:1px solid var(--line);background:#fff}
+.qs button{width:40px;height:40px;border:0;background:none;font-size:1.3rem;line-height:1;cursor:pointer;color:var(--ink)}
+.qs button:active{background:var(--sand)}
+.qs .qv{min-width:42px;text-align:center;font-size:1.05rem;font-weight:400}
 </style>
 </head>
 <body>
@@ -286,11 +293,20 @@ function precioHtml(p){
   return enOferta(p) ? '<div class="price"><span class="old">'+fmt(p.p)+'</span>'+fmt(p.o)+'</div>' : '<div class="price">'+fmt(p.p)+'</div>';
 }
 function wa(p){ return 'https://wa.me/'+String(TIENDA.whatsapp).replace(/\D/g,'')+'?text='+encodeURIComponent('Hola, me interesa: '+p.n+' ('+p.c+')'); }
-function accion(p,estilo){
+function accion(p,estilo,conQty){
   const st = estilo ? ' style="background:var(--ink);color:var(--cream)"' : '';
   if(p.a) return '<button class="add" disabled>Agotado</button>';
   if(!p.p) return '<a class="add" target="_blank" rel="noopener noreferrer" href="'+esc(wa(p))+'">Preguntar por WhatsApp</a>';
+  if(conQty) return '<div class="qrow"><span class="ql">Cantidad</span><div class="qs"><button type="button" aria-label="Menos" onclick="qch(this,-1)">−</button><span class="qv">1</span><button type="button" aria-label="Más" onclick="qch(this,1)">+</button></div></div>'
+    +'<button class="add"'+st+' onclick="addQ('+p.id+',this)">Agregar a la bolsa</button>';
   return '<button class="add"'+st+' onclick="add('+p.id+',this)">Agregar a la bolsa</button>';
+}
+function qch(b,d){ const v=b.parentNode.querySelector(".qv"); v.textContent=Math.min(99,Math.max(1,(parseInt(v.textContent,10)||1)+d)); }
+function addQ(id,btn){
+  const box=btn.parentNode, v=box.querySelector(".qv"), n=parseInt(v&&v.textContent,10)||1;
+  carrito[id]=(carrito[id]||0)+n; render();
+  btn.classList.add("ok"); btn.textContent="Agregado ("+n+") ✓"; if(v) v.textContent="1";
+  setTimeout(()=>{btn.classList.remove("ok");btn.textContent="Agregar a la bolsa"},1200);
 }
 function lista(){
   const arr = VISIBLES.filter(pasa);
@@ -312,7 +328,7 @@ function abrirM(id){
   $("mCat").textContent = p.c; $("mNom").textContent = p.n;
   $("mPre").innerHTML = precioHtml(p).replace(/<\/?div[^>]*>/g,"");
   $("mDes").textContent = p.d || "";
-  $("mAcc").innerHTML = accion(p,true);
+  $("mAcc").innerHTML = accion(p,true,true);
   $("modal").classList.add("open"); document.body.style.overflow="hidden";
 }
 function cerrarM(){ $("modal").classList.remove("open"); document.body.style.overflow=""; }
@@ -365,7 +381,7 @@ filtros();lista();render();
     return '<article class="dslide'+(p.a?' soldout':'')+'">'
       +'<div class="dpic" onclick="abrirM('+p.id+')"><img src="'+esc(p.i)+'" alt="'+esc(p.n)+'"'+(i?' loading="lazy"':'')+'>'+badges(p)+flechas+'</div>'
       +'<div class="dtxt"><div class="dcat">'+esc(p.c)+'</div><h3 onclick="abrirM('+p.id+')">'+esc(p.n)+'</h3>'
-      +(fr?'<p class="dfrase">'+esc(fr)+'</p>':'')+precioHtml(p)+accion(p,true)
+      +(fr?'<p class="dfrase">'+esc(fr)+'</p>':'')+precioHtml(p)+accion(p,true,true)
       +'<button class="dmore" onclick="abrirM('+p.id+')">Ver detalle</button></div></article>'; }).join("");
   $("dDots").innerHTML = n>1 ? it.map((x,i)=>'<button aria-label="Ir al destacado '+(i+1)+'" onclick="dSet('+i+')"></button>').join("") : "";
   const slides = $("dTrack").children, dots = $("dDots").children, bar = $("dBar");
