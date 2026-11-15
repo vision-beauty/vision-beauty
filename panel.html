@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; frame-src about: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="vb-v" content="26">
+<meta name="vb-v" content="27">
 <title>Panel privado · Vision Beauty</title>
 <style>
 :root{--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--ok:#1f8a4c;--bad:#b3402e}
@@ -1082,16 +1082,21 @@ function coEdStep(w,d){ if(!CE) return; CE[w]=Math.max(0,Math.min(100,CE[w]+d));
 function coEdHex(v){ if(!CE) return; v=v.trim(); if(v[0]!=='#') v='#'+v; if(!/^#[0-9a-fA-F]{6}$/.test(v)) return; v=v.toLowerCase(); const hs=hex2hsl(v); CE.h=hs[0]; CE.s=hs[1]; CE.l=hs[2]; coEdApply(v); $('ce_n').style.background=v; coEdPaint(true,true); }
 function coEdVolver(){ if(!CE) return; const o=CE.orig, hs=hex2hsl(o); CE.h=hs[0]; CE.s=hs[1]; CE.l=hs[2]; coEdApply(o); coEdPaint(true); }
 
-const CO_DEF={fondo:'#faf5ee',secciones:'#efe3d4',texto:'#4a3428',suave:'#9a8676',dorado:'#b08d57',dorado2:'#8f6d3a',lineas:'#e5d8c7',boton:'#4a3428',oferta:'#7a1f2e',wa:'#1fa855'};
+const CO_DEF={fondo:'#faf5ee',secciones:'#efe3d4',texto:'#4a3428',suave:'#9a8676',dorado:'#b08d57',dorado2:'#8f6d3a',lineas:'#e5d8c7',boton:'#4a3428',cta:'#4a3428',ayuda:'#4a3428',bolsa:'#4a3428',resena:'#4a3428',aviso:'#4a3428',oferta:'#7a1f2e',wa:'#1fa855'};
 const CO_INFO=[
  ['fondo','Fondo de la página','El fondo de toda la tienda y de la barra de arriba'],
  ['secciones','Fondo de las secciones','La portada, "¿Cómo comprar?" y la pantalla de bienvenida'],
- ['texto','Letras principales','Títulos, nombres de productos, precios y el botón Bolsa'],
+ ['texto','Letras principales','Títulos, nombres de productos y textos de la tienda (los botones tienen su color aparte)'],
  ['suave','Letras suaves','Descripciones, textos pequeños y ayudas'],
  ['dorado','Dorado (detalles)','Estrellas, flechas, líneas y bordes de botones redondos'],
- ['dorado2','Dorado oscuro','Subtítulos, "Siempre linda" y títulos pequeños'],
+ ['dorado2','Dorado oscuro','Precios, subtítulos, "Siempre linda" y títulos pequeños'],
  ['lineas','Líneas y bordes','Marcos de las tarjetas y separadores'],
- ['boton','Botón Agregar','El botón "Agregar" de cada producto'],
+ ['cta','Botón "Ver colección"','El botón grande de la portada, debajo del título'],
+ ['ayuda','Botón "¿Necesitas ayuda?"','El botón redondo que flota abajo a la izquierda'],
+ ['bolsa','Botón "Bolsa"','El botón de arriba a la derecha con el contador'],
+ ['boton','Botón "Agregar"','El botón "Agregar" de cada producto'],
+ ['resena','Botón "Escribir mi reseña"','El botón de la sección de reseñas'],
+ ['aviso','Avisos y botón del código','El mensaje que sale abajo al agregar algo y el botón "Aplicar" del código'],
  ['oferta','Etiqueta Oferta','La etiqueta de descuento sobre la foto'],
  ['wa','Botón de WhatsApp','Los botones verdes de WhatsApp']];
 const CO_PRE=[
@@ -1102,7 +1107,9 @@ const CO_PRE=[
  {n:'Azul cielo',c:{fondo:'#f3f8fc',secciones:'#dfecf6',texto:'#1f3447',suave:'#6f8aa0',dorado:'#5e92b8',dorado2:'#3a6b92',lineas:'#d0e1ee',boton:'#1f3447',oferta:'#a03a3a'}},
  {n:'Negro y dorado',c:{fondo:'#fbf8f1',secciones:'#efe9da',texto:'#1c1c1c',suave:'#7a7466',dorado:'#c0a050',dorado2:'#8a6d1f',lineas:'#e3dccb',boton:'#111111',oferta:'#8b1e1e'}}];
 const COL=()=>{ if(!S.ajustes.colores||typeof S.ajustes.colores!=='object') S.ajustes.colores={}; return S.ajustes.colores; };
-const coV=k=>COL()[k]||CO_DEF[k];
+const CO_BT=['cta','ayuda','bolsa','resena','aviso'];
+const coV=k=>COL()[k]||(CO_BT.indexOf(k)>=0?(COL().boton||COL().texto||CO_DEF.boton):(k==='boton'?(COL().texto||CO_DEF.boton):CO_DEF[k]));
+const coBtn=c=>{ if(c.boton) CO_BT.forEach(k=>{c[k]=c.boton;}); return c; };
 const coHex=v=>/^#[0-9a-fA-F]{6}$/.test(v);
 function coLum(h){ const c=[1,3,5].map(i=>{ const v=parseInt(h.substr(i,2),16)/255; return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4); }); return .2126*c[0]+.7152*c[1]+.0722*c[2]; }
 function coRatio(a,b){ const x=coLum(a), y=coLum(b); return (Math.max(x,y)+.05)/(Math.min(x,y)+.05); }
@@ -1119,22 +1126,23 @@ function coMini(){
   const g=k=>coV(k);
   $('co_mini').innerHTML=`<div style="border:1px solid ${g('lineas')};background:${g('fondo')};border-radius:10px;overflow:hidden">
     <div style="padding:10px;text-align:center;border-bottom:1px solid ${g('lineas')};color:${g('texto')};letter-spacing:.2em;font-size:13px">VISION BEAUTY<div style="color:${g('dorado2')};font-style:italic;letter-spacing:.05em;font-size:12px">Siempre linda</div></div>
-    <div style="background:${g('secciones')};padding:12px;text-align:center;color:${g('suave')};font-size:12px">Portada y secciones</div>
+    <div style="background:${g('secciones')};padding:12px;text-align:center;color:${g('suave')};font-size:12px">Portada y secciones<div style="margin-top:8px"><span style="display:inline-block;background:${g('cta')};color:${g('fondo')};font-size:11px;padding:7px 16px;letter-spacing:.1em">VER COLECCIÓN</span></div></div>
     <div style="padding:12px;display:flex;gap:12px;align-items:center"><div style="width:84px;height:84px;background:${g('secciones')};border:1px solid ${g('lineas')};position:relative"><span style="position:absolute;top:5px;left:5px;background:${g('oferta')};color:#fff;font-size:9px;padding:2px 6px;border-radius:3px">OFERTA</span></div>
       <div style="flex:1"><div style="color:${g('texto')};font-size:14px">Aretes argolla</div><div style="color:${g('suave')};font-size:12px">Aretes</div><div style="color:${g('texto')};font-size:18px;margin:2px 0 6px">$20.000 <span style="color:${g('dorado')}">★★★★★</span></div>
-      <div style="display:flex;gap:6px"><span style="background:${g('boton')};color:${g('fondo')};font-size:12px;padding:6px 14px">Agregar</span><span style="background:${g('wa')};color:#fff;font-size:12px;padding:6px 10px">WhatsApp</span></div></div></div></div>`;
+      <div style="display:flex;gap:6px"><span style="background:${g('boton')};color:${g('fondo')};font-size:12px;padding:6px 14px">Agregar</span><span style="background:${g('wa')};color:#fff;font-size:12px;padding:6px 10px">WhatsApp</span></div></div></div>
+    <div style="padding:0 12px 12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span style="background:${g('ayuda')};color:${g('fondo')};font-size:11px;padding:7px 14px;border-radius:99px">¿NECESITAS AYUDA?</span><span style="border:1px solid ${g('bolsa')};color:${g('bolsa')};font-size:11px;padding:6px 10px">BOLSA (0)</span><span style="border:1px solid ${g('resena')};color:${g('resena')};font-size:11px;padding:6px 10px">ESCRIBIR MI RESEÑA</span><span style="background:${g('aviso')};color:${g('fondo')};font-size:11px;padding:6px 10px">Agregado ✓</span></div></div>`;
   const w=[]; if(coRatio(g('texto'),g('fondo'))<4.5) w.push('Las letras principales casi no se leen sobre el fondo. Usa un color más oscuro o un fondo más claro.');
   if(coRatio(g('suave'),g('fondo'))<2.5) w.push('Las letras suaves casi no se ven sobre el fondo.');
-  if(coRatio(g('fondo'),g('boton'))<3) w.push('El texto del botón Agregar casi no se lee sobre su color.');
+  [['boton','Agregar'],['cta','Ver colección'],['ayuda','¿Necesitas ayuda?'],['bolsa','Bolsa'],['resena','Escribir mi reseña'],['aviso','los avisos']].forEach(a=>{ if(coRatio(g('fondo'),g(a[0]))<3) w.push('El botón '+a[1]+' casi no se lee: el color del botón y el del fondo se parecen mucho.'); });
   if(coRatio(g('texto'),g('secciones'))<4.5) w.push('Las letras principales casi no se leen sobre el fondo de las secciones.');
   $('co_warn').innerHTML=w.length?'<span style="color:#a32d2d">⚠ '+w.join('<br>⚠ ')+'</span>':'<span style="color:#3b6d11">✓ Se lee bien.</span>';
 }
 function coSet(k,v){ if(!coHex(v)) return; COL()[k]=v; coMini(); cambio(); const sw=$('co_sw_'+k); if(sw) sw.style.background=v; }
 function coQuitar(k){ delete COL()[k]; renderColores(); cambio(); }
-function coPreset(i){ S.ajustes.colores=Object.assign({},CO_PRE[i].c); renderColores(); cambio(); }
+function coPreset(i){ S.ajustes.colores=coBtn(Object.assign({},CO_PRE[i].c)); renderColores(); cambio(); }
 function coReset(){ S.ajustes.colores={}; renderColores(); cambio(); }
 function coBase(){ const b=coBaseV; if(!coHex(b)) return; const [h,s]=hex2hsl(b), sa=Math.max(25,Math.min(s,70));
-  S.ajustes.colores={fondo:hsl2hex(h,Math.min(sa,45),97),secciones:hsl2hex(h,Math.min(sa,40),92),texto:hsl2hex(h,Math.min(sa,35),20),suave:hsl2hex(h,Math.min(sa,20),55),dorado:b,dorado2:hsl2hex(h,sa,Math.max(18,hex2hsl(b)[2]*.72)),lineas:hsl2hex(h,Math.min(sa,30),88),boton:hsl2hex(h,Math.min(sa,35),20)};
+  S.ajustes.colores=coBtn({fondo:hsl2hex(h,Math.min(sa,45),97),secciones:hsl2hex(h,Math.min(sa,40),92),texto:hsl2hex(h,Math.min(sa,35),20),suave:hsl2hex(h,Math.min(sa,20),55),dorado:b,dorado2:hsl2hex(h,sa,Math.max(18,hex2hsl(b)[2]*.72)),lineas:hsl2hex(h,Math.min(sa,30),88),boton:hsl2hex(h,Math.min(sa,35),20)});
   renderColores(); cambio(); }
 
 function renderRes(){

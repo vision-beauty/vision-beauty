@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="vb-v" content="26">
+<meta name="vb-v" content="27">
 <title>Vision Beauty · Siempre linda</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--cr:250,245,238;--of:#7a1f2e;--wa:#1fa855;--btn:#4a3428;--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--blush:#f4e4dc}
+:root{--cr:250,245,238;--of:#7a1f2e;--wa:#1fa855;--btn:#4a3428;--cta:var(--btn);--ayb:var(--btn);--bag:var(--btn);--rbt:var(--btn);--avi:var(--btn);--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--blush:#f4e4dc}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Jost',system-ui,sans-serif;font-weight:300;background:var(--cream);color:var(--ink);line-height:1.6}
@@ -20,14 +20,14 @@ h1,h2,h3,.serif{font-family:'Cormorant Garamond',Georgia,serif;font-weight:500}
 .logo{font-family:'Cormorant Garamond',serif;font-size:1.55rem;letter-spacing:.16em;text-transform:uppercase;line-height:1;text-align:center}
 .logo small{display:block;font-family:'Cormorant Garamond';font-style:italic;font-size:.8rem;letter-spacing:.12em;text-transform:none;color:var(--gold2);margin-top:3px}
 .ig{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;color:var(--ink);width:92px}
-.bag{background:none;border:1px solid var(--ink);padding:8px 14px;font-family:'Jost';font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;color:var(--ink);transition:.25s}
-.bag:hover{background:var(--ink);color:var(--cream)}
+.bag{background:none;border:1px solid var(--bag);padding:8px 14px;font-family:'Jost';font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;color:var(--bag);transition:.25s}
+.bag:hover{background:var(--bag);color:var(--cream)}
 .hero{position:relative;overflow:hidden;text-align:center;padding:80px 22px 70px;background:radial-gradient(ellipse at 50% 0%,#fff 0%,var(--sand) 75%)}
 .hero .eyebrow{font-size:.7rem;letter-spacing:.5em;text-transform:uppercase;color:var(--gold2)}
 .hero h1{font-size:clamp(3rem,13vw,6rem);line-height:.95;margin:14px 0 6px;font-weight:400;letter-spacing:.04em}
 .hero h1 em{display:block;font-size:.42em;color:var(--gold2);font-style:italic;letter-spacing:.02em;margin-top:6px}
 .hero p{max-width:430px;margin:18px auto 28px;color:var(--mut)}
-.cta{display:inline-block;background:var(--ink);color:var(--cream);padding:15px 36px;font-size:.75rem;letter-spacing:.25em;text-transform:uppercase;text-decoration:none;transition:.3s}
+.cta{display:inline-block;background:var(--cta);color:var(--cream);padding:15px 36px;font-size:.75rem;letter-spacing:.25em;text-transform:uppercase;text-decoration:none;transition:.3s}
 .cta:hover{background:var(--gold2)}
 .palm{position:absolute;width:150px;opacity:.16;stroke:var(--ink);fill:none;stroke-width:1.2}
 .spark{position:absolute;color:var(--gold);animation:tw 4s ease-in-out infinite}
@@ -57,8 +57,8 @@ h1,h2,h3,.serif{font-family:'Cormorant Garamond',Georgia,serif;font-weight:500}
 .meta h3{font-size:1.1rem;line-height:1.22;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.44em}
 .price{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--gold2);font-weight:600;margin-top:2px}
 .ask{font-size:.8rem;color:var(--mut);margin-top:4px;font-style:italic}
-.add{margin-top:8px;width:100%;background:none;border:1px solid var(--ink);padding:10px;font-family:'Jost';font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:.25s;color:var(--ink);text-decoration:none;display:block;text-align:center}
-.add:hover{background:var(--ink);color:var(--cream)}
+.add{margin-top:8px;width:100%;background:none;border:1px solid var(--btn);padding:10px;font-family:'Jost';font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:.25s;color:var(--btn);text-decoration:none;display:block;text-align:center}
+.add:hover{background:var(--btn);color:var(--cream)}
 .add.ok{background:var(--gold);border-color:var(--gold);color:#fff}
 .more{display:block;margin:34px auto 0;background:none;border:1px solid var(--gold2);color:var(--gold2);padding:12px 34px;font-family:'Jost';font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer}
 .about{background:var(--sand);margin-top:56px;padding:64px 22px;text-align:center}
@@ -117,7 +117,7 @@ footer a{color:var(--gold2)}
 .old{text-decoration:line-through;color:var(--mut);font-size:.9rem;font-weight:400;margin-right:6px}
 .price.of2 .old{display:block;margin:0;font-size:.85rem;line-height:1}
 .add[disabled]{opacity:.45;cursor:not-allowed}
-.add[disabled]:hover{background:none;color:var(--ink)}
+.add[disabled]:hover{background:none;color:var(--btn)}
 .grid.fade{animation:gf .45s both}
 @keyframes gf{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 #splash{position:fixed;inset:0;z-index:300;background:radial-gradient(ellipse at 50% 30%,#fff 0%,var(--sand) 80%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:opacity .9s ease,visibility .9s}
@@ -210,8 +210,8 @@ footer .logo img{max-height:56px}
 .rc .lk svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;transition:transform .2s}
 .rc .lk.on{color:#a32d2d}.rc .lk.on svg{fill:currentColor}
 .rc .lk:active svg{transform:scale(1.25)}
-.rbtn{margin-top:14px;background:none;border:1px solid var(--ink);padding:12px 26px;font-family:'Jost';font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;color:var(--ink)}
-.rbtn:hover{background:var(--ink);color:var(--cream)}
+.rbtn{margin-top:14px;background:none;border:1px solid var(--rbt);padding:12px 26px;font-family:'Jost';font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;color:var(--rbt)}
+.rbtn:hover{background:var(--rbt);color:var(--cream)}
 .rfm{max-width:460px;margin:18px auto 0;padding:0 18px;text-align:left}
 .rfm label{display:block;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin:12px 0 4px}
 .rfm input,.rfm textarea{width:100%;border:1px solid var(--line);background:#fff;padding:12px;font-family:'Jost';font-size:1rem;color:var(--ink);border-radius:0}
@@ -223,7 +223,7 @@ footer .logo img{max-height:56px}
 .rfm .rmsg{margin-top:10px;font-size:.9rem;color:var(--mut)}
 .rfm .rmsg.err{color:#a32d2d}.rfm .rmsg.ok{color:#3b6d11}
 
-.ayb{position:fixed;left:14px;bottom:14px;z-index:30;background:var(--ink);color:var(--cream);border:0;border-radius:999px;padding:12px 18px;font-family:inherit;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;box-shadow:0 4px 14px rgba(0,0,0,.28);cursor:pointer}
+.ayb{position:fixed;left:14px;bottom:14px;z-index:30;background:var(--ayb);color:var(--cream);border:0;border-radius:999px;padding:12px 18px;font-family:inherit;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;box-shadow:0 4px 14px rgba(0,0,0,.28);cursor:pointer}
 .aybox{background:var(--cream);width:min(520px,100%);max-height:92vh;overflow:auto;padding:24px 20px 24px;position:relative;animation:slu .25s both}
 .aybox h3{font-size:1.7rem;line-height:1.1;margin-bottom:4px;padding-right:34px}
 .aybox .isub{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold2);margin-bottom:6px}
@@ -231,10 +231,10 @@ footer .logo img{max-height:56px}
 .aopt.on{border-color:var(--ink);background:var(--sand);font-weight:400}
 .aybox textarea,.aybox input{width:100%;margin-top:8px;font-family:inherit;font-size:.92rem;padding:12px;border:1px solid var(--line);background:#fff;color:var(--ink)}
 .aybox textarea{min-height:92px;resize:vertical}
-#toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);background:var(--ink);color:var(--cream);padding:11px 18px;font-size:.8rem;letter-spacing:.06em;z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
+#toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);background:var(--avi);color:var(--cream);padding:11px 18px;font-size:.8rem;letter-spacing:.06em;z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
 #toast.on{opacity:1}
 .cup{display:flex;gap:8px}
-.cup button{background:var(--ink);color:var(--cream);border:0;padding:0 16px;font-family:inherit;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+.cup button{background:var(--avi);color:var(--cream);border:0;padding:0 16px;font-family:inherit;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
 .cupm{font-size:.76rem;min-height:1em}
 .cupm.ok{color:#1c7c43}.cupm.no{color:#b3392b}
 .cupl{display:flex;justify-content:space-between;font-size:.9rem;color:var(--mut)}
@@ -250,7 +250,7 @@ footer .logo img{max-height:56px}
 .steps .st span{display:block;color:var(--mut);font-size:.76rem;line-height:1.35}
 .st{animation:none}
 .bag.bump{animation:bump .5s}
-@keyframes bump{0%{transform:scale(1)}30%{transform:scale(1.18);background:var(--ink);color:var(--cream)}60%{transform:scale(.95)}100%{transform:scale(1)}}
+@keyframes bump{0%{transform:scale(1)}30%{transform:scale(1.18);background:var(--bag);color:var(--cream)}60%{transform:scale(.95)}100%{transform:scale(1)}}
 #count{display:inline-block}
 #count.pop{animation:cpop .5s}
 @keyframes cpop{0%{transform:scale(1)}40%{transform:scale(1.7);color:var(--gold2)}100%{transform:scale(1)}}
@@ -406,7 +406,7 @@ footer{background:var(--cream);border-top:1px solid var(--line);padding:46px 20p
 
 const AJ = (typeof AJUSTES!=='undefined') ? AJUSTES : {};
 (function(){ const C=AJ.colores; if(!C||typeof C!=='object') return; const rs=document.documentElement.style, ok=v=>typeof v==='string'&&/^#[0-9a-fA-F]{6}$/.test(v);
-  const M={fondo:'--cream',secciones:'--sand',texto:'--ink',suave:'--mut',dorado:'--gold',dorado2:'--gold2',lineas:'--line',boton:'--btn',wa:'--wa',oferta:'--of'};
+  const M={fondo:'--cream',secciones:'--sand',texto:'--ink',suave:'--mut',dorado:'--gold',dorado2:'--gold2',lineas:'--line',boton:'--btn',wa:'--wa',oferta:'--of',cta:'--cta',ayuda:'--ayb',bolsa:'--bag',resena:'--rbt',aviso:'--avi'};
   for(const k in M) if(ok(C[k])) rs.setProperty(M[k],C[k]);
   if(ok(C.texto)&&!ok(C.boton)) rs.setProperty('--btn',C.texto);
   if(ok(C.fondo)){ const h=C.fondo.slice(1); rs.setProperty('--cr',[0,2,4].map(i=>parseInt(h.substr(i,2),16)).join(',')); }
@@ -493,7 +493,7 @@ function ahorroHtml(p){ return enOferta(p) ? '<div class="sav">Ahorras '+fmt(p.p
 const BOLSA='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 8h13l-1 12.5h-11z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>';
 function wa(p){ return 'https://wa.me/'+WA+'?text='+encodeURIComponent(MSG.consulta.split('{producto}').join(p.n).split('{categoria}').join(p.c)+(MSG.fotos && p.i ? "\n📷 "+fotoUrl(p) : "")); }
 function accion(p,estilo,conQty){
-  const st = estilo ? ' style="background:var(--ink);color:var(--cream)"' : '';
+  const st = estilo ? ' style="background:var(--btn);color:var(--cream)"' : '';
   if(AGOT(p)) return '<button class="add" disabled>Agotado</button>';
   if(!p.p) return '<a class="add" target="_blank" rel="noopener noreferrer" href="'+esc(wa(p))+'">Preguntar por WhatsApp</a>';
   if(conQty) return '<div class="qrow"><span class="ql">Cantidad</span><div class="qs"><button type="button" aria-label="Menos" onclick="qch(this,-1)">−</button><span class="qv" data-max="'+maxQ(p)+'">1</span><button type="button" aria-label="Más" onclick="qch(this,1)">+</button></div></div>'
