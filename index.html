@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Vision Beauty · Siempre linda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--blush:#f4e4dc}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Jost',system-ui,sans-serif;font-weight:300;background:var(--cream);color:var(--ink);line-height:1.6}
+h1,h2,h3,.serif{font-family:'Cormorant Garamond',Georgia,serif;font-weight:500}
+.top{position:sticky;top:0;z-index:20;background:rgba(250,245,238,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 18px}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.55rem;letter-spacing:.16em;text-transform:uppercase;line-height:1;text-align:center}
+.logo small{display:block;font-family:'Cormorant Garamond';font-style:italic;font-size:.8rem;letter-spacing:.12em;text-transform:none;color:var(--gold2);margin-top:3px}
+.ig{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;color:var(--ink);width:92px}
+.bag{background:none;border:1px solid var(--ink);padding:8px 14px;font-family:'Jost';font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;color:var(--ink);transition:.25s}
+.bag:hover{background:var(--ink);color:var(--cream)}
+.hero{position:relative;overflow:hidden;text-align:center;padding:80px 22px 70px;background:radial-gradient(ellipse at 50% 0%,#fff 0%,var(--sand) 75%)}
+.hero .eyebrow{font-size:.7rem;letter-spacing:.5em;text-transform:uppercase;color:var(--gold2)}
+.hero h1{font-size:clamp(3rem,13vw,6rem);line-height:.95;margin:14px 0 6px;font-weight:400;letter-spacing:.04em}
+.hero h1 em{display:block;font-size:.42em;color:var(--gold2);font-style:italic;letter-spacing:.02em;margin-top:6px}
+.hero p{max-width:430px;margin:18px auto 28px;color:var(--mut)}
+.cta{display:inline-block;background:var(--ink);color:var(--cream);padding:15px 36px;font-size:.75rem;letter-spacing:.25em;text-transform:uppercase;text-decoration:none;transition:.3s}
+.cta:hover{background:var(--gold2)}
+.palm{position:absolute;width:150px;opacity:.16;stroke:var(--ink);fill:none;stroke-width:1.2}
+.spark{position:absolute;color:var(--gold);animation:tw 4s ease-in-out infinite}
+@keyframes tw{0%,100%{transform:scale(.6);opacity:.2}50%{transform:scale(1.1);opacity:.75}}
+.perks{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--line);border-block:1px solid var(--line)}
+.perks div{background:var(--cream);padding:20px 12px;text-align:center;font-size:.78rem;letter-spacing:.06em}
+.perks b{display:block;font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;letter-spacing:0;color:var(--gold2)}
+.sec{max-width:1100px;margin:auto;padding:60px 14px 20px}
+.sec>h2{text-align:center;font-size:2.4rem;font-weight:400}
+.sec>.line{width:50px;height:1px;background:var(--gold);margin:14px auto 22px}
+.filters{display:flex;gap:2px 4px;flex-wrap:wrap;justify-content:center;margin-bottom:30px}
+.chip{background:none;border:0;border-bottom:1px solid transparent;padding:6px 12px;font-family:'Jost';font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;color:var(--mut);transition:.2s}
+.chip.on,.chip:hover{color:var(--ink);border-color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px 10px}
+@media(min-width:760px){.grid{grid-template-columns:repeat(4,1fr);gap:30px 18px}}
+.card{display:flex;flex-direction:column;animation:up .5s both}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.pic{position:relative;aspect-ratio:3/4;background:var(--sand);overflow:hidden}
+.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s}
+.card:hover .pic img{transform:scale(1.06)}
+.meta{padding:12px 2px 0;text-align:center}
+.meta h3{font-size:1.15rem;line-height:1.2}
+.price{font-family:'Cormorant Garamond',serif;font-size:1.25rem;color:var(--gold2);font-weight:600;margin-top:2px}
+.ask{font-size:.8rem;color:var(--mut);margin-top:4px;font-style:italic}
+.add{margin-top:8px;width:100%;background:none;border:1px solid var(--ink);padding:10px;font-family:'Jost';font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:.25s;color:var(--ink);text-decoration:none;display:block;text-align:center}
+.add:hover{background:var(--ink);color:var(--cream)}
+.add.ok{background:var(--gold);border-color:var(--gold);color:#fff}
+.more{display:block;margin:34px auto 0;background:none;border:1px solid var(--gold2);color:var(--gold2);padding:12px 34px;font-family:'Jost';font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer}
+.about{background:var(--sand);margin-top:56px;padding:64px 22px;text-align:center}
+.about h2{font-size:2.1rem;font-weight:400;margin-bottom:12px}
+.about p{max-width:520px;margin:auto;color:var(--mut)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:18px;max-width:720px;margin:34px auto 0;font-size:.82rem}
+.steps b{display:block;font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--gold);font-weight:500;line-height:1}
+footer{text-align:center;padding:40px 20px 50px;font-size:.78rem;letter-spacing:.1em;color:var(--mut)}
+footer .logo{font-size:1.2rem;color:var(--ink);margin-bottom:8px}
+footer a{color:var(--gold2)}
+#panel{position:fixed;inset:0;background:rgba(74,52,40,.5);display:none;justify-content:flex-end;z-index:50}
+#panel.open{display:flex}
+.drawer{background:var(--cream);width:min(430px,100%);height:100%;display:flex;flex-direction:column;animation:sl .3s}
+@keyframes sl{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+.drawer h2{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-size:1.6rem;font-weight:400}
+.x{background:none;border:0;font-size:1.8rem;cursor:pointer;color:var(--ink)}
+.items{flex:1;overflow:auto;padding:6px 22px}
+.row{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.row img{width:52px;height:64px;object-fit:cover}
+.row .n{flex:1;font-size:.9rem}
+.row .n b{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;display:block;line-height:1.2}
+.qty{display:flex;align-items:center;gap:9px}
+.qty button{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:#fff;cursor:pointer}
+.foot{padding:16px 22px 20px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px;background:#fff}
+.foot input{padding:12px;border:1px solid var(--line);font-family:'Jost';font-size:.95rem;width:100%;background:var(--cream)}
+.total{display:flex;justify-content:space-between;font-family:'Cormorant Garamond',serif;font-size:1.5rem}
+.wa{display:block;text-align:center;background:#1fa855;color:#fff;text-decoration:none;padding:15px;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase}
+.wa.off{background:#cfc7bc;pointer-events:none}
+.empty{color:var(--mut);text-align:center;padding:60px 0}
+.note{font-size:.72rem;color:var(--mut);text-align:center}
+
+.card .pic{cursor:zoom-in}
+.card h3{cursor:pointer}
+#modal{position:fixed;inset:0;background:rgba(40,28,20,.7);display:none;align-items:center;justify-content:center;z-index:80;padding:14px}
+#modal.open{display:flex}
+.mbox{background:var(--cream);width:min(860px,100%);max-height:94vh;overflow:auto;display:grid;grid-template-columns:1fr;position:relative;animation:up .3s both}
+@media(min-width:760px){.mbox{grid-template-columns:1.1fr 1fr}}
+.mbox .big{background:var(--sand);display:flex;align-items:center;justify-content:center;min-height:260px}
+.mbox .big img{width:100%;max-height:82vh;object-fit:contain;display:block}
+.mbox .txt{padding:26px 24px 24px;display:flex;flex-direction:column;gap:8px}
+.mbox .cat{font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold2)}
+.mbox h2{font-size:2rem;line-height:1.1;font-weight:500}
+.mbox .price{font-size:1.7rem}
+.mbox .desc{color:var(--mut);margin:6px 0 10px}
+.mclose{position:absolute;top:6px;right:10px;background:rgba(250,245,238,.9);border:0;width:38px;height:38px;border-radius:50%;font-size:1.7rem;line-height:1;cursor:pointer;color:var(--ink);z-index:2}
+.nav{display:flex;justify-content:space-between;margin-top:auto;padding-top:14px;border-top:1px solid var(--line)}
+.nav button{background:none;border:0;font-family:'Jost';font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;color:var(--ink);padding:6px 0}
+
+.ann{background:var(--gold2);color:#fff;text-align:center;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;padding:9px 12px}
+.bd{position:absolute;top:8px;left:8px;display:flex;flex-direction:column;gap:4px;z-index:2}
+.bd span{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;padding:4px 9px;color:#fff;background:var(--ink)}
+.bd .of{background:#b5483a}
+.bd .ag{background:#7d7167}
+.card.soldout .pic img{filter:grayscale(.9);opacity:.55}
+.card.soldout .pic::after{content:"Agotado";position:absolute;inset:auto 0 18px 0;text-align:center;font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--ink);letter-spacing:.1em}
+.old{text-decoration:line-through;color:var(--mut);font-size:.9rem;font-weight:400;margin-right:6px}
+.add[disabled]{opacity:.45;cursor:not-allowed}
+.add[disabled]:hover{background:none;color:var(--ink)}
+.grid.fade{animation:gf .45s both}
+@keyframes gf{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#splash{position:fixed;inset:0;z-index:300;background:radial-gradient(ellipse at 50% 30%,#fff 0%,var(--sand) 80%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:opacity .9s ease,visibility .9s}
+#splash.out{opacity:0;visibility:hidden}
+#splash .sl{font-family:'Cormorant Garamond',serif;font-size:clamp(2.4rem,11vw,4.6rem);letter-spacing:.16em;text-transform:uppercase;line-height:1;animation:spin 1.4s .1s both}
+#splash .ss{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.3rem;color:var(--gold2);margin-top:12px;animation:spin 1.4s .6s both}
+#splash .sp{width:60px;height:1px;background:var(--gold);margin:18px auto 0;animation:spl 1.6s .4s both}
+@keyframes spin{from{opacity:0;transform:translateY(16px);letter-spacing:.4em}to{opacity:1;transform:none}}
+@keyframes spl{from{width:0}to{width:60px}}
+</style>
+</head>
+<body>
+<div class="ann" id="ann" style="display:none"></div>
+<div id="splash" style="display:none"><div class="sl" id="slT"></div><div class="sp"></div><div class="ss" id="slS"></div></div>
+<div class="top">
+  <a class="ig" id="ig" href="#" target="_blank" rel="noopener noreferrer">Instagram</a>
+  <div class="logo">Vision Beauty<small>Siempre linda</small></div>
+  <button class="bag" onclick="openCart()">Bolsa (<span id="count">0</span>)</button>
+</div>
+
+<section class="hero">
+  <svg class="palm" style="top:-10px;right:-20px" viewBox="0 0 100 100"><path d="M90 0C70 20 50 45 30 100M90 0C85 25 70 40 52 55M90 0C95 30 80 50 62 62M90 0C62 14 44 30 38 52M90 0C60 28 50 46 44 68"/></svg>
+  <svg class="palm" style="bottom:-10px;left:-24px;transform:rotate(180deg)" viewBox="0 0 100 100"><path d="M90 0C70 20 50 45 30 100M90 0C85 25 70 40 52 55M90 0C95 30 80 50 62 62M90 0C62 14 44 30 38 52M90 0C60 28 50 46 44 68"/></svg>
+  <svg class="spark" style="top:22%;left:14%;width:20px" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0l2.4 9.6L24 12l-9.6 2.4L12 24l-2.4-9.6L0 12l9.6-2.4z"/></svg>
+  <svg class="spark" style="top:34%;right:15%;width:14px;animation-delay:1.3s" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0l2.4 9.6L24 12l-9.6 2.4L12 24l-2.4-9.6L0 12l9.6-2.4z"/></svg>
+  <svg class="spark" style="bottom:18%;right:24%;width:18px;animation-delay:2.4s" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0l2.4 9.6L24 12l-9.6 2.4L12 24l-2.4-9.6L0 12l9.6-2.4z"/></svg>
+  <div class="eyebrow">Accesorios</div>
+  <h1>Vision<br>Beauty<em>Siempre linda</em></h1>
+  <p>Cadenas, collares y tejidos hechos a mano. Detalles que te hacen brillar todos los días.</p>
+  <a class="cta" href="#catalogo">Ver colección</a>
+</section>
+
+<div class="perks">
+  <div><b>Entrega en 48 a 72 h</b>Días hábiles</div>
+  <div><b>Pago fácil</b>Transferencia o efectivo en punto físico</div>
+  <div><b>Pide por WhatsApp</b>Atención personalizada</div>
+</div>
+
+<section class="sec" id="catalogo">
+  <h2>Nuestra colección</h2>
+  <div class="line"></div>
+  <div class="filters" id="filters"></div>
+  <div class="grid" id="grid"></div>
+  <button class="more" id="more" onclick="verMas()">Ver más</button>
+</section>
+
+<section class="about">
+  <h2>¿Cómo comprar?</h2>
+  <p>Elige lo que te guste, arma tu bolsa y envíanos el pedido por WhatsApp. Nosotros lo confirmamos contigo.</p>
+  <div class="steps">
+    <div><b>1</b>Elige tu producto</div>
+    <div><b>2</b>Envía tus datos</div>
+    <div><b>3</b>Escoge pago y envío</div>
+    <div><b>4</b>Recibe tu pedido</div>
+  </div>
+</section>
+
+<footer>
+  <div class="logo">Vision Beauty</div>
+  <div id="foot"></div>
+</footer>
+
+<div id="modal" onclick="if(event.target===this)cerrarM()">
+  <div class="mbox" role="dialog" aria-modal="true">
+    <button class="mclose" onclick="cerrarM()" aria-label="Cerrar">×</button>
+    <div class="big"><img id="mImg" alt=""></div>
+    <div class="txt">
+      <div class="cat" id="mCat"></div>
+      <h2 id="mNom"></h2>
+      <div class="price" id="mPre"></div>
+      <p class="desc" id="mDes"></p>
+      <div id="mAcc"></div>
+      <div class="nav"><button onclick="navM(-1)">← Anterior</button><button onclick="navM(1)">Siguiente →</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="panel" onclick="if(event.target===this)closeCart()">
+  <div class="drawer">
+    <h2>Tu bolsa <button class="x" onclick="closeCart()">×</button></h2>
+    <div class="items" id="items"></div>
+    <div class="foot">
+      <div class="total"><span>Total</span><span id="total">$0</span></div>
+      <input id="nombre" placeholder="Tu nombre">
+      <input id="dir" placeholder="Ciudad y dirección de entrega">
+      <a id="wa" class="wa off" href="#" target="_blank" rel="noopener noreferrer">Enviar pedido por WhatsApp</a>
+      <div class="note">Te confirmamos disponibilidad y envío por WhatsApp.</div>
+    </div>
+  </div>
+</div>
+
+<script src="productos.js"></script>
+<script>
+
+const AJ = (typeof AJUSTES!=='undefined') ? AJUSTES : {};
+const VISIBLES = PRODUCTOS.filter(p=>!p.h);
+const pf = p => (p.o && p.p && p.o<p.p) ? p.o : p.p;
+const enOferta = p => !!(p.o && p.p && p.o<p.p);
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const fmt = n => "$" + n.toLocaleString("es-CO");
+let carrito = {}, filtro = "Todo", visibles = 24;
+const $ = id => document.getElementById(id);
+/* anuncio superior */
+if(AJ.anuncio && AJ.anuncio.activo && AJ.anuncio.texto){ $("ann").textContent = AJ.anuncio.texto; $("ann").style.display = "block"; }
+/* splash de entrada */
+(function(){
+  const s = AJ.splash; if(!s || !s.activo) return;
+  let visto=false; try{ visto = sessionStorage.getItem("vb_splash")==="1"; }catch(e){}
+  const forzar = location.hash==="#splash" || window.__SPLASH_PREVIEW===true;
+  if(window.__SIN_SPLASH===true) return;
+  if(visto && !forzar) return;
+  $("slT").textContent = s.titulo || TIENDA.nombre; $("slS").textContent = s.sub || "";
+  const el = $("splash"); el.style.display="flex"; document.body.style.overflow="hidden";
+  setTimeout(()=>{ el.classList.add("out"); document.body.style.overflow=""; setTimeout(()=>{el.style.display="none"},950); }, (s.seg||2.4)*1000);
+  try{ sessionStorage.setItem("vb_splash","1"); }catch(e){}
+})();
+$("ig").href = "https://instagram.com/" + encodeURIComponent(TIENDA.instagram);
+$("foot").textContent = '@' + TIENDA.instagram + ' · © ' + new Date().getFullYear();
+
+function filtros(){
+  const cats = ["Todo"];
+  if(VISIBLES.some(p=>p.nu)) cats.push("✨ Novedades");
+  if(VISIBLES.some(enOferta)) cats.push("🏷️ Ofertas");
+  cats.push(...CATEGORIAS.filter(c=>VISIBLES.some(p=>p.c===c)));
+  $("filters").innerHTML = cats.map(c=>`<button class="chip ${c===filtro?'on':''}" onclick="setF('${esc(c).replace(/&#39;/g,"\\'")}')">${esc(c)}</button>`).join("");
+}
+function setF(c){filtro=c;visibles=24;filtros();lista();const g=$("grid");g.classList.remove("fade");void g.offsetWidth;g.classList.add("fade");}
+function pasa(p){ return filtro==="Todo" || (filtro==="✨ Novedades"&&p.nu) || (filtro==="🏷️ Ofertas"&&enOferta(p)) || p.c===filtro; }
+function verMas(){visibles+=24;lista();}
+let actual = [];
+function badges(p){
+  let b=""; if(p.nu) b+='<span>Nuevo</span>';
+  if(enOferta(p)) b+='<span class="of">-'+Math.round((1-p.o/p.p)*100)+'%</span>';
+  if(p.a) b+='<span class="ag">Agotado</span>';
+  return b?'<div class="bd">'+b+'</div>':'';
+}
+function precioHtml(p){
+  if(!p.p) return '<div class="ask">Consultar precio</div>';
+  return enOferta(p) ? '<div class="price"><span class="old">'+fmt(p.p)+'</span>'+fmt(p.o)+'</div>' : '<div class="price">'+fmt(p.p)+'</div>';
+}
+function wa(p){ return 'https://wa.me/'+String(TIENDA.whatsapp).replace(/\D/g,'')+'?text='+encodeURIComponent('Hola, me interesa: '+p.n+' ('+p.c+')'); }
+function accion(p,estilo){
+  const st = estilo ? ' style="background:var(--ink);color:var(--cream)"' : '';
+  if(p.a) return '<button class="add" disabled>Agotado</button>';
+  if(!p.p) return '<a class="add" target="_blank" rel="noopener noreferrer" href="'+esc(wa(p))+'">Preguntar por WhatsApp</a>';
+  return '<button class="add"'+st+' onclick="add('+p.id+',this)">Agregar a la bolsa</button>';
+}
+function lista(){
+  const arr = VISIBLES.filter(pasa);
+  actual = arr;
+  $("grid").innerHTML = arr.slice(0,visibles).map((p,i)=>`
+    <article class="card ${p.a?'soldout':''}" style="animation-delay:${(i%12)*40}ms">
+      <div class="pic" onclick="abrirM(${p.id})"><img src="${esc(p.i)}" alt="${esc(p.n)}" loading="lazy">${badges(p)}</div>
+      <div class="meta"><h3 onclick="abrirM(${p.id})">${esc(p.n)}</h3>
+      ${precioHtml(p)}
+      ${accion(p)}
+      </div>
+    </article>`).join("");
+  $("more").style.display = arr.length>visibles ? "block" : "none";
+}
+let mId = null;
+function abrirM(id){
+  const p = PRODUCTOS.find(x=>x.id===id); if(!p) return; mId = id;
+  $("mImg").src = p.i; $("mImg").alt = p.n;
+  $("mCat").textContent = p.c; $("mNom").textContent = p.n;
+  $("mPre").innerHTML = precioHtml(p).replace(/<\/?div[^>]*>/g,"");
+  $("mDes").textContent = p.d || "";
+  $("mAcc").innerHTML = accion(p,true);
+  $("modal").classList.add("open"); document.body.style.overflow="hidden";
+}
+function cerrarM(){ $("modal").classList.remove("open"); document.body.style.overflow=""; }
+function navM(d){
+  const arr = actual.length?actual:VISIBLES; let i = arr.findIndex(x=>x.id===mId);
+  if(i<0) i=0; else i=(i+d+arr.length)%arr.length; abrirM(arr[i].id);
+}
+document.addEventListener("keydown",e=>{
+  if(!$("modal").classList.contains("open")) return;
+  if(e.key==="Escape") cerrarM(); if(e.key==="ArrowRight") navM(1); if(e.key==="ArrowLeft") navM(-1);
+});
+let tx=null;
+$("modal").addEventListener("touchstart",e=>{tx=e.touches[0].clientX},{passive:true});
+$("modal").addEventListener("touchend",e=>{ if(tx===null) return; const dx=e.changedTouches[0].clientX-tx; if(Math.abs(dx)>70) navM(dx<0?1:-1); tx=null; });
+function add(id,btn){
+  carrito[id]=(carrito[id]||0)+1; render();
+  if(btn){btn.classList.add("ok");btn.textContent="Agregado ✓";setTimeout(()=>{btn.classList.remove("ok");btn.textContent="Agregar a la bolsa"},1000);}
+}
+function chg(id,d){carrito[id]=(carrito[id]||0)+d;if(carrito[id]<=0)delete carrito[id];render();}
+function render(){
+  const ids = Object.keys(carrito); let total=0,cnt=0;
+  $("items").innerHTML = ids.length ? ids.map(id=>{
+    const p=PRODUCTOS.find(x=>x.id==id), q=carrito[id]; total+=pf(p)*q; cnt+=q;
+    return `<div class="row"><img src="${esc(p.i)}" alt=""><div class="n"><b>${esc(p.n)}</b>${fmt(pf(p)*q)}</div>
+      <div class="qty"><button onclick="chg(${id},-1)">−</button>${q}<button onclick="chg(${id},1)">+</button></div></div>`;
+  }).join("") : `<div class="empty">Tu bolsa está vacía ✨</div>`;
+  $("count").textContent=cnt; $("total").textContent=fmt(total);
+  const nom=$("nombre").value.trim(), dir=$("dir").value.trim();
+  const lineas = ids.map(id=>{const p=PRODUCTOS.find(x=>x.id==id);return `• ${carrito[id]} x ${p.n} (${fmt(pf(p)*carrito[id])})`;});
+  const msg = `Hola Vision Beauty, quiero hacer un pedido:\n${lineas.join("\n")}\n\nTotal: ${fmt(total)}\nNombre: ${nom}\nEntrega: ${dir}`;
+  const a=$("wa");
+  a.href = "https://wa.me/" + String(TIENDA.whatsapp).replace(/\D/g,"") + "?text=" + encodeURIComponent(msg);
+  a.classList.toggle("off", !(ids.length && nom && dir));
+}
+function openCart(){$("panel").classList.add("open");render();}
+function closeCart(){$("panel").classList.remove("open");}
+$("nombre").addEventListener("input",render);
+$("dir").addEventListener("input",render);
+filtros();lista();render();
+</script>
+</body>
+</html>
