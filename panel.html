@@ -124,6 +124,7 @@ header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
   <hr>
   <button data-t="info">ℹ️ Franja de información</button>
   <button data-t="redes">🔗 Redes y contacto</button>
+  <button data-t="msg">💬 Mensajes de WhatsApp</button>
   <button data-t="cat">🗂️ Categorías</button>
   <button data-t="tienda">🏪 Tienda y avisos</button>
   <hr>
@@ -228,6 +229,24 @@ header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
           <label class="l">Instagram (usuario o enlace)</label><input id="t_ig" autocapitalize="off" placeholder="visionbeauty">
           <label class="l">Facebook (enlace)</label><input id="t_fb" autocapitalize="off" placeholder="https://facebook.com/tu-pagina">
           <label class="l">TikTok (enlace)</label><input id="t_tt" autocapitalize="off" placeholder="https://www.tiktok.com/@tu-usuario">
+        </div>
+      </section>
+
+      <!-- MENSAJES -->
+      <section class="pane" id="p_msg">
+        <div class="card"><h2>Botón "Pide por WhatsApp"</h2>
+          <p class="small">Este es el mensaje que sale escrito cuando alguien toca ese botón. Si ya tiene productos en la bolsa, se agregan solos al final.</p>
+          <label class="l">Mensaje</label><textarea id="m_contacto" style="height:80px"></textarea>
+        </div>
+        <div class="card"><h2>Preguntar por un producto</h2>
+          <p class="small">Se usa en los productos sin precio ("Preguntar por WhatsApp"). Escribe <b>{producto}</b> y <b>{categoria}</b> donde quieras que salgan el nombre y la categoría.</p>
+          <label class="l">Mensaje</label><textarea id="m_consulta" style="height:80px"></textarea>
+        </div>
+        <div class="card"><h2>Pedido desde la bolsa</h2>
+          <p class="small">Después del inicio se escriben solos los productos con su cantidad, el total, el nombre y la dirección que la clienta puso.</p>
+          <label class="l">Inicio del mensaje</label><textarea id="m_pi" style="height:70px"></textarea>
+          <label class="l">Final del mensaje (opcional)</label><textarea id="m_pf" style="height:70px" placeholder="Ej: Quedo atenta a los datos de pago. ¡Gracias!"></textarea>
+          <label class="l">Así se verá</label><pre id="m_prev" style="white-space:pre-wrap;background:var(--sand);border-radius:10px;padding:10px;font-family:inherit;font-size:.85rem"></pre>
         </div>
       </section>
 
@@ -338,15 +357,16 @@ const defInfo = () => [
   {t:'Pide por WhatsApp',s:'Atención personalizada',m:'Hola Vision Beauty, quiero más información',tipo:'wa',on:true}];
 const defInfoAj = () => ({items:defInfo()});
 const goodInfo = i => (i&&Array.isArray(i.items)&&i.items.length) ? i : defInfoAj();
+const defMsg = () => ({contacto:'Hola Vision Beauty, quiero más información',consulta:'Hola, me interesa: {producto} ({categoria})',pedido_ini:'Hola Vision Beauty, quiero hacer un pedido:',pedido_fin:''});
 const defDest = () => ({activo:false,titulo:'Destacados',seg:10,auto:true,items:[]});
-const defAj = () => ({splash:{activo:false,titulo:'Vision Beauty',sub:'Siempre linda',seg:2.4},anuncio:{activo:false,texto:''},destacados:defDest(),inventario:{umbral:3},info:defInfoAj()});
+const defAj = () => ({splash:{activo:false,titulo:'Vision Beauty',sub:'Siempre linda',seg:2.4},anuncio:{activo:false,texto:''},destacados:defDest(),inventario:{umbral:3},info:defInfoAj(),mensajes:defMsg()});
 
 /* ---------- leer lo publicado ---------- */
 function parseJS(txt){
   const g = re => { const m=re.exec(txt); if(!m) throw new Error('formato'); return JSON.parse(m[1]); };
   const tienda=g(/^const TIENDA = (.*);$/m), cats=g(/^const CATEGORIAS = (.*);$/m);
   let aj=defAj(); const ma=/^const AJUSTES = (.*);$/m.exec(txt);
-  if(ma){ const a=JSON.parse(ma[1]); aj={splash:Object.assign(aj.splash,a.splash||{}),anuncio:Object.assign(aj.anuncio,a.anuncio||{}),destacados:Object.assign(defDest(),a.destacados||{}),inventario:Object.assign({umbral:3},a.inventario||{}),info:goodInfo(a.info)}; if(!Array.isArray(aj.destacados.items)) aj.destacados.items=[]; }
+  if(ma){ const a=JSON.parse(ma[1]); aj={splash:Object.assign(aj.splash,a.splash||{}),anuncio:Object.assign(aj.anuncio,a.anuncio||{}),destacados:Object.assign(defDest(),a.destacados||{}),inventario:Object.assign({umbral:3},a.inventario||{}),info:goodInfo(a.info),mensajes:Object.assign(defMsg(),a.mensajes||{})}; if(!(a.mensajes&&a.mensajes.contacto)){ const w=((a.info||{}).items||[]).find(x=>x.tipo==='wa'); if(w&&w.m) aj.mensajes.contacto=w.m; } if(!Array.isArray(aj.destacados.items)) aj.destacados.items=[]; }
   const k='const PRODUCTOS = [\n', i=txt.indexOf(k), j=txt.lastIndexOf('\n];');
   if(i<0||j<0) throw new Error('formato');
   return {tienda,ajustes:aj,categorias:cats,productos:JSON.parse('['+txt.slice(i+k.length,j)+']')};
@@ -366,7 +386,7 @@ function guardarBorrador(){
 }
 function cargarBorrador(){
   try{ const t=localStorage.getItem('vb_draft'); if(!t) return false; const o=JSON.parse(t);
-    if(o&&o.productos&&o.tienda&&o.categorias){ S=o; S.ajustes=Object.assign(defAj(),S.ajustes||{}); S.ajustes.destacados=Object.assign(defDest(),S.ajustes.destacados||{}); if(!Array.isArray(S.ajustes.destacados.items)) S.ajustes.destacados.items=[]; S.ajustes.inventario=Object.assign({umbral:3},S.ajustes.inventario||{}); S.ajustes.info=goodInfo(S.ajustes.info); S.productos.forEach(p=>{ if(p.i&&p.i.startsWith('data:')) thumbs[p.i]=p.i; }); return true; } }catch(e){}
+    if(o&&o.productos&&o.tienda&&o.categorias){ S=o; S.ajustes=Object.assign(defAj(),S.ajustes||{}); S.ajustes.destacados=Object.assign(defDest(),S.ajustes.destacados||{}); if(!Array.isArray(S.ajustes.destacados.items)) S.ajustes.destacados.items=[]; S.ajustes.inventario=Object.assign({umbral:3},S.ajustes.inventario||{}); S.ajustes.info=goodInfo(S.ajustes.info); S.ajustes.mensajes=Object.assign(defMsg(),S.ajustes.mensajes||{}); S.productos.forEach(p=>{ if(p.i&&p.i.startsWith('data:')) thumbs[p.i]=p.i; }); return true; } }catch(e){}
   return false;
 }
 function borrarBorrador(){ try{ localStorage.removeItem('vb_draft'); }catch(e){} }
@@ -575,6 +595,7 @@ function crear(){
 
 /* ---------- tienda ---------- */
 function cargarAjustes(){
+  { const M=S.ajustes.mensajes; $('m_contacto').value=M.contacto||''; $('m_consulta').value=M.consulta||''; $('m_pi').value=M.pedido_ini||''; $('m_pf').value=M.pedido_fin||''; prevMsg(); }
   $('t_nombre').value=S.tienda.nombre; $('t_wa').value=S.tienda.whatsapp; $('t_ig').value=S.tienda.instagram||''; $('t_fb').value=S.tienda.facebook||''; $('t_tt').value=S.tienda.tiktok||'';
   const s=S.ajustes.splash, a=S.ajustes.anuncio;
   $('s_on').checked=!!s.activo; $('s_t').value=s.titulo||''; $('s_s').value=s.sub||''; $('s_seg').value=s.seg||2.4;
@@ -583,7 +604,7 @@ function cargarAjustes(){
 function leerAjustes(){
   S.tienda={nombre:$('t_nombre').value.trim(),whatsapp:$('t_wa').value.replace(/\D/g,''),instagram:$('t_ig').value.replace(/^@/,'').trim(),facebook:$('t_fb').value.trim(),tiktok:$('t_tt').value.trim()};
   const seg=parseFloat(String($('s_seg').value).replace(',','.'));
-  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()},destacados:S.ajustes.destacados||defDest(),inventario:S.ajustes.inventario||{umbral:3},info:S.ajustes.info||defInfoAj()};
+  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()},destacados:S.ajustes.destacados||defDest(),inventario:S.ajustes.inventario||{umbral:3},info:S.ajustes.info||defInfoAj(),mensajes:S.ajustes.mensajes||defMsg()};
   cambio();
 }
 ['t_nombre','t_wa','t_ig','t_fb','t_tt','s_on','s_t','s_s','s_seg','a_on','a_t'].forEach(id=>$(id).addEventListener(id==='s_on'||id==='a_on'?'change':'input',leerAjustes));
@@ -708,6 +729,17 @@ function resumenWA(){
   window.open('https://wa.me/'+num+'?text='+encodeURIComponent(L.join('\n')),'_blank','noopener');
 }
 
+/* ---------- mensajes de WhatsApp ---------- */
+function prevMsg(){
+  const M=S.ajustes.mensajes;
+  $('m_prev').textContent=(M.pedido_ini||'')+'\n• 2 x Cadenas con dije 06 ($80.000)\n\nTotal: $80.000\nNombre: Ana\nEntrega: Bogotá, Calle 1 # 2-3'+(M.pedido_fin?'\n\n'+M.pedido_fin:'');
+}
+function leerMsg(){
+  S.ajustes.mensajes={contacto:$('m_contacto').value,consulta:$('m_consulta').value,pedido_ini:$('m_pi').value,pedido_fin:$('m_pf').value};
+  prevMsg(); cambio();
+}
+['m_contacto','m_consulta','m_pi','m_pf'].forEach(id=>$(id).addEventListener('input',leerMsg));
+
 /* ---------- franja de información ---------- */
 function renderInfo(){
   const A=S.ajustes.info.items;
@@ -716,7 +748,7 @@ function renderInfo(){
     <label class="l">Título</label><input value="${esc(x.t||'')}" oninput="infSet(${i},'t',this.value)">
     <label class="l">Subtítulo</label><input value="${esc(x.s||'')}" oninput="infSet(${i},'s',this.value)">
     ${x.tipo==='wa'
-      ? `<label class="l">Mensaje que se escribe al abrir WhatsApp</label><input value="${esc(x.m||'')}" oninput="infSet(${i},'m',this.value)"><p class="small" style="margin-top:6px">Al tocarla, abre el WhatsApp que pusiste en "Redes y contacto".</p>`
+      ? `<p class="small" style="margin-top:8px">Al tocarla, abre el WhatsApp que pusiste en "Redes y contacto". El mensaje se cambia en "Mensajes de WhatsApp".</p>`
       : `<label class="l">Texto que se abre al tocar</label><textarea style="height:100px" oninput="infSet(${i},'d',this.value)">${esc(x.d||'')}</textarea>`}
   </div>`).join('');
 }
@@ -770,7 +802,7 @@ function verSplash(){ forzar=true; if(window.innerWidth<1000) irTab('vista'); se
 function cerrar(id){ $(id).classList.remove('open'); }
 function pregunta(t,m,fn){ $('askT').textContent=t; $('askM').textContent=m; $('askOk').onclick=()=>{ cerrar('mAsk'); fn(); }; $('mAsk').classList.add('open'); }
 function resetTodo(){ pregunta('¿Descartar todos los cambios?','Vuelves a lo que está publicado en la tienda ahora mismo.',()=>{ S=clone(BASE); asegurarCats(); borrarBorrador(); todoRender(); cambio(); }); }
-const NOMBRES={prod:'Productos',vista:'Vista previa',dest:'Destacados',inv:'Inventario',info:'Franja de información',redes:'Redes y contacto',cat:'Categorías',tienda:'Tienda y avisos',pub:'Publicar'};
+const NOMBRES={prod:'Productos',vista:'Vista previa',dest:'Destacados',inv:'Inventario',info:'Franja de información',redes:'Redes y contacto',msg:'Mensajes de WhatsApp',cat:'Categorías',tienda:'Tienda y avisos',pub:'Publicar'};
 function menu(v){ $('menuBg').classList.toggle('open',!!v); }
 function irTab(t){
   document.querySelectorAll('#menu button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));

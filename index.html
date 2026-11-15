@@ -309,6 +309,11 @@ if(AJ.anuncio && AJ.anuncio.activo && AJ.anuncio.texto){ $("ann").textContent = 
   try{ sessionStorage.setItem("vb_splash","1"); }catch(e){}
 })();
 const WA = (()=>{ let n=String(TIENDA.whatsapp||"").replace(/\D/g,""); if(/^3\d{9}$/.test(n)) n="57"+n; return n; })();
+const MSG = (()=>{ const m=Object.assign({}, AJ.mensajes||{}); const w=((AJ.info&&AJ.info.items)||[]).find(x=>x.tipo==="wa");
+  return { contacto: m.contacto || (w&&w.m) || "Hola Vision Beauty, quiero más información",
+           consulta: m.consulta || "Hola, me interesa: {producto} ({categoria})",
+           pedido_ini: m.pedido_ini || "Hola Vision Beauty, quiero hacer un pedido:",
+           pedido_fin: m.pedido_fin || "" }; })();
 const esUrl = v => /^https?:\/\//i.test(String(v||"").trim());
 const socUrl = (v,base) => { v=String(v||"").trim(); if(!v) return ""; if(esUrl(v)) return v; if(/^[a-z][a-z0-9+.-]*:/i.test(v)) return ""; return base+encodeURIComponent(v.replace(/^@/,"")); };
 const URL_IG = socUrl(TIENDA.instagram,"https://instagram.com/"), URL_FB = socUrl(TIENDA.facebook,"https://facebook.com/"), URL_TT = socUrl(TIENDA.tiktok,"https://www.tiktok.com/@");
@@ -337,7 +342,7 @@ function precioHtml(p){
   if(!p.p) return '<div class="ask">Consultar precio</div>';
   return enOferta(p) ? '<div class="price"><span class="old">'+fmt(p.p)+'</span>'+fmt(p.o)+'</div>' : '<div class="price">'+fmt(p.p)+'</div>';
 }
-function wa(p){ return 'https://wa.me/'+WA+'?text='+encodeURIComponent('Hola, me interesa: '+p.n+' ('+p.c+')'); }
+function wa(p){ return 'https://wa.me/'+WA+'?text='+encodeURIComponent(MSG.consulta.split('{producto}').join(p.n).split('{categoria}').join(p.c)); }
 function accion(p,estilo,conQty){
   const st = estilo ? ' style="background:var(--ink);color:var(--cream)"' : '';
   if(AGOT(p)) return '<button class="add" disabled>Agotado</button>';
@@ -417,7 +422,9 @@ function render(){
   $("count").textContent=cnt; $("total").textContent=fmt(total);
   const nom=$("nombre").value.trim(), dir=$("dir").value.trim();
   const lineas = ids.map(id=>{const p=PRODUCTOS.find(x=>x.id==id);return `• ${carrito[id]} x ${p.n} (${fmt(pf(p)*carrito[id])})`;});
-  const msg = `Hola Vision Beauty, quiero hacer un pedido:\n${lineas.join("\n")}\n\nTotal: ${fmt(total)}\nNombre: ${nom}\nEntrega: ${dir}`;
+  const msg = `${MSG.pedido_ini}\n${lineas.join("\n")}\n\nTotal: ${fmt(total)}\nNombre: ${nom}\nEntrega: ${dir}`+(MSG.pedido_fin?`\n\n${MSG.pedido_fin}`:"");
+  const pw=document.getElementById("perkWa");
+  if(pw) pw.href = "https://wa.me/" + WA + "?text=" + encodeURIComponent(MSG.contacto + (ids.length ? `\n\nMe interesa:\n${lineas.join("\n")}\nTotal: ${fmt(total)}` : ""));
   const a=$("wa");
   a.href = "https://wa.me/" + WA + "?text=" + encodeURIComponent(msg);
   a.classList.toggle("off", !(ids.length && nom && dir));
@@ -437,9 +444,9 @@ const INFO=(AJ.info && Array.isArray(AJ.info.items) && AJ.info.items.length) ? A
 (function(){
   const num=WA;
   $("perks").innerHTML=INFO.map((x,i)=>{ if(x.on===false) return "";
-    if(x.tipo==="wa") return '<a class="perk" target="_blank" rel="noopener noreferrer" href="https://wa.me/'+num+'?text='+encodeURIComponent(x.m||"Hola Vision Beauty, quiero más información")+'"><b>'+esc(x.t)+'</b>'+esc(x.s||"")+'<i>Escríbenos ›</i></a>';
+    if(x.tipo==="wa") return '<a class="perk" id="perkWa" target="_blank" rel="noopener noreferrer" href="https://wa.me/'+num+'?text='+encodeURIComponent(MSG.contacto)+'"><b>'+esc(x.t)+'</b>'+esc(x.s||"")+'<i>Escríbenos ›</i></a>';
     return '<button class="perk" type="button" onclick="abrirInfo('+i+')"><b>'+esc(x.t)+'</b>'+esc(x.s||"")+(x.d?'<i>Ver más ›</i>':'')+'</button>'; }).join("");
-  if(!$("perks").innerHTML.trim()) $("perks").style.display="none";
+  if(!$("perks").innerHTML.trim()) $("perks").style.display="none"; render();
 })();
 function abrirInfo(i){ const x=INFO[i]; if(!x) return; $("iT").textContent=x.t||""; $("iS").textContent=x.s||""; $("iD").textContent=x.d||""; $("infoM").classList.add("open"); }
 function cerrarInfo(){ $("infoM").classList.remove("open"); }
