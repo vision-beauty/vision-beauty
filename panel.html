@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; frame-src about: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="vb-v" content="13">
+<meta name="vb-v" content="14">
 <title>Panel privado · Vision Beauty</title>
 <style>
 :root{--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--ok:#1f8a4c;--bad:#b3402e}
@@ -1132,13 +1132,20 @@ function invWA(){ window.open('https://wa.me/?text='+encodeURIComponent('Hola �
 const accM=t=>{ $('acc_m').textContent=t||''; };
 if(/^#acc=/.test(location.hash)) $('accO').style.display='flex';
 async function accEntrar(){
-  accM(''); const pw=$('acc_pw').value; if(!pw) return accM('Escribe la clave.');
+  accM(''); const pw=$('acc_pw').value; if(!pw.trim()) return accM('Escribe la clave.');
+  const blob=location.hash.slice(5).trim();
+  let ok=false; try{ const sp=unUrlB(blob).split('.'); ok=sp.length===3 && fromB64(sp[0]).length===16 && fromB64(sp[1]).length===12 && fromB64(sp[2]).length>20; }catch(e){}
+  if(!ok) return accM('Este link está incompleto o dañado (a veces WhatsApp lo corta). Pídele a quien te lo dio que lo envíe otra vez.');
   $('acc_go').disabled=true; accM('Revisando…');
-  try{ const blob=location.hash.slice(5), a=pw.trim(); let o; try{ o=await descifrar(blob,a.toLowerCase()); }catch(e1){ o=await descifrar(blob,pw); } if(!o||!o.t||!o.o||!o.r) throw 0;
-    localStorage.setItem('vb_gh',JSON.stringify({owner:o.o,repo:o.r,branch:o.b||'main',token:o.t}));
+  const t=pw.trim(), cap=t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();
+  const intentos=[...new Set([t.toLowerCase(),pw,t,cap,t.toUpperCase()])];
+  let o=null;
+  for(const k of intentos){ try{ o=await descifrar(blob,k); if(o&&o.t&&o.o&&o.r) break; o=null; }catch(e){ o=null; } }
+  if(!o){ accM('Esa clave no es correcta. Revisa que esté bien escrita o pide un link nuevo.'); $('acc_go').disabled=false; return; }
+  try{ localStorage.setItem('vb_gh',JSON.stringify({owner:o.o,repo:o.r,branch:o.b||'main',token:o.t}));
     if(!ADM()) localStorage.setItem('vb_role','owner');
     history.replaceState(null,'',location.pathname); location.reload();
-  }catch(e){ accM('Esa clave no es correcta. Revisa que esté bien escrita.'); $('acc_go').disabled=false; }
+  }catch(e){ accM('Tu navegador no deja guardar el acceso (¿modo privado?). Prueba en una pestaña normal.'); $('acc_go').disabled=false; }
 }
 $('acc_pw').addEventListener('keydown',e=>{ if(e.key==='Enter') accEntrar(); });
 $('adm_pw').addEventListener('keydown',e=>{ if(e.key==='Enter'&&ADM()) admEntrar(); });
