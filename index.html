@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="vb-v" content="10">
 <title>Vision Beauty · Siempre linda</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -210,6 +211,19 @@ footer .logo img{max-height:56px}
 .cupl b{font-weight:400;color:#1c7c43}
 .cupl button{background:none;border:0;color:var(--gold2);font-family:inherit;font-size:.72rem;text-decoration:underline;cursor:pointer;margin-left:8px}
 </style>
+<script>
+/* autoactualización: si la página guardada es vieja, se recarga sola una vez */
+(function(){ try{
+  if(location.protocol.indexOf("http")!==0) return;
+  var me=document.querySelector('meta[name="vb-v"]'), mine=me?me.content:"0";
+  var u=new URL(location.href); u.searchParams.set("nc",Date.now());
+  fetch(u.href,{cache:"no-store"}).then(function(r){return r.text();}).then(function(t){
+    var m=/<meta name="vb-v" content="([^"]+)"/.exec(t); if(!m||m[1]===mine) return;
+    var k="vb_rl_"+location.pathname+m[1]; if(sessionStorage.getItem(k)) return; sessionStorage.setItem(k,"1");
+    var n=new URL(location.href); n.searchParams.set("v",m[1]); n.searchParams.delete("nc"); location.replace(n.href);
+  }).catch(function(){});
+}catch(e){} })();
+</script>
 </head>
 <body>
 <div class="ann" id="ann" style="display:none"></div>
