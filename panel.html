@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; frame-src about: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; frame-src about: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="vb-v" content="21">
+<meta name="vb-v" content="22">
 <title>Panel privado · Vision Beauty</title>
 <style>
 :root{--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--ok:#1f8a4c;--bad:#b3402e}
@@ -298,6 +298,19 @@ body.owner #admBox{display:none!important}
           <p class="small">Salen en la tienda justo antes de "¿Cómo comprar?". Pon solo opiniones reales de tus clientas.</p>
           <div class="sw"><input type="checkbox" id="r_on"><label for="r_on">Mostrar reseñas en la página</label></div>
           <label class="l">Título de la sección</label><input id="r_t" placeholder="Lo que dicen nuestras clientas">
+          <div class="sw" style="margin-top:10px"><input type="checkbox" id="r_form"><label for="r_form">Dejar que las clientas escriban su reseña en la página</label></div>
+        </div>
+        <div class="card"><h2>Reseñas que llegan de la página</h2>
+          <p class="small">Cada reseña que escribe una clienta se publica sola. Aquí la puedes ocultar, responder o borrar, y el cambio se ve en la tienda al instante, sin tocar "Publicar".</p>
+          <div id="rf_cfg">
+            <label class="l">Clave de la API (Firebase)</label><input id="r_k" autocomplete="off" placeholder="AIza…">
+            <label class="l">ID del proyecto (Firebase)</label><input id="r_p" autocomplete="off" placeholder="vision-beauty-xxxx">
+            <label class="l">Correo del administrador (Firebase)</label><input id="rf_e" type="email" autocomplete="off" placeholder="correo@gmail.com">
+            <label class="l">Contraseña del administrador (Firebase)</label><input id="rf_p" type="password" autocomplete="off" placeholder="La que creaste en Firebase">
+            <button class="btn gold" style="width:100%;margin-top:8px" onclick="rfConectar()">Guardar y ver reseñas</button>
+          </div>
+          <div class="msg" id="rf_m" style="margin-top:8px"></div>
+          <div id="rf_list" style="margin-top:8px"></div>
         </div>
         <div class="card"><h2 id="r_cnt">Reseñas</h2><div id="r_list"></div>
           <button class="btn gold" style="width:100%;margin-top:6px" onclick="rAdd()">+ Agregar reseña</button></div>
@@ -537,7 +550,7 @@ const defInfoAj = () => ({items:defInfo()});
 const goodInfo = i => (i&&Array.isArray(i.items)&&i.items.length) ? i : defInfoAj();
 const defMsg = () => ({contacto:'Hola Vision Beauty, quiero más información',consulta:'Hola, me interesa: {producto} ({categoria})',pedido_ini:'Hola Vision Beauty, quiero hacer un pedido:',pedido_fin:'',fotos:true});
 const defDest = () => ({activo:false,titulo:'Destacados',seg:10,auto:true,items:[]});
-const defRes = () => ({activo:false,titulo:'Lo que dicen nuestras clientas',items:[]});
+const defRes = () => ({activo:false,titulo:'Lo que dicen nuestras clientas',items:[],form:true,fb:{k:'',p:''}});
 const defAyuda = () => ({activo:false,titulo:'¿Necesitas ayuda?',inicio:'Hola Vision Beauty, necesito ayuda.',opciones:['No me ha llegado mi pedido','Quiero cambiar mi dirección de entrega','Mi producto llegó dañado o diferente','Quiero cambiar o devolver un producto','Tengo dudas con el pago']});
 const defCup = () => ({activo:false,items:[]});
 function normNuevos(aj,src){ src=src||{};
@@ -1006,7 +1019,8 @@ $('lg_file').addEventListener('change',e=>{
 /* ---------- reseñas ---------- */
 const RES=()=>S.ajustes.resenas;
 function renderRes(){
-  const R=RES(); $('r_on').checked=!!R.activo; $('r_t').value=R.titulo||'';
+  const R=RES(); R.fb=R.fb||{k:'',p:''}; if(typeof R.form!=='boolean') R.form=true;
+  $('r_on').checked=!!R.activo; $('r_t').value=R.titulo||''; $('r_form').checked=R.form!==false; $('r_k').value=R.fb.k||''; $('r_p').value=R.fb.p||''; const fl=FBL(); if(fl&&fl.e&&document.activeElement!==$('rf_e')) $('rf_e').value=fl.e;
   $('r_cnt').textContent='Reseñas ('+R.items.length+')';
   $('r_list').innerHTML=R.items.map((x,i)=>`<div class="mini">
     <div class="row2"><div><label class="l">Nombre</label><input value="${esc(x.n||'')}" placeholder="Ej: Laura M." oninput="rSet(${i},'n',this.value)"></div>
@@ -1014,12 +1028,69 @@ function renderRes(){
     <label class="l">Lo que dijo</label><textarea style="height:80px" oninput="rSet(${i},'t',this.value)">${esc(x.t||'')}</textarea>
     <div class="mv"><button class="btn sm line" onclick="rMover(${i},-1)">↑ Subir</button><button class="btn sm line" onclick="rMover(${i},1)">↓ Bajar</button><button class="btn sm bad" onclick="rQuitar(${i})">Borrar</button></div></div>`).join('')||'<p class="small">Aún no hay reseñas. Agrega la primera.</p>';
 }
+/* ---------- reseñas desde la página (Firebase por REST) ---------- */
+const FBC=()=>{ const f=RES().fb||{}; return {k:(f.k||'').trim(),p:(f.p||'').trim()}; };
+const FBL=()=>{ try{ return JSON.parse(localStorage.getItem('vb_fb')||'null'); }catch(e){ return null; } };
+const rfM=(t,ok)=>{ const m=$('rf_m'); m.textContent=t||''; m.className='msg'+(t?(ok?' ok':' badc'):''); };
+const fbBase=()=>'https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(FBC().p)+'/databases/(default)/documents';
+async function fbToken(){
+  const c=FBC(), l=FBL(); if(!c.k||!c.p||!l||!l.e||!l.p) throw new Error('falta');
+  const r=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+encodeURIComponent(c.k),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:l.e,password:l.p,returnSecureToken:true})});
+  const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error((j.error&&j.error.message)||'auth'); return j.idToken;
+}
+async function fbReq(url,opt){ const t=await fbToken(); opt=opt||{}; opt.headers=Object.assign({Authorization:'Bearer '+t},opt.headers||{}); const r=await fetch(url,opt); if(!r.ok){ const j=await r.json().catch(()=>({})); throw new Error((j.error&&j.error.message)||('http '+r.status)); } return r.status===204?null:r.json(); }
+let RF=[];
+async function rfCargar(){
+  const c=FBC(); const L=$('rf_list');
+  if(!c.k||!c.p||!FBL()){ L.innerHTML='<p class="small">Cuando conectes Firebase, aquí verás las reseñas que lleguen.</p>'; return; }
+  rfM('Cargando…',true);
+  try{
+    const a=await fbReq(fbBase()+':runQuery',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({structuredQuery:{from:[{collectionId:'resenas'}],limit:200}})});
+    const g=(f,k,t)=>f&&f[k]?f[k][t]:undefined;
+    RF=(a||[]).filter(d=>d.document).map(d=>{ const f=d.document.fields||{}; return {id:d.document.name.split('/').pop(),n:g(f,'n','stringValue')||'',e:Number(g(f,'e','integerValue'))||5,t:g(f,'t','stringValue')||'',r:g(f,'r','stringValue')||'',v:g(f,'v','booleanValue')!==false,f:g(f,'f','timestampValue')||''}; }).sort((x,y)=>String(y.f).localeCompare(String(x.f)));
+    rfM('',true); rfPintar();
+  }catch(e){ L.innerHTML=''; rfM(rfErr(e),false); }
+}
+function rfErr(e){ const m=String(e&&e.message||e);
+  if(/INVALID_LOGIN|INVALID_PASSWORD|EMAIL_NOT_FOUND|INVALID_EMAIL|INVALID_CREDENTIALS/.test(m)) return 'El correo o la contraseña de Firebase no son correctos.';
+  if(/API key|API_KEY/i.test(m)) return 'La clave de la API no es correcta. Revísala.';
+  if(/falta/.test(m)) return 'Faltan datos de Firebase.';
+  if(/permission|PERMISSION|403/.test(m)) return 'Firebase dice que no hay permiso. Revisa que pegaste las reglas de seguridad.';
+  if(/NOT_FOUND|404|not exist/i.test(m)) return 'No encontré el proyecto o la base de datos. Revisa el ID del proyecto y que creaste Firestore.';
+  return 'No se pudo conectar. Revisa tu internet y los datos de Firebase.'; }
+function rfPintar(){
+  const L=$('rf_list');
+  L.innerHTML=(RF.length?'<h3 style="margin:6px 0">Recibidas ('+RF.length+')</h3>':'<p class="small">Aún no ha llegado ninguna reseña desde la página.</p>')+RF.map((x,i)=>`<div class="mini" style="${x.v?'':'opacity:.6'}">
+    <div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(x.n)}</b><span class="small">${'★'.repeat(x.e)}${x.f?' · '+esc(new Date(x.f).toLocaleDateString('es-CO')):''}</span></div>
+    <p style="margin:6px 0">${esc(x.t)}</p>
+    ${x.r?`<p class="small" style="margin:4px 0">Tu respuesta: ${esc(x.r)}</p>`:''}
+    <div class="small" style="margin-bottom:6px">${x.v?'Se ve en la tienda':'Oculta (no se ve en la tienda)'}</div>
+    <div class="mv"><button class="btn sm line" onclick="rfVis(${i})">${x.v?'Ocultar':'Mostrar'}</button><button class="btn sm line" onclick="rfResp(${i})">${x.r?'Editar respuesta':'Responder'}</button><button class="btn sm bad" onclick="rfDel(${i})">Borrar</button></div>
+    <div id="rf_r${i}"></div></div>`).join('')+'<button class="btn sm line" style="margin-top:6px" onclick="rfCargar()">Actualizar lista</button>';
+}
+async function rfPatch(x,campos,fields){
+  await fbReq(fbBase()+'/resenas/'+encodeURIComponent(x.id)+'?'+campos.map(c=>'updateMask.fieldPaths='+c).join('&'),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields})});
+}
+async function rfVis(i){ const x=RF[i]; if(!x) return; rfM('Guardando…',true); try{ await rfPatch(x,['v'],{v:{booleanValue:!x.v}}); x.v=!x.v; rfM(x.v?'Ahora se ve en la tienda ✓':'Oculta ✓',true); rfPintar(); }catch(e){ rfM(rfErr(e),false); } }
+function rfResp(i){ const x=RF[i]; if(!x) return; $('rf_r'+i).innerHTML='<textarea id="rf_t'+i+'" style="height:80px;margin-top:6px" maxlength="400" placeholder="Escribe tu respuesta. La verá cualquiera que lea la reseña.">'+esc(x.r)+'</textarea><div class="mv"><button class="btn sm gold" onclick="rfEnviar('+i+')">Guardar respuesta</button></div>'; }
+async function rfEnviar(i){ const x=RF[i]; if(!x) return; const t=$('rf_t'+i).value.trim(); rfM('Guardando…',true); try{ await rfPatch(x,['r'],{r:{stringValue:t}}); x.r=t; rfM('Respuesta guardada ✓',true); rfPintar(); }catch(e){ rfM(rfErr(e),false); } }
+async function rfDel(i){ const x=RF[i]; if(!x) return; if(!confirm('¿Borrar la reseña de '+x.n+'? No se puede deshacer.')) return; rfM('Borrando…',true); try{ await fbReq(fbBase()+'/resenas/'+encodeURIComponent(x.id),{method:'DELETE'}); RF.splice(i,1); rfM('Reseña borrada ✓',true); rfPintar(); }catch(e){ rfM(rfErr(e),false); } }
+async function rfConectar(){
+  const R=RES(); R.fb={k:$('r_k').value.trim(),p:$('r_p').value.trim()};
+  const e=$('rf_e').value.trim(), p=$('rf_p').value;
+  if(e&&p){ try{ localStorage.setItem('vb_fb',JSON.stringify({e:e,p:p})); }catch(x){} }
+  cambio(); $('rf_p').value='';
+  if(!R.fb.k||!R.fb.p) return rfM('Escribe la clave de la API y el ID del proyecto.',false);
+  if(!FBL()) return rfM('Escribe también el correo y la contraseña del administrador.',false);
+  await rfCargar(); if(RF.length||!$('rf_m').textContent) rfM($('rf_m').textContent||'Conectado ✓. Recuerda tocar "Publicar" para guardar estos datos en la tienda.',true);
+}
 function rSet(i,k,v){ RES().items[i][k]=(k==='e')?(+v||5):v; cambio(); }
 function rAdd(){ RES().items.push({n:'',e:5,t:''}); renderRes(); cambio(); }
 function rQuitar(i){ RES().items.splice(i,1); renderRes(); cambio(); }
 function rMover(i,d){ const a=RES().items, j=i+d; if(j<0||j>=a.length) return; [a[i],a[j]]=[a[j],a[i]]; renderRes(); cambio(); }
 $('r_on').addEventListener('change',()=>{ RES().activo=$('r_on').checked; cambio(); });
 $('r_t').addEventListener('input',()=>{ RES().titulo=$('r_t').value; cambio(); });
+$('r_form').addEventListener('change',()=>{ RES().form=$('r_form').checked; cambio(); });
 
 /* ---------- ayuda al cliente ---------- */
 const AYU=()=>S.ajustes.ayuda;
@@ -1212,7 +1283,7 @@ async function invCrear(){
   mI(''); const c=cfg(), pw=$('inv_pw').value.trim();
   if(!c.token||!c.owner||!c.repo) return mI('Primero conecta GitHub aquí arriba (usuario, repositorio y clave).');
   if(pw.length<6) return mI('La clave de acceso debe tener mínimo 6 caracteres.');
-  try{ mI('Creando…'); const blob=await cifrar({v:1,o:c.owner,r:c.repo,b:c.branch||'main',t:c.token},pw.toLowerCase());
+  try{ mI('Creando…'); const blob=await cifrar(Object.assign({v:1,o:c.owner,r:c.repo,b:c.branch||'main',t:c.token},(FBL()&&FBL().e)?{fe:FBL().e,fp:FBL().p}:{}),pw.toLowerCase());
     $('inv_link').value=location.origin+location.pathname+'#acc='+blob; $('inv_out').style.display='block'; mI('');
   }catch(e){ mI('No se pudo crear el link.'); }
 }
@@ -1233,6 +1304,7 @@ async function accEntrar(){
   for(const k of intentos){ try{ o=await descifrar(blob,k); if(o&&o.t&&o.o&&o.r) break; o=null; }catch(e){ o=null; } }
   if(!o){ accM('Esa clave no es correcta. Revisa que esté bien escrita o pide un link nuevo.'); $('acc_go').disabled=false; return; }
   try{ localStorage.setItem('vb_gh',JSON.stringify({owner:o.o,repo:o.r,branch:o.b||'main',token:o.t}));
+    if(o.fe&&o.fp) localStorage.setItem('vb_fb',JSON.stringify({e:o.fe,p:o.fp}));
     if(!ADM()) localStorage.setItem('vb_role','owner');
     history.replaceState(null,'',location.pathname); location.reload();
   }catch(e){ accM('Tu navegador no deja guardar el acceso (¿modo privado?). Prueba en una pestaña normal.'); $('acc_go').disabled=false; }
@@ -1315,6 +1387,7 @@ function irTab(t){
   const c=document.querySelector('.col'); if(c) c.scrollTo(0,0);
   if(t==='vista'){ forzar=false; setTimeout(pintarPrev,50); }
   if(t==='pub') resumen();
+  if(t==='resenas'&&typeof rfCargar==='function'&&S&&RES().fb&&RES().fb.k) rfCargar();
   if(t==='dest'){ renderDestList(); renderDestPick(); }
   if(t==='inv'){ renderInv(); }
   if(t==='inicio') renderInicio();
