@@ -327,7 +327,7 @@ footer .logo img{max-height:56px}
   </div>
 </div>
 
-<script src="productos.js"></script>
+<script id="datos">document.write('<script src="productos.js?v='+Math.floor(Date.now()/60000)+'"><\/script>');</script>
 <script>
 
 const AJ = (typeof AJUSTES!=='undefined') ? AJUSTES : {};
