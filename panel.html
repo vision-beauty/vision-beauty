@@ -346,6 +346,7 @@ header h1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
         <div class="card"><h2>Publicar en tu tienda</h2>
           <button class="btn gold" id="bpub" style="width:100%;font-size:1.05rem;padding:15px" onclick="publicar()">🚀 Publicar ahora</button>
           <div class="msg" id="gmsg"></div>
+          <div id="gbar" style="display:none;height:10px;background:var(--sand);border-radius:99px;overflow:hidden;margin-top:8px"><i id="gbi" style="display:block;height:100%;width:0;background:var(--gold2);border-radius:99px;transition:width .5s ease"></i></div>
           <p class="small" style="margin-top:8px">Tu tienda: <a id="sitio" href="#" target="_blank" rel="noopener noreferrer" style="display:none"></a></p>
           <p class="small" id="warnLS" style="display:none;color:#b3402e">Tu navegador no pudo guardar el borrador (muchas fotos). Publica pronto para no perder cambios.</p>
         </div>
@@ -506,7 +507,8 @@ function errTxt(r){
   if(r.status===409||r.status===422) return 'GitHub rechazó el cambio ('+r.status+'). Intenta de nuevo.';
   return 'Error de GitHub ('+r.status+').';
 }
-function msgG(t,ok){ const e=$('gmsg'); e.textContent=t; e.className='msg '+(ok?'ok':'badc'); }
+function msgG(t,ok,pct){ const e=$('gmsg'); e.textContent=t; e.className='msg '+(ok?'ok':'badc'); barra(pct); }
+function barra(pct){ const b=$('gbar'); if(pct==null||pct<0){ b.style.display='none'; $('gbi').style.width='0'; return; } b.style.display='block'; $('gbi').style.width=Math.min(100,pct)+'%'; }
 async function probar(){
   const c=leerCfg(); sitioLink(); if(!c.owner||!c.repo||!c.token) return msgG('Completa usuario, repositorio y clave.',false);
   msgG('Probando…',true);
@@ -527,7 +529,7 @@ async function esperarEnVivo(txt){
   const t0=Date.now();
   while(Date.now()-t0<150000){
     try{ const r=await fetch('productos.js?nc='+Date.now(),{cache:'no-store'}); if(r.ok && (await r.text())===txt) return true; }catch(e){}
-    msgG('Publicado. Esperando que GitHub actualice la página… '+Math.round((Date.now()-t0)/1000)+' s',true);
+    msgG('Realizando los ajustes… '+Math.round((Date.now()-t0)/1000)+' s',true,60+Math.min(35,(Date.now()-t0)/1000*0.45));
     await new Promise(r=>setTimeout(r,5000));
   }
   return false;
@@ -538,31 +540,31 @@ async function publicar(){
   if(!hayCambios()) return msgG('No hay cambios por publicar.',true);
   $('bpub').disabled=true;
   try{
-    msgG('Limpiando caché antiguo…',true); await limpiarCache();
-    msgG('Buscando la última versión publicada…',true);
+    msgG('Preparando todo…',true,5); await limpiarCache();
+    msgG('Revisando la última versión…',true,15);
     const chk=await gh('productos.js',{query:'?ref='+encodeURIComponent(c.branch)});
     if(chk.ok){ try{ const j=await chk.json(); if(j.content){ const rem=parseJS(decodeURIComponent(escape(atob(String(j.content).replace(/\s/g,''))))); 
       if(JSON.stringify(canon(normalizar(rem)))!==JSON.stringify(canon(normalizar(BASE)))){
         const seguir=await confirmar('La tienda cambió mientras tenías el panel abierto','Alguien publicó otros cambios (¿desde otro celular?). Si sigues, se reemplazan por los tuyos. ¿Publicar igual?');
-        if(!seguir){ msgG('Publicación cancelada. Recarga el panel para ver lo último.',false); $('bpub').disabled=false; return; }
+        if(!seguir){ msgG('Publicación cancelada. Recarga el panel para ver lo último.',false,-1); $('bpub').disabled=false; return; }
       } } }catch(e){} }
     const nuevas=S.productos.filter(p=>p.i&&p.i.startsWith('data:'));
     let n=0;
     for(const p of nuevas){
-      n++; msgG('Subiendo fotos '+n+' de '+nuevas.length+'…',true);
+      n++; msgG('Subiendo fotos '+n+' de '+nuevas.length+'…',true,20+25*n/nuevas.length);
       const nombre='img/n'+Date.now().toString(36)+'_'+p.id+'.jpg';
       const r=await gh(nombre,{method:'PUT',body:{message:'Foto nueva desde el panel',content:p.i.split(',')[1],branch:c.branch}});
       if(!r.ok) throw r;
       thumbs[nombre]=p.i; p.i=nombre;
     }
     if(S.tienda.logo&&S.tienda.logo.startsWith('data:')){
-      msgG('Subiendo logo…',true);
+      msgG('Subiendo logo…',true,45);
       const ln='img/logo_'+Date.now().toString(36)+'.png';
       const rl=await gh(ln,{method:'PUT',body:{message:'Logo desde el panel',content:S.tienda.logo.split(',')[1],branch:c.branch}});
       if(!rl.ok) throw rl;
       thumbs[ln]=S.tienda.logo; S.tienda.logo=ln;
     }
-    msgG('Publicando…',true);
+    msgG('Guardando tus cambios…',true,55);
     const txt=generarJS(); const content=btoa(unescape(encodeURIComponent(txt)));
     let ok=false, last=null;
     for(let intento=0;intento<2&&!ok;intento++){
@@ -574,10 +576,10 @@ async function publicar(){
     if(!ok) throw last;
     BASE=clone(S); BASEMAP={}; BASE.productos.forEach(p=>BASEMAP[p.id]=p);
     guardarBorrador(); todoRender(); estadoPill();
-    msgG('Publicado. Esperando que GitHub actualice la página…',true);
+    msgG('Realizando los ajustes…',true,60);
     const vivo=await esperarEnVivo(txt);
-    if(vivo){ await limpiarCache(); msgG('¡Publicado y ya está en vivo! Abre la tienda con el enlace de abajo.',true); }
-    else msgG('Publicado. GitHub está tardando un poco más; en 1 o 2 minutos ya se verá. Abre la tienda con el enlace de abajo.',true);
+    if(vivo){ await limpiarCache(); msgG('¡Listo! Tus cambios ya están en vivo. Abre la tienda con el enlace de abajo.',true,100); }
+    else msgG('Tus cambios están guardados. Los ajustes están tardando un poco más; en 1 o 2 minutos ya se verán. Abre la tienda con el enlace de abajo.',true,95);
   }catch(e){
     msgG(e&&e.status?errTxt(e):'No se pudo publicar. Revisa tu internet e intenta otra vez.',false); guardarBorrador();
   }
