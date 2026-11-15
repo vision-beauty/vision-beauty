@@ -84,6 +84,16 @@ header{order:0}.main{order:2}
 .catrow button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 10px}
 ol.s{margin:8px 0 8px 20px;font-size:.9rem}ol.s li{margin-bottom:5px}
 .dragover{outline:2px dashed var(--gold)}
+.di{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;background:#fff}
+.di .top img{width:48px;height:60px}
+.di .ex2{padding:0 10px 10px}
+.pk{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-top:6px}
+.pk .pi{position:relative;border:2px solid transparent;border-radius:10px;overflow:hidden;background:var(--sand);cursor:pointer;aspect-ratio:3/4}
+.pk .pi img{width:100%;height:100%;object-fit:cover;display:block}
+.pk .pi.on{border-color:var(--gold2)}
+.pk .pi .ck{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.92);border:1px solid var(--line);font-size:.85rem;display:flex;align-items:center;justify-content:center;color:var(--gold2)}
+.pk .pi.on .ck{background:var(--gold2);color:#fff;border-color:var(--gold2)}
+.pk .pi .pn{position:absolute;left:0;right:0;bottom:0;background:rgba(74,52,40,.72);color:#fff;font-size:.62rem;padding:2px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .msg{font-size:.85rem;margin-top:6px}.msg.ok{color:var(--ok)}.badc{color:var(--bad)}
 </style>
 </head>
@@ -94,6 +104,7 @@ ol.s{margin:8px 0 8px 20px;font-size:.9rem}ol.s li{margin-bottom:5px}
   <div class="tabs" id="tabs">
     <button data-t="prod" class="on">Productos</button>
     <button data-t="vista">Vista previa</button>
+    <button data-t="dest">Destacados</button>
     <button data-t="tienda">Tienda</button>
     <button data-t="pub">Publicar</button>
   </div>
@@ -119,6 +130,29 @@ ol.s{margin:8px 0 8px 20px;font-size:.9rem}ol.s li{margin-bottom:5px}
             <button class="btn sm line" onclick="recargarPrev()">Recargar</button>
             <button class="btn sm gold" onclick="verSplash()">Ver splash</button></div>
           <iframe id="ifm" title="Vista previa"></iframe>
+        </div>
+      </section>
+
+      <!-- DESTACADOS -->
+      <section class="pane" id="p_dest">
+        <div class="card"><h2>Carrusel de destacados</h2>
+          <p class="small">Aparece debajo del nombre de la tienda. Los productos pasan uno por uno, con flechas.</p>
+          <div class="sw"><input type="checkbox" id="d_on"><label for="d_on">Mostrar el carrusel</label></div>
+          <label class="l">Título de la sección</label><input id="d_t" placeholder="Destacados">
+          <div class="row2">
+            <div><label class="l">Segundos entre cada cambio (3 a 60)</label><input id="d_seg" inputmode="decimal"></div>
+            <div><label class="l">Cambio automático</label><select id="d_auto"><option value="1">Sí</option><option value="0">No, solo con flechas</option></select></div>
+          </div>
+        </div>
+        <div class="card"><h2 id="d_cnt">En el carrusel</h2>
+          <p class="small" style="margin-bottom:8px">Cambia el orden, escribe una frase corta o ponle descuento. El descuento también se ve en el catálogo.</p>
+          <div id="d_list"></div>
+        </div>
+        <div class="card"><h2>Agregar productos</h2>
+          <p class="small">Toca los productos que quieres mostrar. Puedes escoger varios. Toca otra vez para quitarlos.</p>
+          <div class="tools" style="margin-top:8px"><input id="d_q" placeholder="Buscar producto…"><select id="d_fc"></select></div>
+          <div class="pk" id="d_pick"></div>
+          <button class="btn line" id="d_mas" style="width:100%;margin-top:10px;display:none" onclick="dMas()">Mostrar más</button>
         </div>
       </section>
 
@@ -235,14 +269,15 @@ let abierto = new Set(), visibles = 30, filtroCat = 'Todas', buscar = '';
 
 /* ---------- estado visible ---------- */
 function pill(t,c){ const e=$('pill'); e.textContent=t; e.className='pill '+(c||''); }
-const defAj = () => ({splash:{activo:false,titulo:'Vision Beauty',sub:'Siempre linda',seg:2.4},anuncio:{activo:false,texto:''}});
+const defDest = () => ({activo:false,titulo:'Destacados',seg:10,auto:true,items:[]});
+const defAj = () => ({splash:{activo:false,titulo:'Vision Beauty',sub:'Siempre linda',seg:2.4},anuncio:{activo:false,texto:''},destacados:defDest()});
 
 /* ---------- leer lo publicado ---------- */
 function parseJS(txt){
   const g = re => { const m=re.exec(txt); if(!m) throw new Error('formato'); return JSON.parse(m[1]); };
   const tienda=g(/^const TIENDA = (.*);$/m), cats=g(/^const CATEGORIAS = (.*);$/m);
   let aj=defAj(); const ma=/^const AJUSTES = (.*);$/m.exec(txt);
-  if(ma){ const a=JSON.parse(ma[1]); aj={splash:Object.assign(aj.splash,a.splash||{}),anuncio:Object.assign(aj.anuncio,a.anuncio||{})}; }
+  if(ma){ const a=JSON.parse(ma[1]); aj={splash:Object.assign(aj.splash,a.splash||{}),anuncio:Object.assign(aj.anuncio,a.anuncio||{}),destacados:Object.assign(defDest(),a.destacados||{})}; if(!Array.isArray(aj.destacados.items)) aj.destacados.items=[]; }
   const k='const PRODUCTOS = [\n', i=txt.indexOf(k), j=txt.lastIndexOf('\n];');
   if(i<0||j<0) throw new Error('formato');
   return {tienda,ajustes:aj,categorias:cats,productos:JSON.parse('['+txt.slice(i+k.length,j)+']')};
@@ -262,7 +297,7 @@ function guardarBorrador(){
 }
 function cargarBorrador(){
   try{ const t=localStorage.getItem('vb_draft'); if(!t) return false; const o=JSON.parse(t);
-    if(o&&o.productos&&o.tienda&&o.categorias){ S=o; S.ajustes=Object.assign(defAj(),S.ajustes||{}); S.productos.forEach(p=>{ if(p.i&&p.i.startsWith('data:')) thumbs[p.i]=p.i; }); return true; } }catch(e){}
+    if(o&&o.productos&&o.tienda&&o.categorias){ S=o; S.ajustes=Object.assign(defAj(),S.ajustes||{}); S.ajustes.destacados=Object.assign(defDest(),S.ajustes.destacados||{}); if(!Array.isArray(S.ajustes.destacados.items)) S.ajustes.destacados.items=[]; S.productos.forEach(p=>{ if(p.i&&p.i.startsWith('data:')) thumbs[p.i]=p.i; }); return true; } }catch(e){}
   return false;
 }
 function borrarBorrador(){ try{ localStorage.removeItem('vb_draft'); }catch(e){} }
@@ -428,7 +463,7 @@ function mover(id,d){
   const e=$('it'+id); if(e) e.scrollIntoView({block:'nearest'});
 }
 function aExtremo(id,fin){ const i=S.productos.findIndex(p=>p.id===id); const [p]=S.productos.splice(i,1); fin?S.productos.push(p):S.productos.unshift(p); lista(); cambio(); window.scrollTo(0,0); const c=document.querySelector('.col'); if(c) c.scrollTo({top:0,behavior:'smooth'}); }
-function borrar(id){ pregunta('¿Borrar este producto?','Si solo quieres quitarlo de la tienda sin borrarlo, usa "Oculto".',()=>{ S.productos=S.productos.filter(p=>p.id!==id); lista(); cambio(); }); }
+function borrar(id){ pregunta('¿Borrar este producto?','Si solo quieres quitarlo de la tienda sin borrarlo, usa "Oculto".',()=>{ S.productos=S.productos.filter(p=>p.id!==id); S.ajustes.destacados.items=S.ajustes.destacados.items.filter(x=>x.id!==id); lista(); cambio(); }); }
 
 /* arrastrar y soltar (computador) */
 let dragId=null;
@@ -477,10 +512,73 @@ function cargarAjustes(){
 function leerAjustes(){
   S.tienda={nombre:$('t_nombre').value.trim(),whatsapp:$('t_wa').value.replace(/\D/g,''),instagram:$('t_ig').value.replace('@','').trim()};
   const seg=parseFloat(String($('s_seg').value).replace(',','.'));
-  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()}};
+  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()},destacados:S.ajustes.destacados||defDest()};
   cambio();
 }
 ['t_nombre','t_wa','t_ig','s_on','s_t','s_s','s_seg','a_on','a_t'].forEach(id=>$(id).addEventListener(id==='s_on'||id==='a_on'?'change':'input',leerAjustes));
+
+/* ---------- destacados ---------- */
+let dQ='', dFc='Todas', dVis=40;
+const DEST = () => S.ajustes.destacados;
+function renderDest(){
+  const D=DEST();
+  $('d_on').checked=!!D.activo; $('d_t').value=D.titulo||''; $('d_seg').value=D.seg||10; $('d_auto').value=D.auto===false?'0':'1';
+  $('d_fc').innerHTML=['Todas',...S.categorias].map(c=>`<option ${c===dFc?'selected':''}>${esc(c)}</option>`).join('');
+  renderDestList(); renderDestPick();
+}
+function leerDest(){
+  const D=DEST(); D.activo=$('d_on').checked; D.titulo=$('d_t').value.trim();
+  const seg=parseFloat(String($('d_seg').value).replace(',','.')); D.seg=(seg>=3&&seg<=60)?seg:10;
+  D.auto=$('d_auto').value!=='0'; cambio();
+}
+['d_on','d_auto'].forEach(id=>$(id).addEventListener('change',leerDest));
+['d_t','d_seg'].forEach(id=>$(id).addEventListener('input',leerDest));
+$('d_q').addEventListener('input',e=>{ dQ=e.target.value; dVis=40; renderDestPick(); });
+$('d_fc').addEventListener('change',e=>{ dFc=e.target.value; dVis=40; renderDestPick(); });
+function pctDe(p){ return (p.o&&p.p&&p.o<p.p)?Math.round((1-p.o/p.p)*100):''; }
+function renderDestList(){
+  const D=DEST(); D.items=D.items.filter(x=>prod(x.id));
+  $('d_cnt').textContent='En el carrusel ('+D.items.length+')';
+  $('d_list').innerHTML = D.items.map((x,i)=>{ const p=prod(x.id);
+    return `<div class="di"><div class="top"><img src="${esc(th(p.i))}" alt="">
+      <div class="i"><div class="nm">${esc(p.n)}</div><div class="pr" id="dpr_${p.id}">${precioTxt(p)}</div>${p.h?'<div class="small badc">Está oculto: no saldrá en la tienda</div>':''}</div></div>
+      <div class="ex2">
+        <label class="l">Frase corta (opcional)</label><input value="${esc(x.t||'')}" placeholder="Ej: Brilla en cualquier ocasión" oninput="dFrase(${i},this.value)">
+        <div class="row2">
+          <div><label class="l">Descuento %</label><input inputmode="numeric" id="dp_${p.id}" value="${pctDe(p)}" placeholder="Sin descuento" oninput="dPct(${p.id},this.value)"></div>
+          <div><label class="l">Precio con descuento</label><input inputmode="numeric" id="do_${p.id}" value="${p.o||''}" placeholder="Sin descuento" oninput="dOf(${p.id},this.value)"></div>
+        </div>
+        ${p.p?'':'<p class="small badc" style="margin-top:6px">Este producto no tiene precio. Ponlo en Productos para poder darle descuento.</p>'}
+        <div class="mv"><button class="btn sm line" onclick="dMover(${i},-1)">↑ Subir</button><button class="btn sm line" onclick="dMover(${i},1)">↓ Bajar</button><button class="btn sm bad" onclick="dQuitar(${i})">Quitar</button></div>
+      </div></div>`; }).join('') || '<p class="small">Todavía no hay productos. Elige abajo los que quieres mostrar.</p>';
+}
+function dFrase(i,v){ const x=DEST().items[i]; if(x){ x.t=v; cambio(); } }
+function dActPrecio(id){ const p=prod(id), e=$('dpr_'+id); if(e&&p) e.innerHTML=precioTxt(p); }
+function dPct(id,v){
+  const p=prod(id); if(!p) return; const x=parseInt(String(v).replace(/\D/g,''),10);
+  if(p.p && x>=1 && x<=90){ const o=Math.round(p.p*(1-x/100)/100)*100; ed(id,'o',String(o)); $('do_'+id).value=o; }
+  else { ed(id,'o',''); $('do_'+id).value=''; }
+  dActPrecio(id);
+}
+function dOf(id,v){
+  const p=prod(id); if(!p) return; ed(id,'o',v); const e=$('dp_'+id); if(e) e.value=pctDe(p); dActPrecio(id);
+}
+function dMover(i,d){ const a=DEST().items, j=i+d; if(j<0||j>=a.length) return; [a[i],a[j]]=[a[j],a[i]]; renderDestList(); cambio(); }
+function dQuitar(i){ const x=DEST().items.splice(i,1)[0]; renderDestList(); if(x){ const e=$('pk'+x.id); if(e){ e.classList.remove('on'); e.querySelector('.ck').textContent='+'; } } cambio(); }
+function dToggle(id){
+  const a=DEST().items, i=a.findIndex(x=>x.id===id);
+  if(i>=0) a.splice(i,1); else a.push({id,t:''});
+  const e=$('pk'+id); if(e){ const on=i<0; e.classList.toggle('on',on); e.querySelector('.ck').textContent=on?'✓':'+'; }
+  renderDestList(); cambio();
+}
+function dFiltrados(){ const q=dQ.toLowerCase(); return S.productos.filter(p=>(dFc==='Todas'||p.c===dFc)&&(!q||(p.n||'').toLowerCase().includes(q))); }
+function renderDestPick(){
+  const sel=new Set(DEST().items.map(x=>x.id)), arr=dFiltrados();
+  $('d_pick').innerHTML = arr.slice(0,dVis).map(p=>{ const on=sel.has(p.id);
+    return `<div class="pi ${on?'on':''}" id="pk${p.id}" onclick="dToggle(${p.id})"><img src="${esc(th(p.i))}" alt="" loading="lazy"><span class="ck">${on?'✓':'+'}</span><span class="pn">${esc(p.n)}</span></div>`; }).join('') || '<p class="small">No hay productos con ese filtro.</p>';
+  $('d_mas').style.display = arr.length>dVis ? 'block':'none';
+}
+function dMas(){ dVis+=40; renderDestPick(); }
 
 /* ---------- generar archivo ---------- */
 function compacto(p){ const o={}; for(const k of Object.keys(p)){ const v=p[k]; if(v===null||v===undefined||v===false||v==='') { if(k==='p') o.p=null; continue; } o[k]=v; } return o; }
@@ -508,7 +606,7 @@ function resumen(){
   const nuevos=S.productos.filter(p=>!BASEMAP[p.id]).length;
   const edit=S.productos.filter(p=>BASEMAP[p.id]&&JSON.stringify(compacto(BASEMAP[p.id]))!==JSON.stringify(compacto(p))).length;
   const borr=BASE.productos.filter(b=>!S.productos.some(p=>p.id===b.id)).length;
-  const k=[['Nuevos',nuevos],['Editados',edit],['Borrados',borr],['Agotados',S.productos.filter(p=>p.a).length],['En oferta',S.productos.filter(p=>p.o&&p.o<p.p).length],['Ocultos',S.productos.filter(p=>p.h).length]];
+  const k=[['Nuevos',nuevos],['Editados',edit],['Borrados',borr],['Agotados',S.productos.filter(p=>p.a).length],['En oferta',S.productos.filter(p=>p.o&&p.o<p.p).length],['Ocultos',S.productos.filter(p=>p.h).length],['Destacados',S.ajustes.destacados.items.length]];
   $('kpi').innerHTML=k.map(([a,b])=>`<div><b>${b}</b>${a}</div>`).join('');
 }
 
@@ -535,13 +633,14 @@ function irTab(t){
   document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id==='p_'+t));
   if(t==='vista'){ forzar=false; setTimeout(pintarPrev,50); }
   if(t==='pub') resumen();
+  if(t==='dest'){ renderDestList(); renderDestPick(); }
 }
 document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>irTab(b.dataset.t)));
 ['g_o','g_r','g_b','g_t'].forEach(id=>$(id).addEventListener('input',()=>{leerCfg();sitioLink();}));
 $('q').addEventListener('input',e=>{ buscar=e.target.value; visibles=30; lista(); });
 $('fc').addEventListener('change',e=>{ filtroCat=e.target.value; visibles=30; lista(); });
 
-function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); resumen(); pintarPrev(); }
+function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); renderDest(); resumen(); pintarPrev(); }
 (async function(){
   pill('Cargando…','warn');
   try{ await cargarPublicado(); }catch(e){ pill('No se pudo leer la tienda','bad'); $('list').innerHTML='<p class="small">No pude leer productos.js. Abre este panel desde tu página publicada (no como archivo suelto).</p>'; return; }

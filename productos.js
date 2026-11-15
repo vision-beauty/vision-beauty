@@ -1,10 +1,10 @@
 const TIENDA = {"nombre": "Vision Beauty", "whatsapp": "573118512247", "instagram": "visionbeauty"};
-const AJUSTES = {"splash": {"activo": false, "titulo": "Vision Beauty", "sub": "Siempre linda", "seg": 2.4}, "anuncio": {"activo": false, "texto": ""}};
+const AJUSTES = {"splash": {"activo": false, "titulo": "Vision Beauty", "sub": "Siempre linda", "seg": 2.4}, "anuncio": {"activo": false, "texto": ""}, "destacados": {"activo": true, "titulo": "Destacados", "seg": 10, "auto": true, "items": [{"id": 6, "t": "Un detalle dulce con fresa"}, {"id": 10, "t": "Frutas y corazones para tu día a día"}, {"id": 56, "t": "Perlas de aire clásico y elegante"}, {"id": 31, "t": "Cadena con dije y aretes a juego"}, {"id": 64, "t": "Para lucir al cuello"}]}};
 const CATEGORIAS = ["Cadenas con dije", "Frutas y corazones", "Juegos", "Perlas", "Chokers", "Dijes", "Aretes tejidos", "Pulseras", "Anillos", "Collares tejidos"];
 const PRODUCTOS = [
 {"id":1,"n":"Cadenas con dije 01","c":"Cadenas con dije","p":25000,"i":"img/a02_01.jpg","d":"Cadena delicada con dije, ideal para lucir sola o combinada con otras. Un detalle sencillo para tu día a día."},
-{"id":2,"n":"Cadenas con dije 02","c":"Cadenas con dije","p":null,"i":"img/a02_02.jpg","d":"Cadena delicada con dije, ideal para lucir sola o combinada con otras. Un detalle sencillo para tu día a día."},
-{"id":3,"n":"Cadenas con dije 03","c":"Cadenas con dije","p":null,"i":"img/a02_03.jpg","d":"Cadena delicada con dije, ideal para lucir sola o combinada con otras. Un detalle sencillo para tu día a día."},
+{"id":2,"n":"Cadenas con dije 02","c":"Cadenas con dije","p":25000,"i":"img/a02_02.jpg","d":"Cadena delicada con dije, ideal para lucir sola o combinada con otras. Un detalle sencillo para tu día a día."},
+{"id":3,"n":"Cadenas con dije 03","c":"Cadenas con dije","p":25000,"i":"img/a02_03.jpg","d":"Cadena delicada con dije, ideal para lucir sola o combinada con otras. Un detalle sencillo para tu día a día."},
 {"id":4,"n":"Cadenas con dije 04","c":"Cadenas con dije","p":20000,"i":"img/a02_04.jpg","d":"Cadena delicada con dije, ideal para lucir sola o combinada con otras. Un detalle sencillo para tu día a día."},
 {"id":5,"n":"Cadenas con dije 05","c":"Cadenas con dije","p":25000,"i":"img/a02_05.jpg","d":"Cadena delicada con dije, ideal para lucir sola o combinada con otras. Un detalle sencillo para tu día a día."},
 {"id":6,"n":"Cadenas con dije 06","c":"Cadenas con dije","p":40000,"i":"img/a02_06.jpg","d":"Cadena delicada con dije, ideal para lucir sola o combinada con otras. Un detalle sencillo para tu día a día."},

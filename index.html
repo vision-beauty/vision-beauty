@@ -120,6 +120,33 @@ footer a{color:var(--gold2)}
 #splash .sp{width:60px;height:1px;background:var(--gold);margin:18px auto 0;animation:spl 1.6s .4s both}
 @keyframes spin{from{opacity:0;transform:translateY(16px);letter-spacing:.4em}to{opacity:1;transform:none}}
 @keyframes spl{from{width:0}to{width:60px}}
+.hero{padding:56px 22px 46px}
+.dest{max-width:940px;margin:0 auto;padding:44px 14px 8px}
+.dest>h2{text-align:center;font-size:2.2rem;font-weight:400}
+.dest>.line{width:50px;height:1px;background:var(--gold);margin:12px auto 22px}
+.dview{overflow:hidden;border:1px solid var(--line);background:#fff;touch-action:pan-y}
+.dtrack{display:flex;transition:transform .7s cubic-bezier(.5,0,.2,1)}
+.dslide{flex:0 0 100%;min-width:0;display:grid;grid-template-columns:1fr}
+@media(min-width:760px){.dslide{grid-template-columns:1.05fr 1fr}.dpic{aspect-ratio:5/6}}
+.dpic{position:relative;aspect-ratio:1/1;background:var(--sand);overflow:hidden;cursor:zoom-in}
+.dpic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dslide.soldout .dpic img{filter:grayscale(.9);opacity:.55}
+.darr{position:absolute;top:50%;margin-top:-22px;width:44px;height:44px;border-radius:50%;border:1px solid var(--gold);background:rgba(250,245,238,.92);color:var(--gold2);font-size:1.5rem;line-height:1;cursor:pointer;z-index:3;display:flex;align-items:center;justify-content:center;transition:.25s;padding:0 0 3px}
+.darr:hover{background:var(--gold2);color:#fff}
+.darr.l{left:10px}.darr.r{right:10px}
+.dtxt{padding:22px 22px 26px;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.dtxt .dcat{font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold2)}
+.dtxt h3{font-size:1.75rem;line-height:1.1;cursor:pointer}
+.dtxt .dfrase{color:var(--mut);margin:4px auto 8px;max-width:360px}
+.dtxt .price{font-size:1.7rem}
+.dtxt .ask{font-size:.95rem}
+.dtxt .add{max-width:320px;margin:10px auto 0}
+.dmore{background:none;border:0;margin-top:10px;font-family:'Jost';font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold2);cursor:pointer;text-decoration:underline;text-underline-offset:4px}
+.dbar{height:2px;background:var(--line)}
+.dbar i{display:block;height:100%;width:0;background:var(--gold)}
+.ddots{display:flex;justify-content:center;gap:8px;margin-top:14px}
+.ddots button{width:8px;height:8px;border-radius:4px;border:0;background:var(--line);padding:0;cursor:pointer;transition:.3s}
+.ddots button.on{width:26px;background:var(--gold)}
 </style>
 </head>
 <body>
@@ -141,6 +168,13 @@ footer a{color:var(--gold2)}
   <h1>Vision<br>Beauty<em>Siempre linda</em></h1>
   <p>Cadenas, collares y tejidos hechos a mano. Detalles que te hacen brillar todos los días.</p>
   <a class="cta" href="#catalogo">Ver colección</a>
+</section>
+
+<section class="dest" id="destacados" style="display:none" aria-label="Productos destacados">
+  <h2 id="dTit">Destacados</h2>
+  <div class="line"></div>
+  <div class="dview" id="dView"><div class="dtrack" id="dTrack"></div><div class="dbar"><i id="dBar"></i></div></div>
+  <div class="ddots" id="dDots"></div>
 </section>
 
 <div class="perks">
@@ -318,6 +352,45 @@ function closeCart(){$("panel").classList.remove("open");}
 $("nombre").addEventListener("input",render);
 $("dir").addEventListener("input",render);
 filtros();lista();render();
+
+/* carrusel de destacados */
+(function(){
+  const D = AJ.destacados; if(!D || !D.activo) return;
+  const it = (D.items||[]).map(x=>({p:PRODUCTOS.find(y=>y.id===x.id), t:x.t||""})).filter(x=>x.p && !x.p.h);
+  if(!it.length) return;
+  const n = it.length, seg = Math.min(60, Math.max(3, Number(D.seg)||10)), auto = D.auto!==false && n>1;
+  $("dTit").textContent = D.titulo || "Destacados"; $("destacados").style.display = "block";
+  const flechas = n>1 ? '<button class="darr l" aria-label="Anterior" onclick="event.stopPropagation();dGo(-1)">‹</button><button class="darr r" aria-label="Siguiente" onclick="event.stopPropagation();dGo(1)">›</button>' : '';
+  $("dTrack").innerHTML = it.map((x,i)=>{ const p=x.p, fr=x.t||p.d||"";
+    return '<article class="dslide'+(p.a?' soldout':'')+'">'
+      +'<div class="dpic" onclick="abrirM('+p.id+')"><img src="'+esc(p.i)+'" alt="'+esc(p.n)+'"'+(i?' loading="lazy"':'')+'>'+badges(p)+flechas+'</div>'
+      +'<div class="dtxt"><div class="dcat">'+esc(p.c)+'</div><h3 onclick="abrirM('+p.id+')">'+esc(p.n)+'</h3>'
+      +(fr?'<p class="dfrase">'+esc(fr)+'</p>':'')+precioHtml(p)+accion(p,true)
+      +'<button class="dmore" onclick="abrirM('+p.id+')">Ver detalle</button></div></article>'; }).join("");
+  $("dDots").innerHTML = n>1 ? it.map((x,i)=>'<button aria-label="Ir al destacado '+(i+1)+'" onclick="dSet('+i+')"></button>').join("") : "";
+  const slides = $("dTrack").children, dots = $("dDots").children, bar = $("dBar");
+  let cur = 0, tm = null, hover = false, vis = true;
+  function restart(){
+    clearTimeout(tm); bar.style.transition = "none"; bar.style.width = "0";
+    if(!auto || hover || !vis || document.hidden) return;
+    void bar.offsetWidth; bar.style.transition = "width "+seg+"s linear"; bar.style.width = "100%";
+    tm = setTimeout(()=>show(cur+1), seg*1000);
+  }
+  function show(i){
+    cur = (i+n)%n; $("dTrack").style.transform = "translateX(-"+(cur*100)+"%)";
+    for(let k=0;k<n;k++){ if(dots[k]) dots[k].classList.toggle("on",k===cur); if(k===cur) slides[k].removeAttribute("inert"); else slides[k].setAttribute("inert",""); }
+    restart();
+  }
+  window.dGo = d => show(cur+d); window.dSet = i => show(i);
+  const v = $("dView");
+  v.addEventListener("pointerenter",e=>{ if(e.pointerType==="mouse"){ hover=true; restart(); } });
+  v.addEventListener("pointerleave",e=>{ if(e.pointerType==="mouse"){ hover=false; restart(); } });
+  let sx=null; v.addEventListener("touchstart",e=>{ sx=e.touches[0].clientX; },{passive:true});
+  v.addEventListener("touchend",e=>{ if(sx===null) return; const dx=e.changedTouches[0].clientX-sx; sx=null; if(Math.abs(dx)>50 && n>1) show(cur+(dx<0?1:-1)); });
+  document.addEventListener("visibilitychange",restart);
+  if("IntersectionObserver" in window) new IntersectionObserver(es=>{ vis=es[0].isIntersecting; restart(); },{threshold:.2}).observe($("destacados"));
+  show(0);
+})();
 </script>
 </body>
 </html>
