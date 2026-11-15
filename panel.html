@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; frame-src about: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="vb-v" content="11">
+<meta name="vb-v" content="12">
 <title>Panel privado · Vision Beauty</title>
 <style>
 :root{--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--ok:#1f8a4c;--bad:#b3402e}
@@ -370,11 +370,13 @@ body.owner #admBox{display:none!important}
           <p class="small" id="admTxt"></p>
           <input id="adm_pw" type="password" placeholder="Clave de administrador" autocomplete="off" style="margin-top:8px">
           <input id="adm_pw2" type="password" placeholder="Repite la clave" autocomplete="off" style="margin-top:8px;display:none">
+          <input id="adm_fr" placeholder="Frase de recuperación (ej: tu nombre completo)" autocomplete="off" style="margin-top:8px;display:none">
+          <p class="small" id="adm_frh" style="display:none;margin-top:4px">Si algún día olvidas la clave, escribirás esta frase para crear otra. No importa si usas mayúsculas o minúsculas.</p>
           <button class="btn gold" id="adm_go" style="width:100%;margin-top:8px" onclick="admEntrar()">Abrir</button>
           <button class="btn sm line" id="adm_olv" style="margin-top:8px;display:none" onclick="$('admRec').style.display='block'">Olvidé mi clave</button>
           <div id="admRec" style="display:none;margin-top:10px">
-            <p class="small">Escribe el código de recuperación que te di al crear tu clave y elige una clave nueva.</p>
-            <input id="rc_code" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" autocapitalize="characters" autocomplete="off" style="margin-top:6px">
+            <p class="small">Escribe tu frase de recuperación (la que pusiste al crear tu clave) y elige una clave nueva.</p>
+            <input id="rc_code" placeholder="Tu frase de recuperación" autocomplete="off" style="margin-top:6px">
             <input id="rc_pw" type="password" placeholder="Clave nueva" autocomplete="off" style="margin-top:6px">
             <input id="rc_pw2" type="password" placeholder="Repite la clave nueva" autocomplete="off" style="margin-top:6px">
             <button class="btn" style="width:100%;margin-top:8px" onclick="admReset()">Restablecer mi clave</button>
@@ -382,11 +384,6 @@ body.owner #admBox{display:none!important}
           <div class="msg badc" id="adm_m"></div>
         </div>
         <div id="admBody" style="display:none">
-        <div class="card" id="admCode" style="display:none;border-color:var(--gold)"><h2>🔑 Tu código de recuperación</h2>
-          <p class="small">Guárdalo en un lugar seguro (por ejemplo en tu WhatsApp o en papel). Si olvidas tu clave de administrador, este código te deja crear otra. <b>No se vuelve a mostrar.</b></p>
-          <div id="admCodeTxt" style="font-family:monospace;font-size:1.15rem;font-weight:700;letter-spacing:.06em;background:var(--sand);border-radius:10px;padding:12px;text-align:center;margin:8px 0;word-break:break-all"></div>
-          <div class="row2"><button class="btn line" onclick="admCopiarCodigo()">Copiar</button><button class="btn" onclick="$('admCode').style.display='none'">Ya lo guardé</button></div>
-        </div>
         <div class="card"><h2>Conectar con GitHub</h2>
           <p class="small">Solo se guarda en este celular o computador. Nunca se publica.</p>
           <div class="row2"><div><label class="l">Usuario de GitHub</label><input id="g_o" autocapitalize="off" autocomplete="off"></div>
@@ -1090,38 +1087,36 @@ async function claveAES(pw,salt){ const k=await crypto.subtle.importKey('raw',TE
 async function hashPw(pw,salt){ const k=await crypto.subtle.importKey('raw',TE.encode(pw),'PBKDF2',false,['deriveBits']); return toB64(await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:ITER,hash:'SHA-256'},k,256)); }
 async function cifrar(obj,pw){ const salt=rnd(16), iv=rnd(12), key=await claveAES(pw,salt); const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,TE.encode(JSON.stringify(obj))); return urlB(toB64(salt)+'.'+toB64(iv)+'.'+toB64(ct)); }
 async function descifrar(blob,pw){ const [s,i,c]=unUrlB(blob).split('.'); const key=await claveAES(pw,fromB64(s)); const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:fromB64(i)},key,fromB64(c)); return JSON.parse(TD.decode(pt)); }
-const normCode=c=>String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-function genCode(){ const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r=rnd(20); let s=''; for(let i=0;i<20;i++){ s+=A[r[i]%A.length]; if(i%5===4&&i<19) s+='-'; } return s; }
+const normCode=c=>String(c||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9ñ]/g,'');
 const ADM=()=>{ try{ return JSON.parse(localStorage.getItem('vb_adm')||'null'); }catch(e){ return null; } };
 const mA=t=>{ $('adm_m').textContent=t||''; };
 function admVista(){
   const a=ADM(), ab=sessionStorage.getItem('vb_adm')==='1';
   $('admLock').style.display=ab?'none':'block'; $('admBody').style.display=ab?'block':'none';
-  $('adm_pw2').style.display=a?'none':'block'; $('adm_go').textContent=a?'Abrir':'Crear mi clave de administrador'; $('adm_olv').style.display=a?'inline-block':'none';
-  $('admTxt').textContent=a?'Esta zona es solo para ti. Escribe tu clave de administrador.':'Esta zona es solo para ti (administrador). Crea una clave para protegerla. Después te daré un código de recuperación.';
+  $('adm_pw2').style.display=a?'none':'block'; $('adm_fr').style.display=a?'none':'block'; $('adm_frh').style.display=a?'none':'block'; $('adm_go').textContent=a?'Abrir':'Crear mi clave de administrador'; $('adm_olv').style.display=a?'inline-block':'none';
+  $('admTxt').textContent=a?'Esta zona es solo para ti. Escribe tu clave de administrador.':'Esta zona es solo para ti (administrador). Crea una clave para protegerla y una frase de recuperación por si la olvidas.';
 }
-async function admNueva(pw){
-  const s=rnd(16), rs=rnd(16), code=genCode();
-  localStorage.setItem('vb_adm',JSON.stringify({s:toB64(s),h:await hashPw(pw,s),rs:toB64(rs),rh:await hashPw(normCode(code),rs)}));
-  sessionStorage.setItem('vb_adm','1'); $('admCodeTxt').textContent=code; $('admCode').style.display='block';
+async function admNueva(pw,frase){
+  const s=rnd(16), rs=rnd(16);
+  localStorage.setItem('vb_adm',JSON.stringify({s:toB64(s),h:await hashPw(pw,s),rs:toB64(rs),rh:await hashPw(normCode(frase),rs)}));
+  sessionStorage.setItem('vb_adm','1');
 }
 async function admEntrar(){
   mA(''); const pw=$('adm_pw').value, a=ADM();
   try{
-    if(!a){ if(pw.length<6) return mA('La clave debe tener mínimo 6 caracteres.'); if(pw!==$('adm_pw2').value) return mA('Las dos claves no son iguales.'); mA('Creando…'); await admNueva(pw); mA(''); }
+    if(!a){ if(pw.length<6) return mA('La clave debe tener mínimo 6 caracteres.'); if(pw!==$('adm_pw2').value) return mA('Las dos claves no son iguales.'); if(normCode($('adm_fr').value).length<6) return mA('La frase de recuperación debe tener mínimo 6 letras (por ejemplo tu nombre completo).'); mA('Creando…'); await admNueva(pw,$('adm_fr').value); mA(''); }
     else { mA('Revisando…'); const h=await hashPw(pw,fromB64(a.s)); if(h!==a.h) return mA('Clave incorrecta.'); sessionStorage.setItem('vb_adm','1'); mA(''); }
-    $('adm_pw').value=''; $('adm_pw2').value=''; admVista();
+    $('adm_pw').value=''; $('adm_pw2').value=''; $('adm_fr').value=''; admVista();
   }catch(e){ mA('No se pudo. Abre el panel desde tu página segura (https).'); }
 }
 async function admReset(){
   const a=ADM(); mA(''); if(!a) return;
   const pw=$('rc_pw').value; if(pw.length<6) return mA('La clave nueva debe tener mínimo 6 caracteres.'); if(pw!==$('rc_pw2').value) return mA('Las dos claves no son iguales.');
-  try{ const h=await hashPw(normCode($('rc_code').value),fromB64(a.rs)); if(h!==a.rh) return mA('Ese código de recuperación no es correcto.');
-    await admNueva(pw); ['rc_code','rc_pw','rc_pw2'].forEach(i=>$(i).value=''); $('admRec').style.display='none'; admVista();
+  try{ const h=await hashPw(normCode($('rc_code').value),fromB64(a.rs)); if(h!==a.rh) return mA('Esa frase de recuperación no es correcta.');
+    await admNueva(pw,$('rc_code').value); ['rc_code','rc_pw','rc_pw2'].forEach(i=>$(i).value=''); $('admRec').style.display='none'; admVista();
   }catch(e){ mA('No se pudo restablecer.'); }
 }
 function admCerrar(){ sessionStorage.removeItem('vb_adm'); admVista(); }
-async function admCopiarCodigo(){ try{ await navigator.clipboard.writeText($('admCodeTxt').textContent); }catch(e){} }
 const mI=t=>{ $('inv_m').textContent=t||''; };
 async function invCrear(){
   mI(''); const c=cfg(), pw=$('inv_pw').value.trim();
