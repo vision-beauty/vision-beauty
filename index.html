@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="vb-v" content="28">
+<meta name="vb-v" content="29">
 <title>Vision Beauty · Siempre linda</title>
+<link rel="icon" type="image/png" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
@@ -188,8 +190,9 @@ footer a{color:var(--gold2)}
 .social a{border:1px solid var(--line);padding:9px 18px;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);text-decoration:none;transition:.2s}
 .social a:hover{border-color:var(--gold2);color:var(--gold2)}
 
-.logo img{display:block;margin:0 auto;max-height:42px;max-width:170px;width:auto;height:auto}
-footer .logo img{max-height:56px}
+.logo img{display:block;margin:0 auto;max-height:64px;max-width:190px;width:auto;height:auto}
+footer .logo img{max-height:150px;max-width:220px}
+#splash .sl img{display:block;margin:0 auto;width:min(72vw,360px);height:auto}
 .tools{max-width:1100px;margin:0 auto 26px;padding:0 4px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tools input{grid-column:1/-1}
 .tools input,.tools select{font-family:inherit;font-size:.88rem;font-weight:300;padding:12px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:0;width:100%}
@@ -441,6 +444,7 @@ if(AJ.anuncio && AJ.anuncio.activo && AJ.anuncio.texto){ $("ann").textContent = 
   if(window.__SIN_SPLASH===true) return;
   if(visto && !forzar) return;
   $("slT").textContent = s.titulo || TIENDA.nombre; $("slS").textContent = s.sub || "";
+  const LG=String(TIENDA.logo||"").trim(); if(/^img\/[\w.\-]+$/.test(LG)){ const im=new Image(); im.src=LG; im.alt=TIENDA.nombre||"Vision Beauty"; $("slT").textContent=""; $("slT").appendChild(im); $("slT").style.letterSpacing="0"; document.querySelector("#splash .sp").style.display="none"; }
   const el = $("splash"); el.style.display="flex"; document.body.style.overflow="hidden";
   setTimeout(()=>{ el.classList.add("out"); document.body.style.overflow=""; setTimeout(()=>{el.style.display="none"},950); }, (s.seg||2.4)*1000);
   try{ sessionStorage.setItem("vb_splash","1"); }catch(e){}
