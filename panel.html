@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; frame-src about: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="vb-v" content="33">
+<meta name="vb-v" content="34">
 <title>Panel privado · Vision Beauty</title>
 <style>
 :root{--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--ok:#1f8a4c;--bad:#b3402e}
@@ -390,6 +390,10 @@ body.owner #rf_cfg{display:none!important}
           <div class="sw"><input type="checkbox" id="bn_on" onchange="bnSet('activo',this.checked)"><label for="bn_on">Mostrar el banner</label></div>
           <label class="l">Escoger una temporada (llena todo, luego lo puedes cambiar)</label>
           <div id="bn_pre" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:6px"></div>
+          <div style="padding:10px 0;border-top:1px solid var(--line);margin-top:8px"><label class="l" style="margin-top:0">Estilo de la temporada (colores y adornos que caen)</label>
+          <select id="bn_tema" onchange="bnSet('tema',this.value)"><option value="">Ninguno</option><option value="navidad">🎄 Navidad (nieve)</option><option value="amor">💕 Amor y Amistad (corazones)</option><option value="madre">🌷 Día de la Madre (flores)</option><option value="black">🖤 Black Friday (destellos)</option><option value="halloween">🎃 Halloween (calabazas)</option><option value="nueva">✨ Nueva colección (brillos)</option></select>
+          <div class="sw" style="margin-top:8px"><input type="checkbox" id="bn_ef" onchange="bnSet('efecto',this.checked)"><label for="bn_ef">Cambiar también el estilo de toda la tienda</label></div>
+          <p class="small">Cambia los colores de los botones y pone adornos suaves que caen. Quita el check y queda solo el banner. Solo funciona si el banner está prendido.</p></div>
           <label class="l">Título</label><input id="bn_t" maxlength="60" oninput="bnSet('texto',this.value)">
           <label class="l">Frase de abajo</label><input id="bn_s" maxlength="120" oninput="bnSet('sub',this.value)">
           <label class="l">Texto del botón (vacío = sin botón)</label><input id="bn_b" maxlength="24" oninput="bnSet('boton',this.value)">
@@ -1133,7 +1137,7 @@ function pmPrev(){
 
 /* ---------- estilo ---------- */
 const ES_DEF={aros:true,destellos:true,script:true,sep:true,marco:true,zoom:true,foto2:true,radio:'suave',formato:'vertical',oscuro:false};
-const BN_DEF={activo:false,texto:'',sub:'',boton:'Ver colección',ir:'catalogo',fondo:'#c62828',letra:'#fff8e1'};
+const BN_DEF={activo:false,texto:'',sub:'',boton:'Ver colección',ir:'catalogo',fondo:'#c62828',letra:'#fff8e1',tema:'',efecto:true};
 const ES_INFO=[
  ['aros','Aros dorados en la portada','Dos círculos finos detrás del título que giran muy despacio, como en tu logo',1],
  ['destellos','Destellos dorados','Puntitos de brillo que aparecen y se apagan en la portada',1],
@@ -1144,12 +1148,12 @@ const ES_INFO=[
  ['foto2','Segunda foto','Muestra la segunda foto del producto (botón con flechas en la tarjeta y miniaturas al abrirlo)',2],
  ['oscuro','Modo oscuro (negro y dorado)','Cambia toda la tienda a fondo oscuro. Mira bien la vista previa antes de publicar',3]];
 const BN_PRE=[
- {n:'🎄 Navidad',t:'Feliz Navidad',s:'Regala brillo estas fiestas',f:'#b3261e',l:'#fff6dc'},
- {n:'💕 Amor y Amistad',t:'Amor y Amistad',s:'Detalles lindos para quien más quieres',f:'#d6338a',l:'#fff5fa'},
- {n:'🌷 Día de la Madre',t:'Para mamá',s:'Un detalle que dice gracias',f:'#e5533d',l:'#fff6f1'},
- {n:'🖤 Black Friday',t:'Black Friday',s:'Descuentos solo por pocos días',f:'#15110e',l:'#e4c57f'},
- {n:'🎃 Halloween',t:'Dulce o truco',s:'Accesorios con mucho estilo',f:'#e0701f',l:'#1c1c1c'},
- {n:'✨ Nueva colección',t:'Nueva colección',s:'Ya llegaron los nuevos modelos',f:'#b08d57',l:'#ffffff'}];
+ {k:'navidad',n:'🎄 Navidad',t:'Feliz Navidad',s:'Regala brillo estas fiestas',f:'#b3261e',l:'#fff6dc'},
+ {k:'amor',n:'💕 Amor y Amistad',t:'Amor y Amistad',s:'Detalles lindos para quien más quieres',f:'#d6338a',l:'#fff5fa'},
+ {k:'madre',n:'🌷 Día de la Madre',t:'Para mamá',s:'Un detalle que dice gracias',f:'#e5533d',l:'#fff6f1'},
+ {k:'black',n:'🖤 Black Friday',t:'Black Friday',s:'Descuentos solo por pocos días',f:'#15110e',l:'#e4c57f'},
+ {k:'halloween',n:'🎃 Halloween',t:'Dulce o truco',s:'Accesorios con mucho estilo',f:'#e0701f',l:'#1c1c1c'},
+ {k:'nueva',n:'✨ Nueva colección',t:'Nueva colección',s:'Ya llegaron los nuevos modelos',f:'#b08d57',l:'#ffffff'}];
 const ESA=()=>{ if(!S.ajustes.estilo||typeof S.ajustes.estilo!=='object') S.ajustes.estilo=Object.assign({},ES_DEF); return S.ajustes.estilo; };
 const BNA=()=>{ if(!S.ajustes.banner||typeof S.ajustes.banner!=='object') S.ajustes.banner=Object.assign({},BN_DEF); return S.ajustes.banner; };
 const bnV=k=>BNA()[k==='bn_fondo'?'fondo':'letra']||BN_DEF[k==='bn_fondo'?'fondo':'letra'];
@@ -1161,12 +1165,12 @@ function renderEstilo(){
   [1,2,3].forEach(g=>{ $('es_sw'+g).innerHTML=ES_INFO.filter(x=>x[3]===g).map(([k,t,d])=>`<div style="padding:10px 0;border-top:1px solid var(--line)"><div class="sw"><input type="checkbox" id="es_${k}" ${E[k]?'checked':''} onchange="esSet('${k}',this.checked)"><label for="es_${k}"><b>${t}</b></label></div><div class="small" style="margin-left:2px">${d}</div></div>`).join(''); });
   $('es_fmt').value=E.formato; $('es_rad').value=E.radio;
   const B=Object.assign({},BN_DEF,BNA());
-  $('bn_on').checked=!!B.activo; $('bn_t').value=B.texto||''; $('bn_s').value=B.sub||''; $('bn_b').value=B.boton||''; $('bn_ir').value=B.ir||'catalogo';
+  $('bn_on').checked=!!B.activo; $('bn_tema').value=B.tema||''; $('bn_ef').checked=B.efecto!==false; $('bn_t').value=B.texto||''; $('bn_s').value=B.sub||''; $('bn_b').value=B.boton||''; $('bn_ir').value=B.ir||'catalogo';
   $('co_sw_bn_fondo').style.background=B.fondo; $('co_sw_bn_letra').style.background=B.letra;
   $('bn_pre').innerHTML=BN_PRE.map((x,i)=>`<button class="btn line" style="padding:10px;text-align:left" onclick="bnPre(${i})">${x.n}</button>`).join('');
   bnMini();
 }
-function bnPre(i){ const x=BN_PRE[i], B=BNA(); Object.assign(B,{activo:true,texto:x.t,sub:x.s,fondo:x.f,letra:x.l}); if(!B.boton) B.boton='Ver colección'; renderEstilo(); cambio(); }
+function bnPre(i){ const x=BN_PRE[i], B=BNA(); Object.assign(B,{activo:true,texto:x.t,sub:x.s,fondo:x.f,letra:x.l,tema:x.k,efecto:true}); if(!B.boton) B.boton='Ver colección'; renderEstilo(); cambio(); }
 function bnMini(){
   const B=Object.assign({},BN_DEF,BNA()); if(!$('bn_mini')) return;
   $('bn_mini').innerHTML=`<div style="background:${B.fondo};color:${B.letra};padding:22px 14px;text-align:center;border-radius:10px"><div style="font-family:'Cormorant Garamond',serif;font-size:26px;line-height:1.1">${esc(B.texto||'Título del banner')}</div><div style="font-size:13px;margin-top:6px;opacity:.92">${esc(B.sub||'')}</div>${B.boton?`<div style="display:inline-block;margin-top:12px;padding:9px 20px;border:1px solid ${B.letra};font-size:11px;letter-spacing:.2em;text-transform:uppercase">${esc(B.boton)}</div>`:''}</div>${coRatio(B.fondo,B.letra)<3?'<div class="small" style="color:#a32d2d;margin-top:6px">⚠ Las letras casi no se leen sobre ese color.</div>':''}`;
