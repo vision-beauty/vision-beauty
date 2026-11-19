@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; frame-src about: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="vb-v" content="29">
+<meta name="vb-v" content="30">
 <title>Panel privado · Vision Beauty</title>
 <style>
 :root{--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--ok:#1f8a4c;--bad:#b3402e}
@@ -188,6 +188,7 @@ body.owner #rf_cfg{display:none!important}
   <button data-t="ayuda">🙋 Ayuda al cliente</button>
   <button data-t="cupones">🎟️ Códigos promocionales</button>
   <button data-t="cat">🗂️ Categorías</button>
+  <button data-t="estilo">✨ Estilo</button>
   <button data-t="colores">🎨 Colores</button>
   <button data-t="tienda">🏪 Tienda y avisos</button>
   <hr>
@@ -346,6 +347,40 @@ body.owner #rf_cfg{display:none!important}
         </div>
         <div class="card"><h2 id="c_cnt">Códigos</h2><div id="c_list"></div>
           <button class="btn gold" style="width:100%;margin-top:6px" onclick="cAdd()">+ Crear código</button></div>
+      </section>
+
+      <!-- ESTILO -->
+      <section class="pane" id="p_estilo">
+        <div class="card"><h2>Detalles de brillo</h2>
+          <p class="small">Prende o apaga cada cosa. Lo ves en la <b>Vista previa</b> antes de publicar.</p>
+          <div id="es_sw1"></div>
+        </div>
+        <div class="card"><h2>Fotos de los productos</h2>
+          <div id="es_sw2"></div>
+          <label class="l">Forma de las fotos</label>
+          <select id="es_fmt" onchange="esSet('formato',this.value)"><option value="vertical">Vertical (la de ahora)</option><option value="cuadrada">Cuadrada</option><option value="alta">Un poco más alta</option></select>
+          <label class="l">Esquinas</label>
+          <select id="es_rad" onchange="esSet('radio',this.value)"><option value="ninguno">Rectas</option><option value="suave">Suavemente redondeadas</option><option value="redondo">Bien redondeadas</option></select>
+          <p class="small" style="margin-top:10px">La 2ª foto de cada producto se sube en <b>Productos → Editar → Agregar 2ª foto</b>. Si no la tiene, no pasa nada.</p>
+        </div>
+        <div class="card"><h2>Modo oscuro</h2>
+          <p class="small">Toda la tienda en negro con dorado. Con el modo oscuro, el fondo y las letras los pone el modo; el dorado, la etiqueta Oferta y WhatsApp siguen tus colores. Las demás paletas no se usan mientras esté prendido.</p>
+          <div id="es_sw3"></div>
+        </div>
+        <div class="card"><h2>Banner de temporada</h2>
+          <p class="small">Una franja grande debajo de la portada, para Navidad, Amor y Amistad, etc.</p>
+          <div class="sw"><input type="checkbox" id="bn_on" onchange="bnSet('activo',this.checked)"><label for="bn_on">Mostrar el banner</label></div>
+          <label class="l">Escoger una temporada (llena todo, luego lo puedes cambiar)</label>
+          <div id="bn_pre" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:6px"></div>
+          <label class="l">Título</label><input id="bn_t" maxlength="60" oninput="bnSet('texto',this.value)">
+          <label class="l">Frase de abajo</label><input id="bn_s" maxlength="120" oninput="bnSet('sub',this.value)">
+          <label class="l">Texto del botón (vacío = sin botón)</label><input id="bn_b" maxlength="24" oninput="bnSet('boton',this.value)">
+          <label class="l">El botón lleva a</label>
+          <select id="bn_ir" onchange="bnSet('ir',this.value)"><option value="catalogo">La colección</option><option value="wa">Un mensaje de WhatsApp</option></select>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:12px"><button id="co_sw_bn_fondo" onclick="coEdit('bn_fondo')" style="width:56px;height:44px;border-radius:8px;border:1px solid rgba(0,0,0,.25);flex:none;cursor:pointer"></button><div><b>Color del banner</b></div></div><div id="co_ed_bn_fondo"></div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:12px"><button id="co_sw_bn_letra" onclick="coEdit('bn_letra')" style="width:56px;height:44px;border-radius:8px;border:1px solid rgba(0,0,0,.25);flex:none;cursor:pointer"></button><div><b>Color de las letras</b></div></div><div id="co_ed_bn_letra"></div>
+          <div id="bn_mini" style="margin-top:12px"></div>
+        </div>
       </section>
 
       <!-- COLORES -->
@@ -581,7 +616,8 @@ function normNuevos(aj,src){ src=src||{};
   aj.ayuda=Object.assign(defAyuda(),src.ayuda||{}); if(!Array.isArray(aj.ayuda.opciones)) aj.ayuda.opciones=defAyuda().opciones;
   aj.cupones=Object.assign(defCup(),src.cupones||{}); if(!Array.isArray(aj.cupones.items)) aj.cupones.items=[];
   aj.analitica=Object.assign({ga:''},src.analitica||{});
-  aj.colores=(src.colores&&typeof src.colores==='object'&&!Array.isArray(src.colores))?Object.assign({},src.colores):{}; return aj; }
+  aj.colores=(src.colores&&typeof src.colores==='object'&&!Array.isArray(src.colores))?Object.assign({},src.colores):{}; aj.estilo=Object.assign({},ES_DEF,(src.estilo&&typeof src.estilo==='object')?src.estilo:{});
+  aj.banner=Object.assign({},BN_DEF,(src.banner&&typeof src.banner==='object')?src.banner:{}); return aj; }
 const defAj = () => normNuevos({splash:{activo:false,titulo:'Vision Beauty',sub:'Siempre linda',seg:2.4},anuncio:{activo:false,texto:''},destacados:defDest(),inventario:{umbral:3},info:defInfoAj(),mensajes:defMsg()});
 
 /* ---------- leer lo publicado ---------- */
@@ -723,6 +759,12 @@ async function publicar(){
       if(!r.ok) throw r;
       thumbs[nombre]=p.i; p.i=nombre;
     }
+    for(const p of S.productos.filter(p=>p.i2&&p.i2.startsWith('data:'))){
+      const nombre='img/n'+Date.now().toString(36)+'_'+p.id+'b.jpg';
+      const r=await gh(nombre,{method:'PUT',body:{message:'Segunda foto desde el panel',content:p.i2.split(',')[1],branch:c.branch}});
+      if(!r.ok) throw r;
+      thumbs[nombre]=p.i2; p.i2=nombre;
+    }
     if(S.tienda.logo&&S.tienda.logo.startsWith('data:')){
       msgG('Subiendo logo…',true,45);
       const ln='img/logo_'+Date.now().toString(36)+'.png';
@@ -805,6 +847,7 @@ function lista(){
         <label class="l">Categoría</label><select onchange="ed(${p.id},'c',this.value)">${S.categorias.map(c=>`<option ${c===p.c?'selected':''}>${esc(c)}</option>`).join('')}</select>
         <label class="l">Descripción</label><textarea style="height:70px" oninput="ed(${p.id},'d',this.value)">${esc(p.d||'')}</textarea>
         <label class="pick" style="margin-top:8px;padding:9px">📷 Cambiar foto<input type="file" accept="image/*" style="display:none" onchange="cambiarFoto(${p.id},this)"></label>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:8px">${p.i2?`<img src="${esc(th(p.i2))}" alt="" style="width:46px;height:46px;object-fit:cover;border-radius:6px;border:1px solid var(--line)">`:''}<label class="pick" style="flex:1;padding:9px;margin:0">📷 ${p.i2?'Cambiar 2ª foto':'Agregar 2ª foto'}<input type="file" accept="image/*" style="display:none" onchange="cambiarFoto2(${p.id},this)"></label>${p.i2?`<button class="btn sm line" onclick="quitarFoto2(${p.id})">Quitar</button>`:''}</div>
         <div class="mv">
           <button class="btn sm line" onclick="mover(${p.id},-1)">↑ Subir</button>
           <button class="btn sm line" onclick="mover(${p.id},1)">↓ Bajar</button>
@@ -864,6 +907,8 @@ function procesarFoto(file,cb){
   }; im.src=r.result; };
   r.readAsDataURL(file);
 }
+function cambiarFoto2(id,inp){ const f=inp.files[0]; if(!f) return; procesarFoto(f,d=>{ prod(id).i2=d; lista(); cambio(); }); }
+function quitarFoto2(id){ delete prod(id).i2; lista(); cambio(); }
 function cambiarFoto(id,inp){ const f=inp.files[0]; if(!f) return; procesarFoto(f,d=>{ prod(id).i=d; lista(); cambio(); }); }
 
 /* ---------- producto nuevo ---------- */
@@ -895,7 +940,7 @@ function cargarAjustes(){
 function leerAjustes(){
   const lg0=S.tienda.logo; S.tienda={nombre:$('t_nombre').value.trim(),whatsapp:$('t_wa').value.replace(/\D/g,''),instagram:$('t_ig').value.replace(/^@/,'').trim(),facebook:$('t_fb').value.trim(),tiktok:$('t_tt').value.trim()}; if(lg0) S.tienda.logo=lg0;
   const seg=parseFloat(String($('s_seg').value).replace(',','.'));
-  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()},destacados:S.ajustes.destacados||defDest(),inventario:S.ajustes.inventario||{umbral:3},info:S.ajustes.info||defInfoAj(),mensajes:S.ajustes.mensajes||defMsg(),resenas:S.ajustes.resenas||defRes(),ayuda:S.ajustes.ayuda||defAyuda(),cupones:S.ajustes.cupones||defCup(),analitica:{ga:$('ga_id').value.trim()},colores:S.ajustes.colores||{}};
+  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()},destacados:S.ajustes.destacados||defDest(),inventario:S.ajustes.inventario||{umbral:3},info:S.ajustes.info||defInfoAj(),mensajes:S.ajustes.mensajes||defMsg(),resenas:S.ajustes.resenas||defRes(),ayuda:S.ajustes.ayuda||defAyuda(),cupones:S.ajustes.cupones||defCup(),analitica:{ga:$('ga_id').value.trim()},colores:S.ajustes.colores||{},estilo:S.ajustes.estilo||Object.assign({},ES_DEF),banner:S.ajustes.banner||Object.assign({},BN_DEF)};
   cambio();
 }
 ['ga_id','t_nombre','t_wa','t_ig','t_fb','t_tt','s_on','s_t','s_s','s_seg','a_on','a_t'].forEach(id=>$(id).addEventListener(id==='s_on'||id==='a_on'?'change':'input',leerAjustes));
@@ -1043,6 +1088,47 @@ $('lg_file').addEventListener('change',e=>{
 /* ---------- reseñas ---------- */
 const RES=()=>S.ajustes.resenas;
 
+/* ---------- estilo ---------- */
+const ES_DEF={aros:true,destellos:true,script:true,sep:true,marco:true,zoom:true,foto2:true,radio:'suave',formato:'vertical',oscuro:false};
+const BN_DEF={activo:false,texto:'',sub:'',boton:'Ver colección',ir:'catalogo',fondo:'#c62828',letra:'#fff8e1'};
+const ES_INFO=[
+ ['aros','Aros dorados en la portada','Dos círculos finos detrás del título que giran muy despacio, como en tu logo',1],
+ ['destellos','Destellos dorados','Puntitos de brillo que aparecen y se apagan en la portada',1],
+ ['script','Letra cursiva en los títulos','Usa una letra parecida a la del logo en "Siempre linda" y en los títulos de las secciones',1],
+ ['sep','Separadores con estrellita','Reemplaza la rayita debajo de cada título por una con estrella',1],
+ ['marco','Marco dorado y brillo','Marco fino en las fotos y un brillo que pasa al tocarlas',2],
+ ['zoom','Zoom al tocar la foto','Al abrir un producto, tocar la foto la muestra grande y se puede acercar',2],
+ ['foto2','Segunda foto','Muestra la segunda foto del producto (botón con flechas en la tarjeta y miniaturas al abrirlo)',2],
+ ['oscuro','Modo oscuro (negro y dorado)','Cambia toda la tienda a fondo oscuro. Mira bien la vista previa antes de publicar',3]];
+const BN_PRE=[
+ {n:'🎄 Navidad',t:'Feliz Navidad',s:'Regala brillo estas fiestas',f:'#b3261e',l:'#fff6dc'},
+ {n:'💕 Amor y Amistad',t:'Amor y Amistad',s:'Detalles lindos para quien más quieres',f:'#d6338a',l:'#fff5fa'},
+ {n:'🌷 Día de la Madre',t:'Para mamá',s:'Un detalle que dice gracias',f:'#e5533d',l:'#fff6f1'},
+ {n:'🖤 Black Friday',t:'Black Friday',s:'Descuentos solo por pocos días',f:'#15110e',l:'#e4c57f'},
+ {n:'🎃 Halloween',t:'Dulce o truco',s:'Accesorios con mucho estilo',f:'#e0701f',l:'#1c1c1c'},
+ {n:'✨ Nueva colección',t:'Nueva colección',s:'Ya llegaron los nuevos modelos',f:'#b08d57',l:'#ffffff'}];
+const ESA=()=>{ if(!S.ajustes.estilo||typeof S.ajustes.estilo!=='object') S.ajustes.estilo=Object.assign({},ES_DEF); return S.ajustes.estilo; };
+const BNA=()=>{ if(!S.ajustes.banner||typeof S.ajustes.banner!=='object') S.ajustes.banner=Object.assign({},BN_DEF); return S.ajustes.banner; };
+const bnV=k=>BNA()[k==='bn_fondo'?'fondo':'letra']||BN_DEF[k==='bn_fondo'?'fondo':'letra'];
+function esSet(k,v){ ESA()[k]=v; cambio(); }
+function bnSet(k,v){ BNA()[k]=v; bnMini(); cambio(); }
+function renderEstilo(){
+  if(!S||!$('es_sw1')) return;
+  const E=Object.assign({},ES_DEF,ESA());
+  [1,2,3].forEach(g=>{ $('es_sw'+g).innerHTML=ES_INFO.filter(x=>x[3]===g).map(([k,t,d])=>`<div style="padding:10px 0;border-top:1px solid var(--line)"><div class="sw"><input type="checkbox" id="es_${k}" ${E[k]?'checked':''} onchange="esSet('${k}',this.checked)"><label for="es_${k}"><b>${t}</b></label></div><div class="small" style="margin-left:2px">${d}</div></div>`).join(''); });
+  $('es_fmt').value=E.formato; $('es_rad').value=E.radio;
+  const B=Object.assign({},BN_DEF,BNA());
+  $('bn_on').checked=!!B.activo; $('bn_t').value=B.texto||''; $('bn_s').value=B.sub||''; $('bn_b').value=B.boton||''; $('bn_ir').value=B.ir||'catalogo';
+  $('co_sw_bn_fondo').style.background=B.fondo; $('co_sw_bn_letra').style.background=B.letra;
+  $('bn_pre').innerHTML=BN_PRE.map((x,i)=>`<button class="btn line" style="padding:10px;text-align:left" onclick="bnPre(${i})">${x.n}</button>`).join('');
+  bnMini();
+}
+function bnPre(i){ const x=BN_PRE[i], B=BNA(); Object.assign(B,{activo:true,texto:x.t,sub:x.s,fondo:x.f,letra:x.l}); if(!B.boton) B.boton='Ver colección'; renderEstilo(); cambio(); }
+function bnMini(){
+  const B=Object.assign({},BN_DEF,BNA()); if(!$('bn_mini')) return;
+  $('bn_mini').innerHTML=`<div style="background:${B.fondo};color:${B.letra};padding:22px 14px;text-align:center;border-radius:10px"><div style="font-family:'Cormorant Garamond',serif;font-size:26px;line-height:1.1">${esc(B.texto||'Título del banner')}</div><div style="font-size:13px;margin-top:6px;opacity:.92">${esc(B.sub||'')}</div>${B.boton?`<div style="display:inline-block;margin-top:12px;padding:9px 20px;border:1px solid ${B.letra};font-size:11px;letter-spacing:.2em;text-transform:uppercase">${esc(B.boton)}</div>`:''}</div>${coRatio(B.fondo,B.letra)<3?'<div class="small" style="color:#a32d2d;margin-top:6px">⚠ Las letras casi no se leen sobre ese color.</div>':''}`;
+}
+
 /* ---------- colores ---------- */
 let coBaseV='#b08d57', CE=null;
 const ceBtn=(t,a)=>`<button type="button" class="btn sm line" onclick="${a}" style="flex:1;min-width:0">${t}</button>`;
@@ -1050,7 +1136,7 @@ function coEdit(k){
   const host=$('co_ed_'+k); if(!host) return;
   const abrir=!(CE&&CE.k===k);
   document.querySelectorAll('[id^=co_ed_]').forEach(e=>e.innerHTML=''); CE=null; if(!abrir) return;
-  const cur=(k==='base')?coBaseV:coV(k), hs=hex2hsl(cur); CE={k:k,h:hs[0],s:hs[1],l:hs[2],orig:cur};
+  const cur=(k==='base')?coBaseV:(k.indexOf('bn_')===0?bnV(k):coV(k)), hs=hex2hsl(cur); CE={k:k,h:hs[0],s:hs[1],l:hs[2],orig:cur};
   host.innerHTML=`<div class="ce" style="margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff">
     <div style="display:flex;gap:10px;margin-bottom:10px">
       <div style="flex:1;text-align:center"><div class="small">Antes</div><div id="ce_a" style="height:44px;border-radius:8px;border:1px solid rgba(0,0,0,.2);background:${cur}"></div></div>
@@ -1067,6 +1153,7 @@ function coEdit(k){
 function coEdHex2(){ return hsl2hex(CE.h,CE.s,CE.l); }
 function coEdApply(hex){
   if(CE.k==='base'){ coBaseV=hex; const sw=$('co_sw_base'); if(sw) sw.style.background=hex; }
+  else if(CE.k.indexOf('bn_')===0){ BNA()[CE.k==='bn_fondo'?'fondo':'letra']=hex; const sw=$('co_sw_'+CE.k); if(sw) sw.style.background=hex; bnMini(); cambio(); }
   else coSet(CE.k,hex);
 }
 function coEdPaint(sliders,noHex){
@@ -1319,7 +1406,7 @@ function compacto(p){ const o={}; for(const k of Object.keys(p)){ const v=p[k]; 
 function generarJS(vista){
   const cats=S.categorias.filter(c=>S.productos.some(p=>p.c===c));
   const T=Object.assign({},S.tienda); if(vista&&T.logo&&thumbs[T.logo]) T.logo=thumbs[T.logo];
-  return 'const TIENDA = '+JSON.stringify(T)+';\nconst AJUSTES = '+JSON.stringify(S.ajustes)+';\nconst CATEGORIAS = '+JSON.stringify(cats)+';\nconst PRODUCTOS = [\n'+S.productos.map(p=>{ const q=compacto(p); if(vista&&q.i&&thumbs[q.i]) q.i=thumbs[q.i]; return JSON.stringify(q); }).join(',\n')+'\n];\n';
+  return 'const TIENDA = '+JSON.stringify(T)+';\nconst AJUSTES = '+JSON.stringify(S.ajustes)+';\nconst CATEGORIAS = '+JSON.stringify(cats)+';\nconst PRODUCTOS = [\n'+S.productos.map(p=>{ const q=compacto(p); if(vista&&q.i&&thumbs[q.i]) q.i=thumbs[q.i]; if(vista&&q.i2&&thumbs[q.i2]) q.i2=thumbs[q.i2]; return JSON.stringify(q); }).join(',\n')+'\n];\n';
 }
 async function descargar(){
   const txt=generarJS(); $('gt').value=txt; $('gm').textContent='';
@@ -1509,7 +1596,7 @@ function verSplash(){ forzar=true; if(window.innerWidth<1000) irTab('vista'); se
 function cerrar(id){ $(id).classList.remove('open'); }
 function pregunta(t,m,fn){ $('askT').textContent=t; $('askM').textContent=m; $('askOk').onclick=()=>{ cerrar('mAsk'); fn(); }; $('mAsk').classList.add('open'); }
 function resetTodo(){ pregunta('¿Descartar todos los cambios?','Vuelves a lo que está publicado en la tienda ahora mismo.',()=>{ S=clone(BASE); asegurarCats(); borrarBorrador(); todoRender(); cambio(); }); }
-const NOMBRES={inicio:'Inicio',prod:'Productos',vista:'Vista previa',dest:'Destacados',inv:'Inventario',info:'Franja de información',redes:'Redes y contacto',msg:'Mensajes de WhatsApp',resenas:'Reseñas',colores:'Colores',ayuda:'Ayuda al cliente',cupones:'Códigos promocionales',cat:'Categorías',tienda:'Tienda y avisos',pub:'Publicar'};
+const NOMBRES={inicio:'Inicio',prod:'Productos',vista:'Vista previa',dest:'Destacados',inv:'Inventario',info:'Franja de información',redes:'Redes y contacto',msg:'Mensajes de WhatsApp',resenas:'Reseñas',colores:'Colores',estilo:'Estilo',ayuda:'Ayuda al cliente',cupones:'Códigos promocionales',cat:'Categorías',tienda:'Tienda y avisos',pub:'Publicar'};
 function menu(v){ $('menuBg').classList.toggle('open',!!v); }
 function irTab(t){
   document.querySelectorAll('#menu button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
@@ -1528,7 +1615,7 @@ document.querySelectorAll('#menu button[data-t]').forEach(b=>b.addEventListener(
 $('q').addEventListener('input',e=>{ buscar=e.target.value; visibles=30; lista(); });
 $('fc').addEventListener('change',e=>{ filtroCat=e.target.value; visibles=30; lista(); });
 
-function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); renderDest(); renderInv(); renderInfo(); renderRes(); renderAyuda(); renderCup(); renderColores(); resumen(); pintarPrev(); renderInicio(); }
+function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); renderDest(); renderInv(); renderInfo(); renderRes(); renderAyuda(); renderCup(); renderColores(); renderEstilo(); resumen(); pintarPrev(); renderInicio(); }
 (async function(){
   pill('Cargando…','warn');
   try{ await cargarPublicado(); }catch(e){ pill('No se pudo leer la tienda','bad'); $('list').innerHTML='<p class="small">No pude leer productos.js. Abre este panel desde tu página publicada (no como archivo suelto).</p>'; return; }
