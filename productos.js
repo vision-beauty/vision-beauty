@@ -194,5 +194,13 @@ const PRODUCTOS = [
 {"id":190,"n":"Collares tejidos 14","c":"Collares tejidos","p":30000,"i":"img/b26_01.jpg","d":"Collar hecho a mano con detalles de colores, perfecto para completar tu outfit."},
 {"id":191,"n":"Collares tejidos 15","c":"Collares tejidos","p":30000,"i":"img/b26_02.jpg","d":"Collar hecho a mano con detalles de colores, perfecto para completar tu outfit."},
 {"id":192,"n":"Collares tejidos 16","c":"Collares tejidos","p":40000,"i":"img/b26_03.jpg","d":"Collar hecho a mano con detalles de colores, perfecto para completar tu outfit."},
-{"id":193,"n":"Collares tejidos 17","c":"Collares tejidos","p":25000,"i":"img/b26_04.jpg","d":"Collar hecho a mano con detalles de colores, perfecto para completar tu outfit."}
+{"id":193,"n":"Collares tejidos 17","c":"Collares tejidos","p":25000,"i":"img/b26_04.jpg","d":"Collar hecho a mano con detalles de colores, perfecto para completar tu outfit."},
+{"id":194,"n":"Aretes mariposa 01","c":"Aretes tejidos","p":45000,"i":"img/c03_01.jpg","d":"Aretes mariposa tejidos a mano. Escoge tu favorito entre varios colores."},
+{"id":195,"n":"Aretes mariposa 02","c":"Aretes tejidos","p":45000,"i":"img/c03_02.jpg","d":"Aretes mariposa tejidos a mano. Escoge tu favorito entre varios colores."},
+{"id":196,"n":"Aretes mariposa 03","c":"Aretes tejidos","p":45000,"i":"img/c03_03.jpg","d":"Aretes mariposa tejidos a mano. Escoge tu favorito entre varios colores."},
+{"id":197,"n":"Aretes mariposa 04","c":"Aretes tejidos","p":45000,"i":"img/c03_04.jpg","d":"Aretes mariposa tejidos a mano. Escoge tu favorito entre varios colores."},
+{"id":198,"n":"Aretes pequeños 01","c":"Aretes tejidos","p":25000,"i":"img/c04_01.jpg","d":"Aretes pequeños para todos los días. Hay varios modelos para escoger."},
+{"id":199,"n":"Aretes pequeños 02","c":"Aretes tejidos","p":25000,"i":"img/c04_02.jpg","d":"Aretes pequeños para todos los días. Hay varios modelos para escoger."},
+{"id":200,"n":"Aretes pequeños 03","c":"Aretes tejidos","p":10000,"i":"img/c04_03.jpg","d":"Aretes pequeños para todos los días. Hay varios modelos para escoger."},
+{"id":201,"n":"Aretes pequeños 04","c":"Aretes tejidos","p":15000,"i":"img/c04_04.jpg","d":"Aretes pequeños para todos los días. Hay varios modelos para escoger."}
 ];
