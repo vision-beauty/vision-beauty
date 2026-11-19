@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; frame-src about: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="vb-v" content="30">
+<meta name="vb-v" content="31">
 <title>Panel privado · Vision Beauty</title>
 <style>
 :root{--cream:#faf5ee;--sand:#efe3d4;--ink:#4a3428;--mut:#9a8676;--gold:#b08d57;--gold2:#8f6d3a;--line:#e5d8c7;--ok:#1f8a4c;--bad:#b3402e}
@@ -188,6 +188,7 @@ body.owner #rf_cfg{display:none!important}
   <button data-t="ayuda">🙋 Ayuda al cliente</button>
   <button data-t="cupones">🎟️ Códigos promocionales</button>
   <button data-t="cat">🗂️ Categorías</button>
+  <button data-t="promo">🏷️ Promoción</button>
   <button data-t="estilo">✨ Estilo</button>
   <button data-t="colores">🎨 Colores</button>
   <button data-t="tienda">🏪 Tienda y avisos</button>
@@ -347,6 +348,23 @@ body.owner #rf_cfg{display:none!important}
         </div>
         <div class="card"><h2 id="c_cnt">Códigos</h2><div id="c_list"></div>
           <button class="btn gold" style="width:100%;margin-top:6px" onclick="cAdd()">+ Crear código</button></div>
+      </section>
+
+      <!-- PROMOCIÓN -->
+      <section class="pane" id="p_promo">
+        <div class="card"><h2>Promoción por valor de compra</h2>
+          <p class="small">Un descuento que se aplica solo cuando la compra llega a cierto valor. Por ejemplo: desde $150.000, $15.000 de descuento. La clienta lo ve en la bolsa con una barra que dice cuánto le falta.</p>
+          <div class="sw"><input type="checkbox" id="pm_on" onchange="pmSet('activo',this.checked)"><label for="pm_on"><b>Activar la promoción</b></label></div>
+          <div class="sw" style="margin-top:8px"><input type="checkbox" id="pm_barra" onchange="pmSet('barra',this.checked)"><label for="pm_barra">Mostrar en la bolsa cuánto le falta</label></div>
+          <div class="sw" style="margin-top:8px"><input type="checkbox" id="pm_aviso" onchange="pmSet('aviso',this.checked)"><label for="pm_aviso">Avisarlo en la franja de arriba de la tienda (si no hay otro anuncio puesto)</label></div>
+          <div class="sw" style="margin-top:8px"><input type="checkbox" id="pm_suma" onchange="pmSet('suma',this.checked)"><label for="pm_suma">Se puede sumar con un código promocional</label></div>
+          <p class="small" style="margin-top:6px">Si no está marcada la última, cuando la clienta tenga las dos cosas, se aplica solo la que más le descuenta.</p>
+        </div>
+        <div class="card"><h2 id="pm_cnt">Niveles</h2>
+          <p class="small">Puedes poner varios. Por ejemplo: desde $100.000 envío gratis, y desde $200.000 $30.000 de descuento. Se aplica el más alto que alcance.</p>
+          <div id="pm_list"></div>
+          <button class="btn gold" style="width:100%;margin-top:6px" onclick="pmAdd()">+ Agregar nivel</button></div>
+        <div class="card"><h2>Así se ve</h2><div id="pm_prev" class="small"></div></div>
       </section>
 
       <!-- ESTILO -->
@@ -616,7 +634,8 @@ function normNuevos(aj,src){ src=src||{};
   aj.ayuda=Object.assign(defAyuda(),src.ayuda||{}); if(!Array.isArray(aj.ayuda.opciones)) aj.ayuda.opciones=defAyuda().opciones;
   aj.cupones=Object.assign(defCup(),src.cupones||{}); if(!Array.isArray(aj.cupones.items)) aj.cupones.items=[];
   aj.analitica=Object.assign({ga:''},src.analitica||{});
-  aj.colores=(src.colores&&typeof src.colores==='object'&&!Array.isArray(src.colores))?Object.assign({},src.colores):{}; aj.estilo=Object.assign({},ES_DEF,(src.estilo&&typeof src.estilo==='object')?src.estilo:{});
+  aj.colores=(src.colores&&typeof src.colores==='object'&&!Array.isArray(src.colores))?Object.assign({},src.colores):{}; aj.promo=Object.assign({},PM_DEF,(src.promo&&typeof src.promo==='object')?src.promo:{}); if(!Array.isArray(aj.promo.items)) aj.promo.items=[];
+  aj.estilo=Object.assign({},ES_DEF,(src.estilo&&typeof src.estilo==='object')?src.estilo:{});
   aj.banner=Object.assign({},BN_DEF,(src.banner&&typeof src.banner==='object')?src.banner:{}); return aj; }
 const defAj = () => normNuevos({splash:{activo:false,titulo:'Vision Beauty',sub:'Siempre linda',seg:2.4},anuncio:{activo:false,texto:''},destacados:defDest(),inventario:{umbral:3},info:defInfoAj(),mensajes:defMsg()});
 
@@ -940,7 +959,7 @@ function cargarAjustes(){
 function leerAjustes(){
   const lg0=S.tienda.logo; S.tienda={nombre:$('t_nombre').value.trim(),whatsapp:$('t_wa').value.replace(/\D/g,''),instagram:$('t_ig').value.replace(/^@/,'').trim(),facebook:$('t_fb').value.trim(),tiktok:$('t_tt').value.trim()}; if(lg0) S.tienda.logo=lg0;
   const seg=parseFloat(String($('s_seg').value).replace(',','.'));
-  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()},destacados:S.ajustes.destacados||defDest(),inventario:S.ajustes.inventario||{umbral:3},info:S.ajustes.info||defInfoAj(),mensajes:S.ajustes.mensajes||defMsg(),resenas:S.ajustes.resenas||defRes(),ayuda:S.ajustes.ayuda||defAyuda(),cupones:S.ajustes.cupones||defCup(),analitica:{ga:$('ga_id').value.trim()},colores:S.ajustes.colores||{},estilo:S.ajustes.estilo||Object.assign({},ES_DEF),banner:S.ajustes.banner||Object.assign({},BN_DEF)};
+  S.ajustes={splash:{activo:$('s_on').checked,titulo:$('s_t').value.trim(),sub:$('s_s').value.trim(),seg:(seg>0&&seg<20)?seg:2.4},anuncio:{activo:$('a_on').checked,texto:$('a_t').value.trim()},destacados:S.ajustes.destacados||defDest(),inventario:S.ajustes.inventario||{umbral:3},info:S.ajustes.info||defInfoAj(),mensajes:S.ajustes.mensajes||defMsg(),resenas:S.ajustes.resenas||defRes(),ayuda:S.ajustes.ayuda||defAyuda(),cupones:S.ajustes.cupones||defCup(),analitica:{ga:$('ga_id').value.trim()},colores:S.ajustes.colores||{},estilo:S.ajustes.estilo||Object.assign({},ES_DEF),banner:S.ajustes.banner||Object.assign({},BN_DEF),promo:S.ajustes.promo||Object.assign({},PM_DEF,{items:[]})};
   cambio();
 }
 ['ga_id','t_nombre','t_wa','t_ig','t_fb','t_tt','s_on','s_t','s_s','s_seg','a_on','a_t'].forEach(id=>$(id).addEventListener(id==='s_on'||id==='a_on'?'change':'input',leerAjustes));
@@ -1087,6 +1106,30 @@ $('lg_file').addEventListener('change',e=>{
 
 /* ---------- reseñas ---------- */
 const RES=()=>S.ajustes.resenas;
+
+/* ---------- promoción por compra ---------- */
+const PM_DEF={activo:false,barra:true,aviso:true,suma:false,items:[{desde:150000,tipo:'monto',v:15000}]};
+const PMA=()=>{ if(!S.ajustes.promo||typeof S.ajustes.promo!=='object') S.ajustes.promo=JSON.parse(JSON.stringify(PM_DEF)); if(!Array.isArray(S.ajustes.promo.items)) S.ajustes.promo.items=[]; return S.ajustes.promo; };
+const pmFmt=n=>'$'+Number(n||0).toLocaleString('es-CO');
+function pmSet(k,v){ PMA()[k]=v; pmPrev(); cambio(); }
+function pmItem(i,k,v){ const x=PMA().items[i]; if(k==='tipo'){ x.tipo=v; if(v==='pct'&&x.v>100) x.v=10; renderPromo(); cambio(); return; } const n=parseInt(String(v).replace(/\D/g,''),10); if(n>0) x[k]=(k==='v'&&x.tipo==='pct')?Math.min(100,n):n; else delete x[k]; pmPrev(); cambio(); }
+function pmAdd(){ const a=PMA().items, last=a.length?a[a.length-1].desde||0:0; a.push({desde:last?last+50000:150000,tipo:'monto',v:15000}); renderPromo(); cambio(); }
+function pmQuitar(i){ PMA().items.splice(i,1); renderPromo(); cambio(); }
+function pmTxt(x){ return x.tipo==='envio'?'envío gratis':x.tipo==='pct'?(x.v||0)+'% de descuento':pmFmt(x.v)+' de descuento'; }
+function renderPromo(){
+  if(!S||!$('pm_list')) return; const P=PMA();
+  $('pm_on').checked=!!P.activo; $('pm_barra').checked=P.barra!==false; $('pm_aviso').checked=P.aviso!==false; $('pm_suma').checked=!!P.suma;
+  $('pm_cnt').textContent='Niveles ('+P.items.length+')';
+  $('pm_list').innerHTML=P.items.map((x,i)=>`<div class="mini"><div class="row2"><div><label class="l">Cuando la compra llegue a ($)</label><input inputmode="numeric" value="${x.desde||''}" placeholder="150000" oninput="pmItem(${i},'desde',this.value)"></div>
+    <div><label class="l">La clienta recibe</label><select onchange="pmItem(${i},'tipo',this.value)"><option value="monto" ${x.tipo==='monto'||!x.tipo?'selected':''}>Descuento en pesos</option><option value="pct" ${x.tipo==='pct'?'selected':''}>Descuento en %</option><option value="envio" ${x.tipo==='envio'?'selected':''}>Envío gratis</option></select></div></div>
+    ${x.tipo==='envio'?'':`<label class="l">${x.tipo==='pct'?'Porcentaje de descuento':'Valor del descuento ($)'}</label><input inputmode="numeric" value="${x.v||''}" oninput="pmItem(${i},'v',this.value)">`}
+    <button class="btn sm bad" style="margin-top:8px" onclick="pmQuitar(${i})">Borrar nivel</button></div>`).join('')||'<p class="small">Todavía no hay niveles. Agrega el primero.</p>';
+  pmPrev();
+}
+function pmPrev(){
+  if(!$('pm_prev')) return; const P=PMA(), a=P.items.filter(x=>x.desde>0&&(x.tipo==='envio'||x.v>0)).sort((x,y)=>x.desde-y.desde);
+  $('pm_prev').innerHTML=a.length?(P.activo?'':'<div style="color:#a32d2d;margin-bottom:6px">⚠ Está apagada: la clienta no la ve todavía.</div>')+a.map(x=>'🎁 Compras desde <b>'+pmFmt(x.desde)+'</b>: '+pmTxt(x)).join('<br>')+'<br><br>En la bolsa: <i>"Te faltan <b>'+pmFmt(a[0].desde-40000>0?40000:a[0].desde)+'</b> para '+pmTxt(a[0])+'"</i>':'Agrega un nivel para ver cómo queda.';
+}
 
 /* ---------- estilo ---------- */
 const ES_DEF={aros:true,destellos:true,script:true,sep:true,marco:true,zoom:true,foto2:true,radio:'suave',formato:'vertical',oscuro:false};
@@ -1596,7 +1639,7 @@ function verSplash(){ forzar=true; if(window.innerWidth<1000) irTab('vista'); se
 function cerrar(id){ $(id).classList.remove('open'); }
 function pregunta(t,m,fn){ $('askT').textContent=t; $('askM').textContent=m; $('askOk').onclick=()=>{ cerrar('mAsk'); fn(); }; $('mAsk').classList.add('open'); }
 function resetTodo(){ pregunta('¿Descartar todos los cambios?','Vuelves a lo que está publicado en la tienda ahora mismo.',()=>{ S=clone(BASE); asegurarCats(); borrarBorrador(); todoRender(); cambio(); }); }
-const NOMBRES={inicio:'Inicio',prod:'Productos',vista:'Vista previa',dest:'Destacados',inv:'Inventario',info:'Franja de información',redes:'Redes y contacto',msg:'Mensajes de WhatsApp',resenas:'Reseñas',colores:'Colores',estilo:'Estilo',ayuda:'Ayuda al cliente',cupones:'Códigos promocionales',cat:'Categorías',tienda:'Tienda y avisos',pub:'Publicar'};
+const NOMBRES={inicio:'Inicio',prod:'Productos',vista:'Vista previa',dest:'Destacados',inv:'Inventario',info:'Franja de información',redes:'Redes y contacto',msg:'Mensajes de WhatsApp',resenas:'Reseñas',colores:'Colores',estilo:'Estilo',promo:'Promoción por compra',ayuda:'Ayuda al cliente',cupones:'Códigos promocionales',cat:'Categorías',tienda:'Tienda y avisos',pub:'Publicar'};
 function menu(v){ $('menuBg').classList.toggle('open',!!v); }
 function irTab(t){
   document.querySelectorAll('#menu button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
@@ -1615,7 +1658,7 @@ document.querySelectorAll('#menu button[data-t]').forEach(b=>b.addEventListener(
 $('q').addEventListener('input',e=>{ buscar=e.target.value; visibles=30; lista(); });
 $('fc').addEventListener('change',e=>{ filtroCat=e.target.value; visibles=30; lista(); });
 
-function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); renderDest(); renderInv(); renderInfo(); renderRes(); renderAyuda(); renderCup(); renderColores(); renderEstilo(); resumen(); pintarPrev(); renderInicio(); }
+function todoRender(){ if(!S) return; cargarAjustes(); llenarCats(); renderCats(); lista(); renderDest(); renderInv(); renderInfo(); renderRes(); renderAyuda(); renderCup(); renderColores(); renderEstilo(); renderPromo(); resumen(); pintarPrev(); renderInicio(); }
 (async function(){
   pill('Cargando…','warn');
   try{ await cargarPublicado(); }catch(e){ pill('No se pudo leer la tienda','bad'); $('list').innerHTML='<p class="small">No pude leer productos.js. Abre este panel desde tu página publicada (no como archivo suelto).</p>'; return; }
