@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="vb-v" content="44">
+<meta name="vb-v" content="45">
 <title>Vision Beauty · Siempre linda</title>
 <link rel="icon" type="image/png" href="img/icon-192.png">
 <link rel="apple-touch-icon" href="img/icon-192.png">
@@ -312,6 +312,7 @@ footer{background:var(--cream);border-top:1px solid var(--line);padding:46px 20p
 #zm.z2 img{max-width:none;max-height:none;width:max(250vw,900px);cursor:zoom-out}
 #zm button{position:fixed;top:12px;right:14px;z-index:2;width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.92);font-size:1.6rem;line-height:1;cursor:pointer}
 .mbox .big{position:relative}.t-gar .mbox .big::before,.t-gar .mbox .big::after{content:"";position:absolute;top:0;width:40%;aspect-ratio:1.25/1;pointer-events:none;z-index:3;background:no-repeat top/contain}.t-gar .mbox .big::before{left:0;background-image:var(--garl);background-position:left top}.t-gar .mbox .big::after{right:0;background-image:var(--garr);background-position:right top}
+.gh{display:none}.t-gar .gh{display:block;pointer-events:none;background:var(--ghv) no-repeat center/contain;aspect-ratio:506/130;width:min(92%,460px);margin:0 auto}.t-gar #bnr{position:relative;padding-top:70px}.t-gar #bnr .gh{position:absolute;left:50%;top:-34px;transform:translateX(-50%);z-index:3}.t-gar #catalogo .gh{margin:-4px auto 6px}
 .gar{display:none}.t-gar .gar{display:block;position:absolute;left:0;top:0;width:100%;aspect-ratio:var(--gar-ar,200/120);background:var(--gar) no-repeat 0 0/100% 100%;pointer-events:none;z-index:4}
 #fx{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:5}.orn span{position:absolute;transform:translate(-50%,-50%);line-height:1;pointer-events:none}#fx span{position:absolute;top:-8%;opacity:.7;animation:fxf linear infinite}@keyframes fxf{0%{transform:translate(0,-6vh) rotate(0)}50%{transform:translate(18px,52vh) rotate(160deg)}100%{transform:translate(-12px,108vh) rotate(320deg)}}
 #bnr{display:none;padding:34px 22px;text-align:center}
@@ -359,7 +360,7 @@ footer{background:var(--cream);border-top:1px solid var(--line);padding:46px 20p
   <a class="cta" href="#catalogo">Ver colección</a>
 </section>
 
-<section id="bnr" aria-label="Aviso de temporada"><div class="bt" id="bnT"></div><div class="bs" id="bnS"></div><a class="bb" id="bnB" style="display:none"></a></section>
+<section id="bnr" aria-label="Aviso de temporada"><i class="gh"></i><div class="bt" id="bnT"></div><div class="bs" id="bnS"></div><a class="bb" id="bnB" style="display:none"></a></section>
 
 <section class="dest" id="destacados" style="display:none" aria-label="Productos destacados">
   <h2 id="dTit">Destacados</h2>
@@ -371,7 +372,7 @@ footer{background:var(--cream);border-top:1px solid var(--line);padding:46px 20p
 <div class="perks" id="perks"></div>
 
 <section class="sec" id="catalogo">
-  <h2>Nuestra colección</h2>
+  <i class="gh"></i><h2>Nuestra colección</h2>
   <div class="line"></div>
   <div class="tools"><input id="busq" type="search" placeholder="Buscar un producto…" aria-label="Buscar"><select id="selRango" aria-label="Filtrar por precio"></select><select id="selOrden" aria-label="Ordenar"><option value="">Orden: recomendado</option><option value="asc">Precio: menor a mayor</option><option value="desc">Precio: mayor a menor</option></select></div>
   <div class="filters" id="filters"></div>
@@ -503,7 +504,7 @@ const $ = id => document.getElementById(id);
 /* anuncio superior */
 if(AJ.anuncio && AJ.anuncio.activo && AJ.anuncio.texto){ $("ann").textContent = AJ.anuncio.texto; $("ann").style.display = "block"; }
 else if(PRT.length && PR.aviso!==false){ $("ann").textContent = "🎁 "+PRT.map(t=>"Compras desde "+fmt(t.d)+": "+promoTxt(t)).join("  ·  "); $("ann").style.display = "block"; }
-function vbGar(tema){ if(window.__vbg===tema) return; window.__vbg=tema; const im=new Image(); im.onload=()=>{ const r=document.documentElement.style; r.setProperty("--gar",'url("img/gar_'+tema+'.png")'); r.setProperty("--gar-ar",im.naturalWidth+"/"+im.naturalHeight); r.setProperty("--garl",'url("img/gar_'+tema+'_l.png")'); r.setProperty("--garr",'url("img/gar_'+tema+'_r.png")'); document.body.classList.add("t-gar"); }; im.src="img/gar_"+tema+".png"; }
+function vbGar(tema){ if(window.__vbg===tema) return; window.__vbg=tema; const im=new Image(); im.onload=()=>{ const r=document.documentElement.style; r.setProperty("--gar",'url("img/gar_'+tema+'.png")'); r.setProperty("--gar-ar",im.naturalWidth+"/"+im.naturalHeight); r.setProperty("--ghv",'url("img/gar_'+tema+'_h.png")'); r.setProperty("--garl",'url("img/gar_'+tema+'_l.png")'); r.setProperty("--garr",'url("img/gar_'+tema+'_r.png")'); document.body.classList.add("t-gar"); }; im.src="img/gar_"+tema+".png"; }
 /* splash de entrada */
 (function(){
   const s = AJ.splash; if(!s || !s.activo) return;
